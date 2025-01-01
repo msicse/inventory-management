@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    
+
+    protected $fillable = ["model"];
+
     public function type(){
         return $this->belongsTo('App\Models\Producttype','producttype_id');
     }

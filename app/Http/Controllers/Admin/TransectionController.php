@@ -27,18 +27,18 @@ class TransectionController extends Controller
         $types = Producttype::all();
         $employees = Employee::all();
         // return $types;
-        return view('backend.admin.transection.create')->with(compact('employees','types'));
+        return view('backend.admin.transection.create')->with(compact('employees', 'types'));
     }
 
     public function store(Request $request)
     {
         $this->validate($request, array(
-            'product_type'      => 'required|integer',
-            'product'           => 'required|integer',
-            'employee'          => 'required|integer',
-            'quantity'          => 'required|integer',
-            'date_of_issue'     => 'required',
-            
+            'product_type' => 'required|integer',
+            'product' => 'required|integer',
+            'employee' => 'required|integer',
+            'quantity' => 'required|integer',
+            'date_of_issue' => 'required',
+
         ));
 
         $is_approved = 0;
@@ -46,35 +46,35 @@ class TransectionController extends Controller
         $type = Producttype::find($request->product_type);
         $stock = Stock::find($request->product);
 
-        if($type->slug == 'software'){
+        if ($type->slug == 'software') {
 
             $remain = $stock->quantity - $stock->assigned;
 
-            if( $remain >=  $request->quantity ){
+            if ($remain >= $request->quantity) {
                 $is_approved = 1;
                 $stock->assigned = $stock->assigned + $request->quantity;
-            }else {
+            } else {
                 $is_approved = 0;
             }
-        }else {
+        } else {
             $is_approved = 1;
         }
 
-        if($is_approved == 1){
+        if ($is_approved == 1) {
 
             $transection = new Transection();
-            $transection->stock_id          = $stock->id;
-            $transection->employee_id       = $request->employee;
-            $transection->quantity          = $request->quantity;
-            $transection->issued_date       = $request->date_of_issue;
+            $transection->stock_id = $stock->id;
+            $transection->employee_id = $request->employee;
+            $transection->quantity = $request->quantity;
+            $transection->issued_date = $request->date_of_issue;
 
             // $transection->mouse          = $request->mouse;
             // $transection->pendrive       = $request->pendrive;
             // $transection->bag            = $request->laptop_bag;
 
-            $transection->comment           = $request->comment;
+            $transection->comment = $request->comment;
             $transection->save();
-            
+
             $stock->is_assigned = 1;
             $stock->save();
 
@@ -83,9 +83,9 @@ class TransectionController extends Controller
             // }else {
             //     Stock::where('id',$request->product)->update(['is_assigned'=> 1]);
             // }
-            
-            
-            if( $request->print_ack == 1 ){
+
+
+            if ($request->print_ack == 1) {
                 Toastr::success(' Succesfully Saved ', 'Success');
                 return redirect()->route('transections.ack', $transection->id);
             }
@@ -93,20 +93,20 @@ class TransectionController extends Controller
             Toastr::success(' Succesfully Saved ', 'Success');
             return redirect()->route('transections.index');
 
-        }else {
+        } else {
             Toastr::error('No license is available for assign', 'Error');
             return redirect()->back()->withInput();
         }
-        
+
     }
 
     public function update(Request $request, $id)
     {
         $this->validate($request, array(
-            'date_of_return'  => 'required',
+            'date_of_return' => 'required',
         ));
 
-       // return $request->all();
+        // return $request->all();
 
         // Transection::where('id',$id)->update(['return_date'=> ]);
 
@@ -115,22 +115,22 @@ class TransectionController extends Controller
         $transection->return_date = $request->date_of_return;
         $transection->save();
 
-        if( $transection->stock->producttype->slug ==  'software'){
+        if ($transection->stock->producttype->slug == 'software') {
             $stock_get = Stock::find($transection->stock_id);
             $stock_get->assigned = $stock_get->assigned - $transection->quantity;
             $stock_get->save();
-            if($stock_get->assigned == 0){
-                Stock::where('id',$transection->stock_id)->update(['is_assigned'=> 2]);
+            if ($stock_get->assigned == 0) {
+                Stock::where('id', $transection->stock_id)->update(['is_assigned' => 2]);
             }
-            
-        }else {
-            Stock::where('id',$transection->stock_id)->update(['is_assigned'=> 2]);
+
+        } else {
+            Stock::where('id', $transection->stock_id)->update(['is_assigned' => 2]);
         }
 
         Toastr::success(' Succesfully Updated ', 'Success');
         return redirect()->back();
 
-        
+
     }
 
     public function show($id)
@@ -150,20 +150,20 @@ class TransectionController extends Controller
             ->join('producttypes', 'producttypes.id', '=', 'stocks.producttype_id')
             //->join('orders', 'users.id', '=', 'orders.user_id')
             ->select('stocks.id', 'stocks.serial_no', 'stocks.service_tag', 'stocks.quantity', 'products.title', 'products.brand', 'products.model', 'producttypes.slug')
-            ->where('stocks.producttype_id', $id)
-            ->where('product_status', 1);
+            ->where('stocks.producttype_id', $id);
+        //->where('product_status', 1);
 
-            if($type->slug == 'software'){
-                $products->where('quantity', '>', 0);
-            }else{
-                $products->where('is_assigned',2);            
-            }
-            
-            // ->get();
+        if ($type->slug == 'software') {
+            $products->where('quantity', '>', 0);
+        } else {
+            $products->where('is_assigned', 2);
+        }
+
+        // ->get();
 
         return response()->json([
-            'products'=> $products->get(),
-            'type'=> $type->slug,
+            'products' => $products->get(),
+            'type' => $type->slug,
         ]);
 
     }
@@ -173,7 +173,7 @@ class TransectionController extends Controller
         $stock = Stock::find($id);
         return $stock;
     }
-    
+
     public function ack($id)
     {
         $transection = Transection::findOrFail($id);
@@ -181,12 +181,12 @@ class TransectionController extends Controller
         // $purchase = Purchase::findOrFail($id);
         $pdf = Pdf::loadView('backend.admin.pdf.ack', compact('transection'))->setPaper('a4');
 
-        return $pdf->stream('grn-'.$transection->date.'.pdf');
+        return $pdf->stream('grn-' . $transection->date . '.pdf');
 
 
     }
-    
-    
+
+
     public function multiAck(Request $request)
     {
 
@@ -199,11 +199,11 @@ class TransectionController extends Controller
         $pdf = Pdf::loadView('backend.admin.pdf.ac-multiple', compact('transections', 'employee', 'isdate'))->setPaper('a4');
         // return $pdf;
 
-        return $pdf->stream('ack-'.$employee->id.'.pdf');
+        return $pdf->stream('ack-' . $employee->id . '.pdf');
 
 
     }
-    
+
     public function return($id)
     {
         $transection = Transection::findOrFail($id);
@@ -211,7 +211,7 @@ class TransectionController extends Controller
         // $purchase = Purchase::findOrFail($id);
         $pdf = Pdf::loadView('backend.admin.pdf.return', compact('transection'))->setPaper('a4');
 
-        return $pdf->stream('return-'.$transection->employee->emply_id.'-'.$transection->return_date.'.pdf');
+        return $pdf->stream('return-' . $transection->employee->emply_id . '-' . $transection->return_date . '.pdf');
 
 
     }

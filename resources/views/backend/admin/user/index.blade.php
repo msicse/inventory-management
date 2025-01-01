@@ -6,7 +6,7 @@
     <!-- JQuery DataTable Css -->
     <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
-    
+
 @endpush
 @section('content')
     <div class="container-fluid">
@@ -69,10 +69,6 @@
                                             </td>
                                             <td>{{ $data->email }}</td>
                                             <td>
-                                                <a href="{{ route('users.show', $data->id) }}"
-                                                    class="btn btn-success waves-effect ">
-                                                    <i class="material-icons">visibility</i>
-                                                </a>
 
                                                 <a href="{{ route('users.edit', $data->id) }}"
                                                     class="btn btn-success waves-effect edit">

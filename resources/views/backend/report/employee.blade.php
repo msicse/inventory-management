@@ -16,17 +16,11 @@
 <div class="container-fluid">
     <div class="block-header">
         <h2>Reports</h2>
-        @if(Auth::user()->role_id == 1)
-        <a href="{{ route('admin.reports.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+        <a href="{{ route('reports.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
             <i class="material-icons">keyboard_return</i>
             <span>Return</span>
         </a>
-        @else
-        <a href="{{ route('author.reports.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">keyboard_return</i>
-            <span>Return</span>
-        </a>
-        @endif
+
     </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -34,7 +28,7 @@
                 <div class="header">
                     <h2>
                         Information of <strong>{{ $employee->name }}</strong>
-                        
+
                     </h2>
                 </div>
                 <div class="body table-responsive">
@@ -86,11 +80,11 @@
                 <div class="header">
                     <h2>
                         Transection History of <strong>{{ $employee->name }}</strong>
-                        
+
                     </h2>
                 </div>
                 <div class="body table-responsive">
-                    
+
                     <table class="table table-bordered">
                         <thead>
                             <tr>

@@ -26,7 +26,7 @@
                     <i class="material-icons">wc</i>
                 </div>
                 <div class="content">
-                    <div class="text">Total Employees</div>
+                    <div class="text">Active Employees</div>
                     <div class="number count-to" data-from="0" data-to="{{ $employees->count() }}" data-speed="15" data-fresh-interval="20"></div>
                 </div>
             </div>
@@ -37,8 +37,8 @@
                     <i class="material-icons">assessment</i>
                 </div>
                 <div class="content">
-                    <div class="text">Good Products</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $alaptops->count() }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Total Laptops</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $total_laptop }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -48,8 +48,8 @@
                     <i class="material-icons">library_books</i>
                 </div>
                 <div class="content">
-                    <div class="text">Product will Expire</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $expired_product->count() }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Total Mobiles</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $total_mobile }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -59,8 +59,8 @@
                     <i class="material-icons">assignment_late</i>
                 </div>
                 <div class="content">
-                    <div class="text">Damage Products</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $dlaptops->count() }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Total Products</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $total }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -84,8 +84,8 @@
                     <i class="material-icons">assessment</i>
                 </div>
                 <div class="content">
-                    <div class="text">Assigned Product</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $total_assigned}}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Assigned Laptop</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $assigned_laptop }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -95,8 +95,8 @@
                     <i class="material-icons">library_books</i>
                 </div>
                 <div class="content">
-                    <div class="text">In Stock</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $total_remain }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Assigned Mobiles</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $assigned_mobile }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -106,8 +106,8 @@
                     <i class="material-icons">assignment_late</i>
                 </div>
                 <div class="content">
-                    <div class="text">Total Products</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $total }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="text">Assigned Products</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $total_assigned }}" data-speed="1000" data-fresh-interval="20"></div>
                 </div>
             </div>
         </div>
@@ -133,7 +133,7 @@
                                 <th>Vendor</th>
                                 <th>Contact </th>
                                 <th>Action</th>
-                                
+
                             </tr>
                             </thead>
                             <tbody>
@@ -141,7 +141,7 @@
                                     @php
                                         $datework = Carbon\Carbon::now();
                                         $days = $datework->diffInDays($data->expired_date);
-                                        
+
                                         if($days > 60 && $days <= 90){
                                             $text = 'tinfo';
                                         }else if( $days > 30 &&  $days <= 60 ){
@@ -157,11 +157,11 @@
                                     <td>{{ $data->product->title }}</td>
                                     <td>{{ $data->purchase_date }}</td>
                                     <td>{{ $data->expired_date }}</td>
-                                    
+
                                     <td>{{ $days }} </td>
                                     <td>{{ $data->purchase->supplier->company }}</td>
                                     <td>{{ $data->purchase->supplier->phone }}</td>
-                                    
+
                                 </tr>
                                 @endif
                                 @endforeach

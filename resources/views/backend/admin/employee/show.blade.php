@@ -98,6 +98,7 @@
                                         <th>Product</th>
                                         <th>Product Model</th>
                                         <th>Product Status</th>
+                                        <th>Asset Tag</th>
                                         <th>Serial No</th>
                                         <th>Issue Date</th>
                                         <th>Return Date</th>
@@ -112,18 +113,11 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->stock->product->title }}</td>
                                             <td>{{ $data->stock->product->model }}</td>
-                                            <td>
-                                                @if ($data->stock->product_status == 1)
-                                                    <span class="text-success"> Active </span>
-                                                @elseif($data->stock->product_status == 2)
-                                                    <span class="text-warning"> Poor </span>
-                                                @else
-                                                    <span class="text-danger"> Damage </span>
-                                                @endif
-
+                                            <td class="{{ $data->stock->status->slug == 'active' ? 'text-success' : 'text-danger'  }}">
+                                                {{ $data->stock->status->name }}
                                             </td>
-                                            <td>{{ empty($data->stock->serial_no) ? '' : 'RSC-' . $data->stock->serial_no }}
-                                            </td>
+                                            <td>{{ $data->stock->asset_tag}}</td>
+                                            <td>{{ $data->stock->service_tag}}</td>
                                             <td>{{ $data->issued_date }}</td>
                                             <td>{{ $data->return_date }}</td>
                                             <td>{{ $data->quantity }}</td>

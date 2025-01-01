@@ -62,70 +62,111 @@
                 </a>
             </li>
             @endcan
+            @can("product-type-list")
             <li class="{{ Request::is('product-types') ? 'active' : '' }}">
                 <a href="{{ route('product-types.index') }}">
                     <i class="material-icons">view_sidebar</i>
                     <span>Product Type</span>
                 </a>
             </li>
+            @endcan
+            @can("")
             <li class="{{ Request::is('products*') ? 'active' : '' }}">
                 <a href="{{ route('products.index') }}">
                     <i class="material-icons">view_module</i>
                     <span>Products</span>
                 </a>
             </li>
+            @endcan
+            @can("")
+            <li class="{{ Request::is('stores*') ? 'active' : '' }}">
+                <a href="{{ route('stores.index') }}">
+                    <i class="material-icons">corporate_fare</i>
+                    <span>Stores</span>
+                </a>
+            </li>
+            @endcan
+            @can("")
+            <li class="{{ Request::is('statuses*') ? 'active' : '' }}">
+                <a href="{{ route('statuses.index') }}">
+                    <i class="material-icons">corporate_fare</i>
+                    <span>Status</span>
+                </a>
+            </li>
+            @endcan
+            @can("")
             <li class="{{ Request::is('suppliers*') ? 'active' : '' }}">
                 <a href="{{ route('suppliers.index') }}">
                     <i class="material-icons">nordic_walking</i>
                     <span>Suppliers</span>
                 </a>
             </li>
+            @endcan
+            @can("")
+            <li class="{{ Request::is('requisitions*') ? 'active' : '' }}">
+                <a href="{{ route('requisitions.index') }}">
+                    <i class="material-icons">nordic_walking</i>
+                    <span>Requisitions</span>
+                </a>
+            </li>
+            @endcan
+            @can("")
             <li class="{{ Request::is('purchases*') ? 'active' : '' }}">
                 <a href="{{ route('purchases.index') }}">
                     <i class="material-icons">add_shopping_cart</i>
-                    <span>Purchases</span>
+                    <span>Purchase (PO)</span>
                 </a>
             </li>
-
+            @endcan
+{{--
             <li class="{{ Request::is('purchased-products*') ? 'active' : '' }}">
                 <a href="{{ route('purchased.products') }}">
                     <i class="material-icons">add_shopping_cart</i>
                     <span>Purchased Products</span>
                 </a>
-            </li>
+            </li> --}}
 
+            @can("")
             <li class="{{ Request::is('departments*') ? 'active' : '' }}">
                 <a href="{{ route('departments.index') }}">
                     <i class="material-icons">corporate_fare</i>
                     <span>Departments</span>
                 </a>
             </li>
+            @endcan
+            @can("")
             <li class="{{ request()->is('employees*') ? 'active' : '' }}">
                 <a href="{{ route('employees.index') }}">
                     <i class="material-icons">wc</i>
                     <span>Employees</span>
                 </a>
             </li>
+            @endcan
+            @can("")
             <li class="{{ Request::is('inventories*') ? 'active' : '' }}">
                 <a href="{{ route('inventories.index') }}">
                     <i class="material-icons">store_mall_directory</i>
                     <span>Inventories</span>
                 </a>
             </li>
+            @endcan
+            @can("")
             <li class="{{ Request::is('transections*') ? 'active' : '' }}">
                 <a href="{{ route('transections.index') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Product Distribution</span>
                 </a>
             </li>
-
+            @endcan
+            @can("")
             <li class="{{ Request::is('onboarding*') ? 'active' : '' }}">
                 <a href="{{ route('onboardings') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Onboarding Acknowledgement</span>
                 </a>
             </li>
-
+            @endcan
+            @can("")
             <li class="{{ Request::is('management*') ? 'active' : '' }}">
                 <a href="javascript:void(0);" class="menu-toggle">
                     <i class="material-icons">widgets</i>
@@ -145,7 +186,7 @@
 
                 </ul>
             </li>
-
+            @endcan
 
             <li class="header">Reports</li>
 

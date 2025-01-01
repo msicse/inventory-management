@@ -71,7 +71,7 @@
                                     <td>{{ $data->total_price }} </td>
                                     <td>{{ $data->purchase_date }} </td>
                                     <th>{{ $data->is_stocked == 2 ? "No" : "Yes" }}</th>
-                                    
+
                                     <td>
                                         <a href="{{ route('purchases.show', $data->id ) }}" class="btn btn-info waves-effect " >
                                             <i class="material-icons">visibility</i>
@@ -94,26 +94,10 @@
                                         @endif
 
                                         @if($data->is_stocked == 2)
-                                        <button class="btn btn-success waves-effect" title="Add to Inventory" onclick="if(confirm('Are You sure to Add the Products to Inventory?')){
-                                            event.preventDefault();
-                                            document.getElementById('delete-form-{{ $data->id }}').submit();
-                                            } else {
-                                            event.preventDefault();
-                                            }">
-    
+                                        <a href="{{ route('purchases.show', $data->id ) }}" class="btn btn-info waves-effect " >
                                                 <i class="material-icons">add</i>
-                                            </button>
-    
-                                            <form id="delete-form-{{ $data->id }}" style="display: none;"
-                                                action="{{  route('purchases.inventory',$data->id) }}" method="post">
-                                                @csrf
-                                                
-                                        
-                                            </form>
-                                            @endif
-
-
-
+                                        </a>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -170,7 +154,7 @@
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
 
 
-    
+
 
     <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 

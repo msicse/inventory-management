@@ -15,21 +15,21 @@ class ProductController extends Controller
 {
     function __construct()
     {
-         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:product-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:product-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:product-delete', ['only' => ['destroy']]);
     }
 
     public function index()
     {
-         $types = Producttype::all();
-         $products = Product::all();
-         return view('backend.admin.products')->with(compact('products','types'));
+        $types = Producttype::all();
+        $products = Product::all();
+        return view('backend.admin.products')->with(compact('products', 'types'));
     }
     public function store(Request $request)
     {
-        $this->validate($request,array(
+        $this->validate($request, array(
             // 'title' => 'required|max:255',
             'brand' => 'required|max:255',
             'type' => 'required|numeric',
@@ -40,21 +40,20 @@ class ProductController extends Controller
             'description' => 'required',
         ));
 
-        $title = $request->brand ." ".$request->model." ".$request->type;
-
-        return $title;
+        $ptype = Producttype::find($request->type);
+        $title = $request->brand . " " . $request->model . " " . $ptype->name;
 
         $product = new Product();
-        $product->title             = $title;
-        $product->producttype_id    = $request->type;
-        $product->model             = $request->model;
-        $product->brand             = $request->brand;
-        $product->unit              = $request->unit;
-        $product->is_license        = $request->license ?? 2;
-        $product->is_serial         = $request->serial ?? 2;
-        $product->description       = $request->description;
+        $product->title = $title;
+        $product->producttype_id = $request->type;
+        $product->model = $request->model;
+        $product->brand = $request->brand;
+        $product->unit = $request->unit;
+        $product->is_license = $request->license ?? 2;
+        $product->is_serial = $request->serial ?? 2;
+        $product->description = $request->description;
         // $product->description       = $request->title." ". $request->brand." ". $request->model." ".$request->description;
-        $product->slug              = Str::slug($request->title);
+        $product->slug = Str::slug($request->title);
         $product->save();
 
         Toastr::success(' Succesfully Saved ', 'Success');
@@ -69,8 +68,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->validate($request,array(
-            'title' => 'required|max:255',
+        $this->validate($request, array(
             'brand' => 'required|max:255',
             'type' => 'required|numeric',
             'model' => 'required|max:255',
@@ -87,15 +85,19 @@ class ProductController extends Controller
             Toastr::error(' Update Restricted ', 'Error');
         } else {
             //$slug  = str_slug($request->name);
+
+            $ptype = Producttype::find($request->type);
+            $title = $request->brand . " " . $request->model . " " . $ptype->name;
+
             $product = Product::find($id);
-            $product->title             = $request->title;
-            $product->producttype_id    = $request->type;
-            $product->model             = $request->model;
-            $product->brand             = $request->brand;
-            $product->unit              = $request->unit;
-            $product->is_license        = $request->license ?? 2;
-            $product->is_serial         = $request->serial ?? 2;
-            $product->description       = $request->description;
+            $product->title = $title;
+            $product->producttype_id = $request->type;
+            $product->model = $request->model;
+            $product->brand = $request->brand;
+            $product->unit = $request->unit;
+            $product->is_license = $request->license ?? 2;
+            $product->is_serial = $request->serial ?? 2;
+            $product->description = $request->description;
             $product->save();
 
             Toastr::success(' Succesfully Updated ', 'Success');
@@ -108,7 +110,7 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        $products = PurchaseProduct::where('product_id', '=', $id )->exists();
+        $products = PurchaseProduct::where('product_id', '=', $id)->exists();
 
         if ($products) {
             Toastr::error(' Delete Restricted ', 'Error');
@@ -120,3 +122,4 @@ class ProductController extends Controller
         return redirect()->back();
     }
 }
+

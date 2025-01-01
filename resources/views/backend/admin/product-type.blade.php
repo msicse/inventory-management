@@ -51,11 +51,11 @@
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $data->name }}</td>
-                                    <td>{{ $data->products->count() }}</td>
+                                    <td>{{ $data->stocks->count() }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-success waves-effect " data-toggle="modal" data-target="#">
+                                        {{-- <button type="button" class="btn btn-success waves-effect " data-toggle="modal" data-target="#">
                                             <i class="material-icons">visibility</i>
-                                        </button>
+                                        </button> --}}
 
                                         <button type="button" class="btn btn-warning waves-effect edit" data-id="{{$data->id}}"  title="Edit Product Type" data-toggle="modal" data-target="#editModal">
                                             <i class="material-icons">create</i>

@@ -69,8 +69,9 @@
                                     <tr>
                                         <th>SL</th>
                                         <th>Product</th>
-                                        <th>Current Stock</th>
+                                        <th>Admin Return</th>
                                         <th>Assigned</th>
+                                        <th>Current Stock</th>
                                         <th>Total</th>
                                         <th>Action</th>
 
@@ -85,8 +86,10 @@
 
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->name }}</td>
-                                            <td>{{ $data->stocks->where("is_assigned", 2)->count() }}</td>
+                                            <td>{{ $data->stocks->where("store_id", 3)->count() }}</td>
                                             <td>{{ $data->stocks->where("is_assigned", 1)->count() }}</td>
+                                            <td>{{ $data->stocks->where("is_assigned", 2)->whereIn('store_id',[1,2])->count() }}</td>
+
                                             <td>{{ $data->stocks->count() }}</td>
                                             <td>
 

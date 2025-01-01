@@ -1,6 +1,6 @@
 @extends('layouts.backend.app')
 
-@section('title','Admin | Inventories')
+@section('title','Admin | Requisitions')
 
 @push('css')
 <!-- JQuery DataTable Css -->
@@ -25,35 +25,33 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    {{-- <div class="block-header">
-        <a href="{{ route('inventories.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+    <div class="block-header">
+        <a href="{{ route('requisitions.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
     <i class="material-icons">add</i>
-    <span>Add New Purchases</span>
+    <span>New Requisition </span>
     </a>
 
-</div> --}}
+</div>
 <!-- Exportable Table -->
 <div class="row clearfix">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="card">
             <div class="header">
                 <h2>
-                    Inventory
-                    <span class="badge ">{{ $inventories->count() }}</span>
+                    Inventories
+                    <span class="badge ">{{ $requisitions->count() }}</span>
                 </h2>
             </div>
 
             <div class="header">
-                <form action="{{ route("inventories.index") }}" method="GET" id="filerForm">
+                <form action="{{ route("requisitions.index") }}" method="GET" id="filerForm">
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group form-float">
 
                             <select name="type" id="type" class="form-control show-tick" data-live-search="true">
                                 <option value="">Product Type</option>
-                                @foreach( $types as $type )
-                                <option value="{{$type->id}}">{{ $type->name }}</option>
-                                @endforeach
+
 
                             </select>
                         </div>
@@ -63,9 +61,7 @@
 
                             <select name="status" id="status"  class="form-control show-tick" data-live-search="true">
                                 <option value="">Status</option>
-                                @foreach( $statuses as $status )
-                                <option value="{{$status->id}}">{{ $status->name }}</option>
-                                @endforeach
+
 
                             </select>
                         </div>
@@ -75,9 +71,7 @@
 
                             <select name="store" id="store"  class="form-control show-tick" data-live-search="true" >
                                 <option value="">Location</option>
-                                @foreach( $stores as $store )
-                                <option value="{{$store->id}}">{{ $store->name }}</option>
-                                @endforeach
+
                             </select>
                         </div>
                     </div>
@@ -96,7 +90,7 @@
                         <input type="submit" value="Search" class="btn btn-success">
                     </div>
                     <div class="col-md-1">
-                        <a href="{{ route('inventories.index') }}" class="btn btn-danger"> Clear </a>
+                        <a href="{{ route('requisitions.index') }}" class="btn btn-danger"> Clear </a>
                     </div>
                 </div>
                 </form>
@@ -106,69 +100,52 @@
                     <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>SL</th>
+                                <th>Type</th>
                                 <th>Product</th>
-                                <th>SN / IMEI</th>
-                                <th>Asset Tag</th>
-                                <th title="Product Status">Status</th>
+                                <th>Department</th>
                                 <th title="Quantity">Qty</th>
-                                <th>Supplier</th>
-                                <th>Purchase Date</th>
-                                <th>Location / User</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Justification</th>
+                                <th>Remarks</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr>
-                                <th>ID</th>
+                                <th>SL</th>
+                                <th>Type</th>
                                 <th>Product</th>
-                                <th>SN / IMEI</th>
-                                <th>Asset Tag</th>
-                                <th title="Product Status"> Status</th>
+                                <th>Department</th>
                                 <th title="Quantity">Qty</th>
-                                <th>Supplier</th>
-                                <th>Purchase Date</th>
-                                <th>Location / User</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Justification</th>
+                                <th>Remarks</th>
                                 <th>Action</th>
                             </tr>
                         </tfoot>
                         <tbody>
-                            @foreach( $inventories as $key => $data)
+                            @foreach( $requisitions as $key => $data)
 
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>{{ $data->product->title }}</td>
-                                <td>{{ $data->service_tag }} </td>
-                                <td>
-                                    @empty($data->asset_tag)
-                                    <input type="text" class="custom_width" name="asset_tag" value="{{ $data->asset_tag }}" id="service-{{ $data->id }}" required>
-                                    @else
-                                    {{ $data->asset_tag }}
-                                    @endempty
-
+                                <td>{{ $data->type->name }}</td>
+                                <td>{{ empty($data->product) ? "" : $data->product->title }}</td>
+                                <td>{{ $data->department->name }} </td>
+                                <td>{{ $data->quantity }} </td>
+                                <td class="{{ $data->status == 'accepted' ? 'text-success' : 'text-danger'  }}">
+                                    {{ $data->status }}
                                 </td>
-                                <td class="{{ $data->status->slug == 'active' ? 'text-success' : 'text-danger'  }}">
-                                    {{ $data->status->name }}
-                                </td>
+                                <td>{{ date('d-m-Y', strtotime($data->created_at)) }} </td>
+                                <td>{{ $data->description }} </td>
+                                <td>{{ $data->justification }} </td>
+                                <td>{{ $data->remarks }} </td>
                                 <td>
-                                    @if($data->producttype->slug == 'software')
-                                    {{ $data->quantity }},
-                                    Assigned - {{ $data->assigned }}
-                                    @endif
-                                </td>
-                                <td>{{ $data->purchase->supplier->company }}</td>
-                                <td>{{ date('d-m-Y', strtotime($data->purchase_date)) }} </td>
-
-                                <td>
-                                    @if($data->is_assigned == 1)
-                                    {{ $data->currentUser->count() > 0 ? $data->currentUser->first()->employee->name." - ". $data->currentUser->first()->employee->emply_id : "" }}
-                                    @else
-                                    {{ $data->store->name }}
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <a href=" {{ route('inventories.show', $data->id) }}" class="btn btn-info waves-effect ">
+                                    <a href=" {{ route('requisitions.show', $data->id) }}" class="btn btn-info waves-effect ">
                                         <i class="material-icons">visibility</i>
                                     </a>
 
@@ -207,9 +184,7 @@
 <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
 
-
 <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
-
 <script src="{{ asset('backend/select2/select2.min.js') }}"></script>
 
 <script>
@@ -222,42 +197,6 @@
         $('#store').select2();
 
     });
-
-    $("#resetForm").click(function(){
-        alert("ok");
-        $("#filerForm")[0].reset();
-    });
-
-
-
-    $(".updateInv").click(function() {
-        // toastr.success('Click Button');
-        var invId = $(this).data('inv-id');
-        var asset = $("#service-" + invId).val();
-        var url = location.origin + '/inventories/' + invId;
-
-        $.ajax({
-            url: url
-            , type: "POST"
-            , data: {
-                "_token": "{{ csrf_token() }}"
-                , asset_tag: asset,
-
-            }
-            , success: function(response) {
-
-                if (response['status'] == 200) {
-                    toastr.success(response['message']);
-                } else {
-                    toastr.error(response['message']);
-                }
-            }
-
-        });
-
-    });
-
-
 
 
 </script>

@@ -75,7 +75,7 @@
                                     <td>{{ $data->unit }}</td>
                                     <td>{{ $data->is_serial == 1 ? 'Yes' : 'No' }}</td>
                                     <td>{{ $data->is_license == 1 ? 'Yes' : 'No' }}</td>
-                                    <td>{{ $data->brand ." " . $data->model ." ". $data->description }}</td>
+                                    <td>{{ $data->description }}</td>
                                     <td>
                                         <button type="button" class="btn btn-success waves-effect edit" data-id="{{$data->id}}" data-toggle="modal" data-target="#editModal">
                                             <i class="material-icons">create</i>

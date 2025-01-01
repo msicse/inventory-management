@@ -146,7 +146,7 @@
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
 
 
-    
+
 
     <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 
@@ -154,7 +154,7 @@
 
 $( ".delete" ).click(function() {
     var data_id=$(this).data('delete-id');
-    var url=location.origin+'/admin/employees/status/'+data_id;
+    var url=location.origin+'/employees/status/'+data_id;
     $('.delete_form').attr('action',url);
 
 });

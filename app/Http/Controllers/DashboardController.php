@@ -13,28 +13,24 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        
-        $employees = Employee::all();
-        $alaptops = Stock::where('product_status', 1)->get();
-        $dlaptops = Stock::where('product_status', 3)->get();
-        $plaptops = Stock::where('product_status', 2)->get();
-        $total = Stock::count();
+
+        $employees = Employee::where('status', 1);
 
         $purchase = Purchase::select('*')
             ->whereMonth('purchase_date', Carbon::now()->month)
             ->count();
 
+        $total = Stock::count();
+        $total_laptop = Stock::where('producttype_id', 1)->count();
+        $total_mobile = Stock::where('producttype_id', 19)->count();
+
+
+        $assigned_laptop = Stock::where('producttype_id', 1)->where('is_assigned',1)->count();
+        $assigned_mobile = Stock::where('producttype_id', 19)->where('is_assigned',1)->count();
+
         $total_assigned = Stock::where('is_assigned', 1)->count();
-        $total_remain = Stock::where('is_assigned', 2)->count();
 
-        // return $purchase;
-        
-        
-        
-        // $expDate = Carbon::now();
-        // return $expDate;
-
-        // $data = Stock::whereDate('expired_date', '<',$expDate)->get(); 
+        //return $assigned_laptop;
 
 
         $expired_product = Stock::whereRaw('DATEDIFF(expired_date,current_date) < 90');
@@ -42,7 +38,7 @@ class DashboardController extends Controller
         // $data = DB::table('stocks')->whereRaw('extract(month from purchase_date) = ?', ['12'])->get();
         // return $expired_product;
 
-        return view('backend.admin.dashboard')->with(compact('employees', 'alaptops', 'dlaptops', 'expired_product', 'purchase', 'total_assigned', 'total_remain', 'total' ));
-    
+        return view('backend.admin.dashboard')->with(compact('employees', 'purchase', 'total', 'total_laptop', 'total_mobile', 'assigned_laptop', 'assigned_mobile', 'total_assigned', 'total', 'expired_product'));
+
     }
 }

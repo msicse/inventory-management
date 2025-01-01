@@ -29,7 +29,7 @@ class PurchaseController extends Controller
 
     function __construct()
     {
-        $this->middleware('permission:purchase-list|purchase-create|purchase-edit|purchase-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:purchase-list|purchase-create|purchase-edit|purchase-delete', ['only' => ['index', 'store', 'grn', 'purchasedProductShow', 'purchasedProducts', 'invoice', 'addInventory', 'typedProducts']]);
         $this->middleware('permission:purchase-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:purchase-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:purchase-delete', ['only' => ['destroy']]);
@@ -242,7 +242,8 @@ class PurchaseController extends Controller
 
                     $stock->service_tag = empty($new_serials) ? NULL : $new_serials[$x - 1];
                     $stock->serial_no = NULL; //$max_serial + $x;
-                    $stock->product_status = 1;
+                    $stock->status_id = 1;
+                    $stock->store_id = 1;
                     $stock->is_assigned = 2;
                     $stock->save();
                     $x++;
@@ -470,7 +471,6 @@ class PurchaseController extends Controller
     }
 
 
-
     public function grn($id)
     {
 
@@ -492,5 +492,96 @@ class PurchaseController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+
+
+
+
+
+
+
+
+
+    //Update serial
+    function updateAssetTag() {
+        $updates = [
+            'PF49XZNS' => ['asset_tag' => 'LP00511'],
+            'PF49XZF6' => ['asset_tag' => 'LP00527'],
+            'PF49P2T0' => ['asset_tag' => 'LP00525'],
+            'PF49PC0P' => ['asset_tag' => 'LP00533'],
+            'PF49X1R2' => ['asset_tag' => 'LP00501'],
+            'PF49XZE9' => ['asset_tag' => 'LP00539'],
+            'PF49DSCN' => ['asset_tag' => 'LP00548'],
+            'PF49WFYH' => ['asset_tag' => 'LP00529'],
+            'PF49X3VB' => ['asset_tag' => 'LP00528'],
+            'PF49X1Q7' => ['asset_tag' => 'LP00514'],
+            'PF49PAD0' => ['asset_tag' => 'LP00518'],
+            'PF49DSBS' => ['asset_tag' => 'LP00507'],
+            'PF49P6QS' => ['asset_tag' => 'LP00524'],
+            'PF49XQCR' => ['asset_tag' => 'LP00513'],
+            'PF49WZPQ' => ['asset_tag' => 'LP00516'],
+            'PF49DVK9' => ['asset_tag' => 'LP00520'],
+            'PF49XZ3T' => ['asset_tag' => 'LP00509'],
+            'PF49DSAS' => ['asset_tag' => 'LP00523'],
+            'PF49XNBZ' => ['asset_tag' => 'LP00531'],
+            'PF49WFFJ' => ['asset_tag' => 'LP00512'],
+            'PF49PADF' => ['asset_tag' => 'LP00519'],
+            'PF49D22K' => ['asset_tag' => 'LP00534'],
+            'PF49DSDP' => ['asset_tag' => 'LP00543'],
+            'PF49XZQR' => ['asset_tag' => 'LP00505'],
+            'PF49P4TJ' => ['asset_tag' => 'LP00536'],
+            'PF49Y1N2' => ['asset_tag' => 'LP00526'],
+            'PF49XQBV' => ['asset_tag' => 'LP00538'],
+            'PF49X3TJ' => ['asset_tag' => 'LP00508'],
+            'PF49P2TG' => ['asset_tag' => 'LP00549'],
+            'PF49P4PT' => ['asset_tag' => 'LP00510'],
+            'PF49PABA' => ['asset_tag' => 'LP00550'],
+            'PF49XQC7' => ['asset_tag' => 'LP00521'],
+            'PF49XZMW' => ['asset_tag' => 'LP00545'],
+            'PF49DSE0' => ['asset_tag' => 'LP00541'],
+            'PF49X1SB' => ['asset_tag' => 'LP00530'],
+            'PF49Y1FC' => ['asset_tag' => 'LP00504'],
+            'PF49XQ9H' => ['asset_tag' => 'LP00544'],
+            'PF49PAET' => ['asset_tag' => 'LP00515'],
+            'PF49XQ95' => ['asset_tag' => 'LP00537'],
+            'PF49D213' => ['asset_tag' => 'LP00457'],
+            'PF49DVKS' => ['asset_tag' => 'LP00546'],
+            'PF49D225' => ['asset_tag' => 'LP00506'],
+            'PF49DSEK' => ['asset_tag' => 'LP00542'],
+            'PF49XQAS' => ['asset_tag' => 'LP00502'],
+            'PF49XZ5H' => ['asset_tag' => 'LP00535'],
+            'PF49XZ60' => ['asset_tag' => 'LP00503'],
+            'PF49X3R7' => ['asset_tag' => 'LP00532'],
+            'PF49XZ3B' => ['asset_tag' => 'LP00517'],
+            'PF49D21J' => ['asset_tag' => 'LP00540'],
+            'PF49XNCL' => ['asset_tag' => 'LP00522'],
+            '5CD411H93R' => ['asset_tag' => 'LP00551'],
+            '5CD411H93F' => ['asset_tag' => 'LP00552'],
+            '5CD411H926' => ['asset_tag' => 'LP00553'],
+            '5CD411H95Q' => ['asset_tag' => 'LP00554'],
+            '5CD411H95B' => ['asset_tag' => 'LP00555'],
+            '5CD411H9DK' => ['asset_tag' => 'LP00556'],
+            '5CD411H9FH' => ['asset_tag' => 'LP00557'],
+            '5CD411H9FL' => ['asset_tag' => 'LP00558'],
+            '5CD411H9G0' => ['asset_tag' => 'LP00560'],
+            '5CD411H9FY' => ['asset_tag' => 'LP00559'],
+            '5CD411H9CH' => ['asset_tag' => 'LP00661'],
+            '5CD411H950' => ['asset_tag' => 'LP00662'],
+            '5CD411H9F1' => ['asset_tag' => 'LP00663'],
+            '5CD411H9F4' => ['asset_tag' => 'LP00664'],
+            '5CD411H9C1' => ['asset_tag' => 'LP00665'],
+            '5CD411H9DD' => ['asset_tag' => 'LP00666'],
+            '5CD410BQGL' => ['asset_tag' => 'LP00667'],
+            '5CD411H989' => ['asset_tag' => 'LP00668'],
+            '5CD411H9B5' => ['asset_tag' => 'LP00669']
+        ];
+
+
+        foreach ($updates as $serialNumber => $data) {
+            Stock::where('service_tag', $serialNumber)
+            ->update($data);
+        }
     }
 }

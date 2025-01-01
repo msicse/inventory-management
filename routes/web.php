@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\InventoryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
@@ -33,6 +34,20 @@ Route::group(['middleware' => ['auth']], function () {
     Route::PUT('products/{id}', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
     Route::delete('products/{id}', [App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
 
+    //Status Route
+    Route::get('statuses', [App\Http\Controllers\Admin\StatusController::class, 'index'])->name('statuses.index');
+    Route::post('statuses', [App\Http\Controllers\Admin\StatusController::class, 'store'])->name('statuses.store');
+    Route::get('statuses/{id}', [App\Http\Controllers\Admin\StatusController::class, 'edit'])->name('statuses.edit');
+    Route::PUT('statuses/{id}', [App\Http\Controllers\Admin\StatusController::class, 'update'])->name('statuses.update');
+    Route::delete('statuses/{id}', [App\Http\Controllers\Admin\StatusController::class, 'destroy'])->name('statuses.destroy');
+
+    //Store Route
+    Route::get('stores', [App\Http\Controllers\Admin\StoreController::class, 'index'])->name('stores.index');
+    Route::post('stores', [App\Http\Controllers\Admin\StoreController::class, 'store'])->name('stores.store');
+    Route::get('stores/{id}', [App\Http\Controllers\Admin\StoreController::class, 'edit'])->name('stores.edit');
+    Route::PUT('stores/{id}', [App\Http\Controllers\Admin\StoreController::class, 'update'])->name('stores.update');
+    Route::delete('stores/{id}', [App\Http\Controllers\Admin\StoreController::class, 'destroy'])->name('stores.destroy');
+
     //Suppliers Route
     Route::get('suppliers', [App\Http\Controllers\Admin\SupplierController::class, 'index'])->name('suppliers.index');
     Route::post('suppliers', [App\Http\Controllers\Admin\SupplierController::class, 'store'])->name('suppliers.store');
@@ -47,6 +62,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::PUT('departments/{id}', [App\Http\Controllers\Admin\DepartmentController::class, 'update'])->name('departments.update');
     Route::delete('departments/{id}', [App\Http\Controllers\Admin\DepartmentController::class, 'destroy'])->name('departments.destroy');
 
+
     //Employees Route
     Route::get('employees', [App\Http\Controllers\Admin\EmployeeController::class, 'index'])->name('employees.index');
     Route::get('employees/create', [App\Http\Controllers\Admin\EmployeeController::class, 'create'])->name('employees.create');
@@ -56,6 +72,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::PUT('employees/{id}', [App\Http\Controllers\Admin\EmployeeController::class, 'update'])->name('employees.update');
     Route::post('employees/status/{id}', [App\Http\Controllers\Admin\EmployeeController::class, 'updateStatus'])->name('employees.status');
     Route::delete('employees/{id}', [App\Http\Controllers\Admin\EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+
+    //Requisitions Route
+    Route::get('requisitions', [App\Http\Controllers\Admin\RequisitionController::class, 'index'])->name('requisitions.index');
+    Route::get('requisitions/create', [App\Http\Controllers\Admin\RequisitionController::class, 'create'])->name('requisitions.create');
+    Route::post('requisitions', [App\Http\Controllers\Admin\RequisitionController::class, 'store'])->name('requisitions.store');
+    Route::get('requisitions/{id}', [App\Http\Controllers\Admin\RequisitionController::class, 'show'])->name('requisitions.show');
+
+
 
     //Purchases Route
     Route::get('purchases', [App\Http\Controllers\Admin\PurchaseController::class, 'index'])->name('purchases.index');
@@ -70,6 +95,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('purchases/product/{id}', [App\Http\Controllers\Admin\PurchaseController::class, 'product'])->name('purchases.product');
     Route::get('purchased-products', [App\Http\Controllers\Admin\PurchaseController::class, 'purchasedProducts'])->name('purchased.products');
     Route::get('purchased-products/{id}', [App\Http\Controllers\Admin\PurchaseController::class, 'purchasedProductShow'])->name('purchased.products.show');
+
+
+
+    Route::get('update-asset', [App\Http\Controllers\Admin\PurchaseController::class, 'updateAssetTag']);
 
 
     Route::get('invoice', [App\Http\Controllers\Admin\PurchaseController::class, 'invoice'])->name('purchases.invoice');
@@ -132,4 +161,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::match(array('GET', 'POST'), 'settings/profile', [App\Http\Controllers\SettingController::class, 'profile'])->name('settings.profile');
 
     Route::get('policy-print/{id}', [App\Http\Controllers\SettingController::class, 'policy'])->name('settings.policy');
+
+
+    //Test
+    Route::get('test-inventory', [InventoryController::class, 'updateStatus']);
 });

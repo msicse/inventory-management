@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     use HasFactory;
+
+    protected $fillable = ["department_id", "emply_id", "name", "designation", "phone", "email", "status", "date_of_join"];
     /**
      * Get the user that owns the Employee
      *

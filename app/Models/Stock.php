@@ -34,4 +34,22 @@ class Stock extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
+
+    public function status()
+    {
+        return $this->belongsTo(AssetStatus::class, 'status_id');
+    }
+
+    public function currentUser()
+    {
+        return $this->hasMany(Transection::class, 'stock_id')
+            ->whereNull('return_date'); // Ensure 'returned_field' is the column tracking returned assets
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
+
+
 }
