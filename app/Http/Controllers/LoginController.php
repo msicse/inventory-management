@@ -2,35 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Auth;
 use Session;
+use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
     public function postLogin(Request $req){
 
-       $this->validate($req,array(
-           'email' => 'required|max:255',
+        $this->validate($req,array(
+           'email' => 'required|max:255|email',
            'password' => 'required|min:6',
        ));
-       //With custom message
-       // $rules = [
-       //     'email' => 'required|unique:posts|max:255',
-       //     'password' => 'required|min:6',
-       // ];
-       // $custom_messag = [
-       //     'email.required' => 'Email Address is required',
-       //     'password.required' => 'Password is required',
-       // ];
-
-       //$this->validate($req, $rules, $custom_messag);
 
        if(Auth::attempt(['email' => $req->email, 'password' => $req->password])){
-           return redirect()->route('admin.dashboard');
+
+            UserLogHelper::log('login', 'Successfully Login');
+
+            return redirect()->intended('dashboard');
        }else{
-           Session()->flash('error_message', 'Invalid Email or Password');
-           return redirect()->back();
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
+
        }
    }
+
+   public function logout(Request $request)
+    {
+
+        UserLogHelper::log('logout', 'Successfully Logout');
+        Auth::logout();
+        return redirect('/');
+    }
 }

@@ -6,7 +6,7 @@
     <!-- JQuery DataTable Css -->
     <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
-    
+
     <!-- JQuery Select Css -->
     <link href="{{ asset('backend/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet">
 
@@ -27,10 +27,12 @@
 @section('content')
 <div class="container-fluid">
     <div class="block-header">
+        @can('distribution-create')
         <a href="{{ route('transections.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
             <i class="material-icons">add</i>
             <span>Add New Distribution</span>
         </a>
+        @endcan
 
     </div>
     <!-- Exportable Table -->
@@ -51,7 +53,7 @@
                                     <th>SL</th>
                                     <th>Product</th>
                                     <th>Type</th>
-                                    
+
                                     <th>Serial No</th>
                                     <th>Employee Name & ID</th>
                                     <th>Designation</th>
@@ -59,13 +61,13 @@
                                     <th>Return Date </th>
                                     <th>Qty.</th>
                                     <th>Action</th>
-                                
+
                                 </tr>
-                            
+
                             </thead>
                             <tfoot>
                                 <th>SL</th>
-                                
+
                                 <th>Product</th>
                                 <th>Type</th>
                                 <th>Serial No</th>
@@ -78,7 +80,7 @@
                             </tfoot>
                             <tbody>
                                 @foreach( $transections as $key => $data )
-                                
+
                                 <tr>
                                 <form action="{{ route('transections.update', $data->id) }}" method="post" >
                                         @csrf
@@ -92,11 +94,13 @@
                                     {{-- <td>{{ $data->employee->department->name }}</td> --}}
                                     <td>{{ $data->issued_date }}</td>
                                     <td>
+                                        @can('distribution-edit')
                                         @empty($data->return_date)
                                         <input type="text" name="date_of_return" value="{{ old('date_of_return') }}" class="datepicker form-control" style="width: 100px;" placeholder="Return Date...">
                                         @else
                                         {{ $data->return_date }}
                                         @endempty
+                                        @endcan
 
                                     </td>
                                     <td>{{ $data->quantity }}</td>
@@ -104,7 +108,7 @@
                                         <a href="{{ route('transections.show', $data->id) }}" class="btn btn-info waves-effect " style="margin-top: 5px;" >
                                             <i class="material-icons">visibility</i>
                                         </a>
-                                        
+
                                         <!-- <a href="{{ route('settings.policy', $data->id) }}" target="blank" title="Print Policy" class="btn btn-primary waves-effect "  style="margin-top: 5px;">
                                             <i class="material-icons">print</i>
                                         </a> -->
@@ -112,7 +116,7 @@
                                         <a href="{{ route('transections.ack', $data->id) }}" target="blank" title="Print Acknowledgement" class="btn btn-primary waves-effect "  style="margin-top: 5px;">
                                             <i class="material-icons">print</i>
                                         </a>
-                                        
+
                                         @if ($data->return_date !== null)
                                             <a href="{{ route('transections.return', $data->id) }}"
                                                 target="blank" title="Print Return Form"
@@ -120,21 +124,23 @@
                                                 <i class="material-icons">print</i>
                                             </a>
                                         @endif
-                                        
+
+                                        @can('distribution-edit')
                                         @empty($data->return_date)
                                         <button type="submit"  title="Update Return Date " class="btn btn-success waves-effect" style="margin-top: 5px;">
                                             <i class="material-icons">update</i>
                                         </button>
                                         @endempty
-                                        
+                                        @endcan
 
-                                       
+
+
                                     </td>
 
                                     </form>
                                 </tr>
 
-                               
+
                                 @endforeach
                             </tbody>
                         </table>
@@ -163,7 +169,7 @@
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
 
-    
+
 
     <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 

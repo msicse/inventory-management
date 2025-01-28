@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Stock;
 use App\Models\Store;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Str;
+use App\Helpers\UserLogHelper;
+use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 
 class StoreController extends Controller
@@ -29,6 +30,8 @@ class StoreController extends Controller
         $store->address = $request->address;
         $store->slug = $slug;
         $store->save();
+
+        UserLogHelper::log('create', 'Created a new Store : '. $store->name );
 
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
@@ -53,6 +56,7 @@ class StoreController extends Controller
         $store->address = $request->address;
         $store->slug = $slug;
         $store->save();
+        UserLogHelper::log('update', 'Updated Store : '. $store->name );
         Toastr::success(' Succesfully Updated ', 'Success');
 
         return redirect()->back();
@@ -69,6 +73,8 @@ class StoreController extends Controller
 
             Toastr::error('Delete Resticted  ', 'Error');
         } else {
+
+            UserLogHelper::log('delete', 'Deleted Store : '. $store->name );
             $store->delete();
             Toastr::success('Succesfully Deleted  ', 'Success');
         }

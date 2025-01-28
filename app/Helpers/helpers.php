@@ -1,5 +1,6 @@
 <?php
 use Carbon\Carbon;
+use App\Models\Stock;
 
 
 // if (!function_exists('getDateDiff')) {
@@ -28,4 +29,9 @@ function productStatus($input)
     }
 
     return $status;
+}
+
+
+function pending_tag() {
+    return Stock::where('asset_tag', null)->count();
 }

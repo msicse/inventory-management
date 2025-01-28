@@ -18,10 +18,12 @@
 @section('content')
 <div class="container-fluid">
     <div class="block-header">
+        @can('suppliers-create')
         <button type="button" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" data-toggle="modal" data-target="#craeateModal">
             <i class="material-icons">add</i>
             <span>Add New Supplier</span>
         </button>
+        @endcan
 
     </div>
     <!-- Exportable Table -->
@@ -31,7 +33,7 @@
                 <div class="header">
                     <h2>
                         All Suppliers
-                        <span class="badge ">{{ $suppliers->count() }}</span> 
+                        <span class="badge ">{{ $suppliers->count() }}</span>
                     </h2>
                 </div>
                 <div class="body">
@@ -72,15 +74,19 @@
                                     <td>{{ $data->address }}</td>
                                     <td>{{ $data->description }}</td>
                                     <td>
+                                        @can('suppliers-edit')
                                         <button type="button" class="btn btn-success waves-effect edit" data-id="{{$data->id}}" data-toggle="modal" data-target="#editModal">
                                             <i class="material-icons">create</i>
                                         </button>
+
+                                        @endcan
+                                        @can('suppliers-delete')
 
                                         <button type="button" class="btn btn-danger waves-effect delete" data-delete-id="{{$data->id}}" data-toggle="modal" data-target="#delete-modal">
 
                                             <i class="material-icons">delete</i>
                                         </button>
-
+                                        @endcan
                                     </td>
                                 </tr>
                                 @endforeach
@@ -279,7 +285,7 @@
                         'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
                     }
                 });
-                
+
                 $.ajax({
                     url: "{{ route('suppliers.store')}}",
                     method: 'post',
@@ -295,7 +301,7 @@
                         }
                         else
                         {
-                            
+
                             toastr.success('Success:'+ result.success );
                             $('#craeateModal').modal('hide');
                             location.reload(true);
@@ -304,7 +310,7 @@
                     }
                 });
             });
-    
+
     $(".edit").click(function(event) {
         var id = $(this).data('id');
         var update_url = location.origin + "/suppliers/" + id;
@@ -322,7 +328,7 @@
 
             $('#type option[value="' + data['producttype_id'] + '"]').attr('selected', true);
 
-           
+
         });
     });
 

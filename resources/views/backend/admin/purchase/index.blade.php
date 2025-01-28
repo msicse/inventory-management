@@ -15,10 +15,12 @@
 @section('content')
 <div class="container-fluid">
     <div class="block-header">
+        @can('purchase-create')
         <a href="{{ route('purchases.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
             <i class="material-icons">add</i>
             <span>Add New Purchases</span>
         </a>
+        @endcan
 
     </div>
     <!-- Exportable Table -->
@@ -80,9 +82,12 @@
                                         <a href="{{ route('purchases.grn', $data->id) }}" target="blank" title="Print GRN" class="btn btn-primary waves-effect "  style="margin-top: 5px;">
                                             <i class="material-icons">print</i>
                                         </a>
+                                        @can('purchase-edit')
                                         <a href="{{ route('purchases.edit', $data->id) }}" class="btn btn-warning waves-effect edit">
                                             <i class="material-icons">create</i>
                                         </a>
+                                        @endcan
+                                        @can('purchase-delete')
                                         @if($data->status == 1)
                                         <button type="button" class="btn btn-danger waves-effect delete" data-delete-id="{{$data->id}}" data-toggle="modal" data-target="#delete-modal" >
                                             <i class="material-icons">person_off</i>
@@ -92,12 +97,15 @@
                                             <i class="material-icons">delete</i>
                                         </button>
                                         @endif
+                                        @endcan
 
+                                        @can('purchase-addinventory')
                                         @if($data->is_stocked == 2)
                                         <a href="{{ route('purchases.show', $data->id ) }}" class="btn btn-info waves-effect " >
                                                 <i class="material-icons">add</i>
                                         </a>
                                         @endif
+                                        @endcan
                                     </td>
                                 </tr>
                                 @endforeach

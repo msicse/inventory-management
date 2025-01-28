@@ -77,14 +77,18 @@
                                     <td>{{ $data->is_license == 1 ? 'Yes' : 'No' }}</td>
                                     <td>{{ $data->description }}</td>
                                     <td>
+                                        @can('product-edit')
                                         <button type="button" class="btn btn-success waves-effect edit" data-id="{{$data->id}}" data-toggle="modal" data-target="#editModal">
                                             <i class="material-icons">create</i>
                                         </button>
+                                        @endcan
+                                        @can('product-delete')
 
                                         <button type="button" class="btn btn-danger waves-effect delete" data-delete-id="{{$data->id}}" data-toggle="modal" data-target="#delete-modal">
 
                                             <i class="material-icons">delete</i>
                                         </button>
+                                        @endcan
 
 
                                     </td>

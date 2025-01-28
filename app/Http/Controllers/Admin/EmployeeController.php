@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Str;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Transection;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
 use App\Http\Controllers\Controller;
-use Brian2694\Toastr\Facades\Toastr;
 
+use Brian2694\Toastr\Facades\Toastr;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -100,6 +101,8 @@ class EmployeeController extends Controller
         $employee->about = $request->about;
         $employee->image = $filename;
         $employee->save();
+
+        UserLogHelper::log('create', 'Created Employee: '. $employee->name ."Employee ID: ". $employee->emply_id);
 
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->route('employees.index');
@@ -192,6 +195,7 @@ class EmployeeController extends Controller
             $employee->about = $request->about;
             $employee->image = $filename;
             $employee->save();
+            UserLogHelper::log('update', 'Updated Employee: '. $employee->name ." Employee ID: ". $employee->emply_id);
 
             Toastr::success(' Succesfully Saved ', 'Success');
         }
@@ -216,6 +220,7 @@ class EmployeeController extends Controller
         }
 
         $employee->save();
+        UserLogHelper::log('disable', 'Disabled Employee: '. $employee->name ." Employee ID: ". $employee->employee_id);
         Toastr::success(' Status Updated ', 'Success');
         return redirect()->back();
     }

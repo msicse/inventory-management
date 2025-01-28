@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\AssetStatus;
 use App\Models\Stock;
+use App\Models\AssetStatus;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
-use Str;
 
 class StatusController extends Controller
 {
@@ -27,6 +28,8 @@ class StatusController extends Controller
         $status->name = $request->name;
         $status->slug = $slug;
         $status->save();
+
+        UserLogHelper::log('create', 'Created a new Status: '. $status->name );
 
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
@@ -49,7 +52,9 @@ class StatusController extends Controller
         $status->name = $request->name;
         $status->slug = $slug;
         $status->save();
-        $status->save();
+
+        UserLogHelper::log('update', 'Updated Status : '. $status->name );
+
         Toastr::success(' Succesfully Updated ', 'Success');
 
         return redirect()->back();
@@ -66,6 +71,8 @@ class StatusController extends Controller
 
             Toastr::error('Delete Resticted  ', 'Error');
         } else {
+
+            UserLogHelper::log('delete', 'Deleted Status : '. $status->name );
             $status->delete();
             Toastr::success('Succesfully Deleted  ', 'Success');
         }

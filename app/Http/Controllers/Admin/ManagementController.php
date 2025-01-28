@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\Employee;
-use App\Models\Transection;
 use App\Models\Stock;
-use Toastr;
+use App\Models\Employee;
+
+use App\Models\Transection;
+use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
 
 class ManagementController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('permission:management-all', ['only' => ['employees', 'editEmployee', 'updateEmployee', 'products', 'updateProducts']]);
+    }
     public function employees()
     {
         $employees = Employee::where('status', 1)->get();
-        
+
 
 
         return view('backend.admin.management.employees')->with(compact("employees"));
@@ -38,13 +44,13 @@ class ManagementController extends Controller
             'date_of_resign'    => 'required',
         ));
 
-        
+
 
 
         //if(isset($request->status)){
 
-            $transection_count = $tran = Transection::where('employee_id', $employee->id)->whereNull('return_date')->count(); 
-            
+            $transection_count = $tran = Transection::where('employee_id', $employee->id)->whereNull('return_date')->count();
+
             if( $transection_count > 0 ){
                 foreach( $employee->transections as $transection){
                     //return $transection;
@@ -54,6 +60,8 @@ class ManagementController extends Controller
                     $tran->save();
 
                     Stock::where('id',$transection->stock_id)->update(['is_assigned'=> 2]);
+
+                    UserLogHelper::log('update', 'Updated Employee Status: '.$employee->name. ' Employee ID: ' . $employee->emply_id );
                 }
             }
 
@@ -82,7 +90,7 @@ class ManagementController extends Controller
 
     public function updateProducts(Request $request, $id)
     {
-        
+
         //return $request->all();
         if( $request->submit == 'active' ){
             Stock::where('id', $id)->update(['product_status'=> 1]);
@@ -91,6 +99,7 @@ class ManagementController extends Controller
         } else {
             Stock::where('id', $id)->update(['product_status'=> 3]);
         }
+        UserLogHelper::log('update', 'Updated Inventory Product Status: '.$id );
         Toastr::success('Successfully Updated', 'Success');
         return redirect()->back();
     }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\PurchaseProduct;
-use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Producttype;
-use App\Models\Purchase;
-use Toastr;
-use Str;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use App\Models\PurchaseProduct;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
 
 class ProductController extends Controller
 {
@@ -56,6 +56,8 @@ class ProductController extends Controller
         $product->slug = Str::slug($request->title);
         $product->save();
 
+        UserLogHelper::log('create', 'Created a new Product : '. $product->id );
+
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
     }
@@ -100,6 +102,8 @@ class ProductController extends Controller
             $product->description = $request->description;
             $product->save();
 
+            UserLogHelper::log('update', 'Updated Product : '. $product->id );
+
             Toastr::success(' Succesfully Updated ', 'Success');
         }
 
@@ -116,6 +120,7 @@ class ProductController extends Controller
             Toastr::error(' Delete Restricted ', 'Error');
         } else {
             $product->delete();
+            UserLogHelper::log('delete', 'Deleted a Product : '. $product->title );
             Toastr::success('Succesfully Deleted ', 'Success');
         }
 

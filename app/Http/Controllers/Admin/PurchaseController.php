@@ -12,6 +12,7 @@ use App\Models\Supplier;
 use Illuminate\View\View;
 use App\Models\Producttype;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
 use App\Models\PurchaseProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
@@ -33,6 +34,7 @@ class PurchaseController extends Controller
         $this->middleware('permission:purchase-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:purchase-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:purchase-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:purchase-addinventory', ['only' => ['addInventory']]);
     }
     public function index()
     {
@@ -98,6 +100,8 @@ class PurchaseController extends Controller
         $purchase->purchase_date = $request->date_of_purchase;
         $purchase->is_stocked = 2;
         $purchase->save();
+
+        UserLogHelper::log('create', 'Created a new Purchase : '. $purchase->id );
 
 
         // Purchase Products Add
@@ -306,6 +310,8 @@ class PurchaseController extends Controller
 
             Purchase::where('id', $data->purchase_id)->update(['is_stocked' => 1]);
 
+            UserLogHelper::log('create', 'Added Purchase to Inventory PurchaseProduct ID : '. $id );
+
             Toastr::success(' Succesfully Added to Inventory ', 'Success');
             return redirect()->back();
 
@@ -478,6 +484,7 @@ class PurchaseController extends Controller
 
         // return view('backend.admin.pdf.grn', compact('purchase'));
         $pdf = Pdf::loadView('backend.admin.pdf.grn', compact('purchase'))->setPaper('a4', 'landscape');
+        UserLogHelper::log('create', 'Created a new GRN : '. $id );
 
         return $pdf->stream('grn-' . $purchase->invoice_no . '.pdf');
 

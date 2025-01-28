@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Producttype;
-use Illuminate\Http\Request;
+use App\Models\Stock;
+use App\Models\Store;
+use App\Models\Product;
 
 use App\Models\Employee;
+use App\Models\Supplier;
 use App\Models\Department;
-use App\Models\Stock;
+use App\Models\Producttype;
 use App\Models\Transection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class ReportController extends Controller
 {
@@ -56,8 +61,12 @@ class ReportController extends Controller
     {
         $stocks = Stock::where('producttype_id', $id)->get();
 
-        return view('backend.report.stock-details')->with(compact('stocks'));
-        return $stocks;
+        $types = Producttype::all();
+        $stores = Store::all();
+        $suppliers = Supplier::all();
+        $models = Product::all();
+
+        return view('backend.report.stock-details')->with(compact('stocks', 'types', 'stores', 'suppliers', 'models'));
     }
 
     public function transections(Request $request)
@@ -79,5 +88,142 @@ class ReportController extends Controller
         }
 
         return view('backend.report.transections')->with(compact('transections', 'employees'));
+    }
+
+
+
+    public function inventory(Request $request)
+    {
+
+        $types = Producttype::all();
+        $stores = Store::all();
+        $suppliers = Supplier::all();
+        $models = Product::all();
+
+        $type = $request->type;
+        $model = $request->model;
+        $condition = $request->condition;
+        $store = $request->store;
+        $supplier = $request->supplier;
+        $from = $request->from;
+        $to = $request->to;
+
+
+        $query = Stock::query();
+
+        if ($type) {
+            $query->where('producttype_id', $type);
+        }
+        if ($model) {
+            $query->where('product_id', $model);
+        }
+        if ($store) {
+            $query->where('store_id', $store);
+        }
+        if ($store) {
+            $query->where('store_id', $store);
+        }
+        if ($supplier) {
+            $query->where('supplier_id', $supplier);
+        }
+
+        $stocks = $query->get();
+
+        return view('backend.report.stock-details')->with(compact('stocks', 'types', 'stores', 'suppliers', 'models'));
+    }
+
+    public function inventorySearch(Request $request)
+    {
+        $type = $request->product_type;
+        $model = $request->product_model;
+        $condition = $request->condition;
+        $store = $request->store;
+        $supplier = $request->supplier;
+
+
+        $query = Stock::select(
+            'stocks.id as stock_id',
+            'producttypes.name as product_type',
+            'products.brand as product_brand',
+            'products.model as product_model',
+            'suppliers.company as supplier_company',
+            'purchases.purchase_date as purchase_date',
+            'purchases.invoice_no as purchase_invoice',
+            'asset_tag',
+            'service_tag',
+            'condition',
+            'stocks.expired_date',
+            'stores.name as store_name',
+            'employees.name as employee_name',
+            DB::raw('GREATEST(DATEDIFF(stocks.expired_date, CURDATE()), 0) as warranty_remaining'),
+            DB::raw('CASE
+                        WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL THEN employees.name
+                        ELSE stores.name
+                    END as assigned_to')
+
+        )
+            ->join('products', 'stocks.product_id', '=', 'products.id')
+            ->join('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
+            ->join('purchases', 'stocks.purchase_id', '=', 'purchases.id')
+            ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
+            ->join('stores', 'stocks.store_id', '=', 'stores.id')
+            ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
+            ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id');
+
+        // return $query->get();
+
+
+        if ($type) {
+            $query->where('stocks.producttype_id', $type);
+        }
+        if ($model) {
+            $query->where('stocks.product_id', $model);
+        }
+
+        if ($store) {
+            $query->where(function ($q) use ($store) {
+                $q->where('stocks.store_id', $store)
+                  ->where('stocks.is_assigned', 2);
+            });
+        }
+
+        if ($supplier) {
+            $query->where('purchases.supplier_id', $supplier);
+        }
+        if ($condition) {
+            $query->where('stocks.condition', $condition);
+        }
+
+        // // Add filters dynamically
+        // if ($request->has('type')) {
+        //     $query->where('stocks.producttype_id', $request->input('type'));
+        // }
+
+        // if ($request->has('model')) {
+        //     $query->where('stocks.product_id', $request->input('model'));
+        // }
+        // if ($request->has('condition')) {
+        //     $query->where('stocks.condition', $request->input('condition'));
+        // }
+        // if ($request->has('store')) {
+        //     $query->where('stocks.store_id', $request->input('store'));
+        // }
+
+        // if ($request->has('supplier')) {
+        //     $query->where('purchases.supplier_id', $request->input('supplier'));
+        // }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('purchases.purchase_date', [
+                $request->input('start_date'),
+                $request->input('end_date'),
+            ]);
+        }
+
+
+
+        $stocks = $query->get();
+
+        return DataTables::of($query)->make(true);
     }
 }

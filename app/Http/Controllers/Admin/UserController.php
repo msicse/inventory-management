@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Support\Facades\Auth;
 use Str;
 use Hash;
 use Image;
@@ -11,8 +10,10 @@ use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 
 class UserController extends Controller
@@ -24,7 +25,7 @@ class UserController extends Controller
          $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:user-delete', ['only' => ['destroy']]);
     }
-    
+
     public function index()
     {
          if (Auth::user()->hasRole('super-admin')) {
@@ -61,9 +62,9 @@ class UserController extends Controller
 
         $input['password'] = Hash::make($input['password']);
 
-       
+
        $roles = $request->input('roles');
-       
+
        $user = User::create($input);
 
         if (Auth::user()->hasRole('super-admin')) {
@@ -78,12 +79,14 @@ class UserController extends Controller
         if($user->hasRole("super-admin")){
             $user->update(["is_admin" => 1]);
         }
-        
+
+        UserLogHelper::log('create', 'Created a New User : '. $user->email );
+
         Toastr::success('User Succesfully Created ', 'Success');
         return redirect()->route('users.index');
     }
 
-    public function show($id):View 
+    public function show($id):View
     {
         $user = User::find($id);
         return view("backend.admin.user.show", compact("user"));
@@ -91,7 +94,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        
+
 
         if (Auth::user()->hasRole('super-admin')) {
             $roles = Role::pluck('name','name');
@@ -101,6 +104,7 @@ class UserController extends Controller
 
         $user = User::find($id);
         $userRole = $user->roles->pluck('name','name')->all();
+
         return view('backend.admin.user.edit')->with(compact('roles', 'user', 'userRole'));
     }
 
@@ -120,10 +124,10 @@ class UserController extends Controller
 
         $input = $request->all();
 
-        if(!empty($input['password'])){ 
+        if(!empty($input['password'])){
             $input['password'] = Hash::make($input['password']);
         }else{
-            $input = Arr::except($input,array('password'));    
+            $input = Arr::except($input,array('password'));
         }
 
         $user = User::find($id);
@@ -139,13 +143,15 @@ class UserController extends Controller
                 $user->syncRoles($roles);
             }
         }
-        
+
         if($user->hasRole("super-admin")){
             $user->update(["is_admin" => 1]);
         }else{
             $user->update(["is_admin" => 2]);
         }
-        
+
+        UserLogHelper::log('update', 'Updated User : '. $user->id );
+
         Toastr::success('User Succesfully Updated ', 'Success');
         return redirect()->route('users.index');
     }
@@ -163,7 +169,7 @@ class UserController extends Controller
                 $user->removeRole($role);
             }
             $user->delete();
-            
+
         } else {
             if ($user->hasRole('super-admin')){
                 Toastr::Error('You have no Permission ', 'Error');
@@ -176,6 +182,7 @@ class UserController extends Controller
             }
         }
 
+        UserLogHelper::log('update', 'Updated User : '. $user->id );
         Toastr::success('User Succesfully Deleted ', 'Success');
         return redirect()->back();
     }

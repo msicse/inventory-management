@@ -2,19 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Toastr;
 use App\Models\Stock;
-
 use App\Models\Employee;
+
 use App\Models\Producttype;
 use App\Models\Transection;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Brian2694\Toastr\Facades\Toastr;
 
 class TransectionController extends Controller
 {
+     function __construct()
+    {
+        $this->middleware('permission:distribution-list|distribution-create|distribution-edit|distribution-delete', ['only' => ['index', 'store', 'return', 'typedProducts', 'singleStock', 'multiAck', 'return']]);
+        $this->middleware('permission:distribution-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:distribution-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:distribution-delete', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
         $transections = Transection::all();
@@ -78,6 +87,8 @@ class TransectionController extends Controller
             $stock->is_assigned = 1;
             $stock->save();
 
+            UserLogHelper::log('create', 'Assigned a Product To Employee : '. $transection->id );
+
             // if($type->slug == 'software'){
             //     Stock::where('id',$request->product)->update(['assigned'=> $current_stock]);
             // }else {
@@ -126,6 +137,8 @@ class TransectionController extends Controller
         } else {
             Stock::where('id', $transection->stock_id)->update(['is_assigned' => 2]);
         }
+
+        UserLogHelper::log('update', 'Updated Stock Return from Employee : '. $transection->id );
 
         Toastr::success(' Succesfully Updated ', 'Success');
         return redirect()->back();

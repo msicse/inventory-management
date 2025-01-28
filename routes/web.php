@@ -1,16 +1,24 @@
 <?php
 
-use App\Http\Controllers\Admin\InventoryController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\InventoryController;
 
 Route::get('/', function () {
     return view('login-home');
 });
 
-Auth::routes();
+Route::get('/login', function () {
+    return view('login-home');
+})->name('login');
+
+Route::post("/custom-login", [LoginController::class, "postLogin"])->name("custom.login");
+Route::post("/logout", [LoginController::class, "logout"])->name("logout");
+
+// Auth::routes();
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -106,6 +114,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Inventories Route
     Route::get('inventories', [App\Http\Controllers\Admin\InventoryController::class, 'index'])->name('inventories.index');
+    Route::get('pending-tag-updates', [App\Http\Controllers\Admin\InventoryController::class, 'pending_asset_tag'])->name('inventories.pending');
+    Route::post('update-asset-tag/{id}', [App\Http\Controllers\Admin\InventoryController::class, 'update_tag'])->name('inventories.update.tag');
+    Route::post('inventories/upload-bulk', [App\Http\Controllers\Admin\InventoryController::class, 'uploadBulk'])->name('inventories.upload.bluck');
     Route::get('inventories/{id}', [App\Http\Controllers\Admin\InventoryController::class, 'show'])->name('inventories.show');
     Route::get('inventories/create', [App\Http\Controllers\Admin\InventoryController::class, 'create'])->name('inventories.create');
     Route::post('inventories', [App\Http\Controllers\Admin\InventoryController::class, 'store'])->name('inventories.store');
@@ -136,6 +147,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('reports/employees/{id}', [App\Http\Controllers\Admin\ReportController::class, 'show'])->name('reports.show');
     Route::get('reports/transections', [App\Http\Controllers\Admin\ReportController::class, 'transections'])->name('reports.transections');
     Route::get('reports/stocks', [App\Http\Controllers\Admin\ReportController::class, 'stocks'])->name('reports.stocks');
+    Route::get('reports/detailed-inventory', [App\Http\Controllers\Admin\ReportController::class, 'inventory'])->name('reports.inventory');
+    Route::get('reports/detailed-inventory-search', [App\Http\Controllers\Admin\ReportController::class, 'inventorySearch'])->name('reports.inventory.search');
     Route::get('reports/stocks/{id}', [App\Http\Controllers\Admin\ReportController::class, 'stockDetails'])->name('reports.stocks.details');
 
     // Management Routes
@@ -166,3 +179,4 @@ Route::group(['middleware' => ['auth']], function () {
     //Test
     Route::get('test-inventory', [InventoryController::class, 'updateStatus']);
 });
+

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\User;
-use Toastr;
-use Str;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
 
 class RoleController extends Controller
 {
@@ -26,6 +27,9 @@ class RoleController extends Controller
         $role->name = $request->name;
         $role->slug = Str::slug($request->name);
         $role->save();
+
+        UserLogHelper::log('create', 'Created a new Role : '. $role->name );
+
         Toastr::success('Role Succesfully Saved ', 'Success');
         return redirect()->back();
     }
@@ -38,11 +42,12 @@ class RoleController extends Controller
         if ($users) {
             Toastr::error(' Delete Restricted ', 'Error');
         } else {
+            UserLogHelper::log('delete', 'Deleted Role : '. $role->name );
             $role->delete();
             Toastr::success('Role Succesfully Deleted ', 'Success');
         }
-        
-        
+
+
         return redirect()->back();
     }
 

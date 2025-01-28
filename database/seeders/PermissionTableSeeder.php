@@ -48,6 +48,7 @@ class PermissionTableSeeder extends Seeder
             'employee-delete',
             'inventory-list',
             'inventory-edit',
+            'inventory-update-tag',
             'distribution-list',
             'distribution-create',
             'distribution-edit',
@@ -56,7 +57,7 @@ class PermissionTableSeeder extends Seeder
             'onboarding-create',
 
          ];
-         
+
          foreach ($permissions as $permission) {
               Permission::create(['name' => $permission]);
          }

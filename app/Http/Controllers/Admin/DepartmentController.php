@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Str;
 use App\Models\Employee;
 use App\Models\Department;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 
@@ -18,8 +19,8 @@ class DepartmentController extends Controller
          $this->middleware('permission:department-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:department-delete', ['only' => ['destroy']]);
     }
-    
-    
+
+
     public function index()
     {
          $departments = Department::all();
@@ -39,6 +40,8 @@ class DepartmentController extends Controller
         $department->slug        = $slug;
         $department->save();
 
+        UserLogHelper::log('create', 'Created department: '. $department->name);
+
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
     }
@@ -46,7 +49,7 @@ class DepartmentController extends Controller
     public function edit($id)
     {
         $department = Department::find($id);
-        return $department;   
+        return $department;
     }
 
     public function update(Request $request, $id)
@@ -55,20 +58,23 @@ class DepartmentController extends Controller
             'name'          => 'required|max:255',
             'short_name'    => 'required|max:255',
         ));
-        
+
         $department = Department::find($id);
         $department->name         = $request->name;
         $department->short_name   = $request->short_name;
         //$department->slug        = $slug;
         $department->save();
+
+        UserLogHelper::log('update', 'Updated department: '. $department->name);
+
         Toastr::success(' Succesfully Updated ', 'Success');
-            
-            
+
+
 
         // $employees = Employee::where('department_id', '=', $id )->exists();
 
         // if( $employees ){
-            
+
         //     Toastr::error('Delete Resticted  ', 'Error');
         // } else {
         //     //$slug  = str_slug($request->name);
@@ -80,7 +86,7 @@ class DepartmentController extends Controller
         //     Toastr::success(' Succesfully Updated ', 'Success');
         // }
 
-    
+
         return redirect()->back();
     }
 
@@ -92,15 +98,16 @@ class DepartmentController extends Controller
 
 
         if( $employees ){
-            
+
             Toastr::error('Delete Resticted  ', 'Error');
         } else {
             $department->delete();
+            UserLogHelper::log('delete', 'Deleted department: '. $department->name);
             Toastr::success('Succesfully Deleted  ', 'Success');
         }
 
         return redirect()->back();
 
-        
+
     }
 }

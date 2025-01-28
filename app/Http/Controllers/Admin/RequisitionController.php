@@ -12,10 +12,10 @@ use Illuminate\Http\Request;
 
 class RequisitionController extends Controller
 {
+
     function index()
     {
         $requisitions = Requisition::all();
-
         return view("backend.admin.requisition.index", compact("requisitions"));
     }
     function create()
@@ -54,7 +54,6 @@ class RequisitionController extends Controller
 
         Toastr::success('Succesfully Saved', 'Success');
         return redirect()->route('requisitions.index');
-
 
     }
 

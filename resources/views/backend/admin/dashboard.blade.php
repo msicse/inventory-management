@@ -20,6 +20,7 @@
     </div>
 
     <div class="row clearfix">
+
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
             <div class="info-box bg-green hover-expand-effect">
                 <div class="icon">
@@ -32,9 +33,9 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-cyan hover-expand-effect">
+            <div class="info-box bg-teal hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">assessment</i>
+                    <i class="material-icons">laptop</i>
                 </div>
                 <div class="content">
                     <div class="text">Total Laptops</div>
@@ -45,7 +46,7 @@
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
             <div class="info-box bg-orange hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">library_books</i>
+                    <i class="material-icons">phone_android</i>
                 </div>
                 <div class="content">
                     <div class="text">Total Mobiles</div>
@@ -54,9 +55,9 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-red hover-expand-effect">
+            <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">assignment_late</i>
+                    <i class="material-icons">devices</i>
                 </div>
                 <div class="content">
                     <div class="text">Total Products</div>
@@ -64,10 +65,18 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row clearfix">
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-red hover-expand-effect">
+                <div class="icon">
+                    <i class="material-icons">update</i>
+                </div>
+                <div class="content">
+                    <div class="text">Pending Tag Update</div>
+                    <div class="number count-to" data-from="0" data-to="{{ pending_tag() }}" data-speed="15" data-fresh-interval="20"></div>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
             <div class="info-box bg-green hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">add_shopping_cart</i>
@@ -77,11 +86,11 @@
                     <div class="number count-to" data-from="0" data-to="{{ $purchase }}" data-speed="15" data-fresh-interval="20"></div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
             <div class="info-box bg-cyan hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">assessment</i>
+                    <i class="material-icons">laptop</i>
                 </div>
                 <div class="content">
                     <div class="text">Assigned Laptop</div>
@@ -90,9 +99,9 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-orange hover-expand-effect">
+            <div class="info-box bg-deep-orange hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">library_books</i>
+                    <i class="material-icons">phone_android</i>
                 </div>
                 <div class="content">
                     <div class="text">Assigned Mobiles</div>
@@ -101,9 +110,9 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-red hover-expand-effect">
+            <div class="info-box bg-light-blue hover-expand-effect">
                 <div class="icon">
-                    <i class="material-icons">assignment_late</i>
+                    <i class="material-icons">devices</i>
                 </div>
                 <div class="content">
                     <div class="text">Assigned Products</div>

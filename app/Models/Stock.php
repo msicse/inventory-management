@@ -9,6 +9,10 @@ class Stock extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "asset_tag", "service_tag", "is_assigned", "status_id", "store_id"
+    ];
+
     /**
      * Get the user that owns the Stock
      *

@@ -95,7 +95,6 @@
                 <div class="header">
                     <h2>
                         Transection Report
-
                     </h2>
                 </div>
                 <div class="body">

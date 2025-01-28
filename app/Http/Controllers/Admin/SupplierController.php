@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Supplier;
-use App\Models\Purchase;
-use Toastr;
 use Str;
+use App\Models\Purchase;
+use App\Models\Supplier;
+use Illuminate\Http\Request;
+use App\Helpers\UserLogHelper;
+use App\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
 
 class SupplierController extends Controller
 {
@@ -35,6 +36,7 @@ class SupplierController extends Controller
         $supplier->address      = $request->address;
         $supplier->description  = $request->description;
         $supplier->save();
+        UserLogHelper::log('create', 'Created a new Supplier : '. $supplier->company );
 
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
@@ -43,7 +45,7 @@ class SupplierController extends Controller
     public function edit($id)
     {
         $supplier = Supplier::find($id);
-        return $supplier;   
+        return $supplier;
     }
 
     public function update(Request $request, $id)
@@ -59,7 +61,7 @@ class SupplierController extends Controller
         //$slug  = str_slug($request->name);
 
         $purchases = false;//Purchase::where('supplier_id', '=', $id )->exists();
-        
+
         if ($purchases) {
             Toastr::error(' Update Restricted ', 'Error');
         } else {
@@ -71,10 +73,11 @@ class SupplierController extends Controller
             $supplier->address      = $request->address;
             $supplier->description  = $request->description;
             $supplier->save();
+            UserLogHelper::log('update', 'Created a new Supplier : '. $supplier->company );
             Toastr::success(' Succesfully Updated ', 'Success');
         }
 
-        
+
         return redirect()->back();
     }
 
@@ -84,14 +87,15 @@ class SupplierController extends Controller
 
 
         $purchases = Purchase::where('supplier_id', '=', $id )->exists();
-        
+
         if ($purchases) {
             Toastr::error(' Delete Restricted ', 'Error');
         } else {
+            UserLogHelper::log('delete', 'Deleted Supplier : '. $supplier->company );
             $supplier->delete();
             Toastr::success('Succesfully Deleted ', 'Success');
         }
-        
+
         return redirect()->back();
     }
 }
