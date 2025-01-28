@@ -248,7 +248,7 @@
                     { data: 'purchase_date', name: 'purchases.purchase_date' },
                     { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false },
                     { data: 'supplier_company', name: 'suppliers.company' },
-                    { data: 'condition', name: 'condition' },
+                    { data: 'asset_condition', name: 'asset_condition' },
                     { data: 'assigned_to', name: 'assigned_to', searchable: false },
                     { data: 'purchase_invoice', name: 'purchases.invoice_no' },
 

@@ -151,7 +151,7 @@ class ReportController extends Controller
             'purchases.invoice_no as purchase_invoice',
             'asset_tag',
             'service_tag',
-            'condition',
+            'asset_condition',
             'stocks.expired_date',
             'stores.name as store_name',
             'employees.name as employee_name',
@@ -191,7 +191,7 @@ class ReportController extends Controller
             $query->where('purchases.supplier_id', $supplier);
         }
         if ($condition) {
-            $query->where('stocks.condition', $condition);
+            $query->where('stocks.asset_condition', $condition);
         }
 
         // // Add filters dynamically
