@@ -14,6 +14,8 @@ use App\Models\Transection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\UserLog;
 use Yajra\DataTables\Facades\DataTables;
 
 class ReportController extends Controller
@@ -220,10 +222,46 @@ class ReportController extends Controller
             ]);
         }
 
-
-
-        $stocks = $query->get();
+        // $stocks = $query->get();
 
         return DataTables::of($query)->make(true);
+    }
+
+
+    public function userLogs(Request $request){
+
+        $users = User::all();
+        $actions = UserLog::select('action')->distinct()->get();
+        return view('backend.report.logs')->with(compact('users', 'actions'));
+    }
+
+    public function userLogsSearch(Request $request){
+        $user = $request->user;
+        $action = $request->action;
+
+        $query = UserLog::select(
+            'user_logs.*',
+            'users.name as user_name'
+        )->join('users', 'user_logs.user_id', '=', 'users.id');
+
+        if ($user) {
+            $query->where('user_id', $user);
+        }
+        if ($action) {
+            $query->where('action', $action);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('user_logs.created_at', [
+                $request->input('start_date'),
+                $request->input('end_date'),
+            ]);
+        }
+
+        // $user_logs = $query->get();
+
+        return DataTables::of($query)->make(true);
+
+
     }
 }

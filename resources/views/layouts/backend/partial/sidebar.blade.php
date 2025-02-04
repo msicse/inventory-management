@@ -223,6 +223,12 @@
                     <span>Detailed Inventory</span>
                 </a>
             </li>
+            <li class="{{ Request::is('reports/user-logs*') ? 'active' : '' }}">
+                <a href="{{ route('reports.userlog') }}">
+                    <i class="material-icons">published_with_changes</i>
+                    <span>User Logs</span>
+                </a>
+            </li>
 <!--
             <li>
                 <a href="javascript:void(0);" class="menu-toggle">

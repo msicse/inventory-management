@@ -1,6 +1,6 @@
 @extends('layouts.backend.app')
 
-@section('title', 'Reports | Stock | Details')
+@section('title', 'Reports | Users | Logs')
 
 @push('css')
     <!-- JQuery Select Css -->
@@ -62,60 +62,24 @@
 
                         <div class="col-md-2">
                             <div class="form-group form-float">
-                                <select id="type" class="form-control show-tick" data-live-search="true">
-                                    <option value="">All Type</option>
-                                    @foreach($types as $type)
-                                        <option value="{{$type->id}}">{{ $type->name }}</option>
+                                <select id="user" name="user" class="form-control show-tick" data-live-search="true">
+                                    <option value="">All Users</option>
+                                    @foreach($users as $user)
+                                        <option value="{{$user->id}}">{{ $user->name }}</option>
                                     @endforeach
 
                                 </select>
 
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-
-                                <select name="model" id="model" class="form-control show-tick" data-live-search="true">
-                                    <option value="">All Model </option>
-                                    @foreach ($models as $model)
-                                        <option value="{{ $model->id }}">{{ $model->model }}</option>
-                                    @endforeach
-
-                                </select>
-                            </div>
-                        </div>
 
                         <div class="col-md-2">
                             <div class="form-group form-float">
-                                <select name="condition" id="condition" class="form-control form-control-sm show-tick"
-                                    data-live-search="true">
-                                    <option value="">All Condition</option>
-                                    <option value="good">Good</option>
-                                    <option value="obsolete ">Obsolete </option>
-                                    <option value="damaged">Damaged</option>
 
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-                                <select name="store" id="store" class="form-control show-tick" data-live-search="true">
-                                    <option value="">All Location</option>
-                                    @foreach($stores as $store)
-                                        <option value="{{$store->id}}">{{ $store->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-
-                                <select name="supplier" id="supplier" class="form-control show-tick"
-                                    data-live-search="true">
-                                    <option value="">All Supplier</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
+                                <select name="action" id="action" class="form-control show-tick" data-live-search="true">
+                                    <option value="">Actions </option>
+                                    @foreach ($actions as $action)
+                                        <option value="{{ $action->action }}">{{ $action->action }}</option>
                                     @endforeach
 
                                 </select>
@@ -135,21 +99,6 @@
                         </div>
 
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-md-3">
-                            <div class="info-box bg-cyan hover-expand-effect">
-                                <div class="icon">
-                                    <i class="material-icons">laptop</i>
-                                </div>
-                                <div class="content">
-                                    <div class="text">Assigned Laptop</div>
-                                    <div class="number count-to" data-from="0" data-to="111" data-speed="1000"
-                                        data-fresh-interval="20"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
                 </div>
             </div>
         </div>
@@ -163,7 +112,7 @@
             <div class="card">
                 <div class="header">
                     <h2>
-                        Detailed Inventory Report
+                        User Logs
                     </h2>
                 </div>
                 <div class="body">
@@ -171,17 +120,12 @@
                         <table class="table table-bordered table-striped table-hover" id="stockTable">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Brand</th>
-                                    <th>Model</th>
-                                    <th>Asset Tag</th>
-                                    <th>Serial </th>
-                                    <th>Purchase Date</th>
-                                    <th title="Warranty Remaining(days)">Warr.</th>
-                                    <th>Supplier</th>
-                                    <th>Condition</th>
-                                    <th>Location</th>
-                                    <th>Invoice</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                    <th>DateTime</th>
+                                    <th>User Agent</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -234,45 +178,39 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route('reports.inventory.search') }}',
+                    url: '{{ route('reports.userlog.search') }}',
                     data: function (d) {
                         // Pass custom filter data to the server
-                        d.product_type = $('#type').val();
-                        d.product_model = $('#model').val();
-                        d.condition = $('#condition').val();
-                        d.product_id = $('#store').val();
-                        d.supplier = $('#supplier').val();
-                        d.store = $('#store').val();
+                        d.user = $('#user').val();
+                        d.action = $('#action').val();
                         d.start_date = $('#startDateFilter').val();
                         d.end_date = $('#endDateFilter').val();
-
                     }
                 },
                 columns: [
-                    { data: 'product_type', name: 'producttypes.name' },
-                    { data: 'product_brand', name: 'products.brand' },
-                    { data: 'product_model', name: 'products.model' },
-                    { data: 'asset_tag', name: 'asset_tag' },
-                    { data: 'service_tag', name: 'service_tag' },
+                    { data: 'user_name', name: 'users.name' },
+                    { data: 'action', name: 'action' },
+                    { data: 'ip_address', name: 'ip_address' },
+                    { data: 'details', name: 'details' },
                     {
-                        data: 'purchase_date',
-                        name: 'purchases.purchase_date',
-                        title: 'Purchase Date',
+                        data: 'created_at',
+                        name: 'created_at',
                         render: function(data, type, row) {
                             if (data) {
                                 let date = new Date(data);
-                                return date.toLocaleDateString('en-GB');
+                                return date.toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                });
                             }
                             return '';
                         }
                      },
-                    { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false },
-                    { data: 'supplier_company', name: 'suppliers.company' },
-                    { data: 'asset_condition', name: 'asset_condition' },
-                    { data: 'assigned_to', name: 'assigned_to', searchable: false },
-                    { data: 'purchase_invoice', name: 'purchases.invoice_no' },
-
-
+                     { data: 'user_agent', name: 'user_agent' },
                 ],
                 dom: 'Blfrtip',
                 responsive: true,
@@ -324,7 +262,7 @@
             });
 
             // Custom Filters Trigger Table Reload
-            $('#type, #model, #condition, #store, #supplier, #startDateFilter, #endDateFilter').on('change', function () {
+            $('#user, #action, #startDateFilter, #endDateFilter').on('change', function () {
                 table.ajax.reload();
             });
 
@@ -339,13 +277,6 @@
             $('#supplier').select2();
             $('#condition').select2();
             $('#model').select2();
-
-            $('.datepicker').bootstrapMaterialDatePicker({
-                format: 'YYYY-MM-DD',
-                clearButton: true,
-                weekStart: 1,
-                time: false
-            });
 
         });
     </script>

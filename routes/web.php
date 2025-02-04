@@ -155,6 +155,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('reports/detailed-inventory', [App\Http\Controllers\Admin\ReportController::class, 'inventory'])->name('reports.inventory');
     Route::get('reports/detailed-inventory-search', [App\Http\Controllers\Admin\ReportController::class, 'inventorySearch'])->name('reports.inventory.search');
     Route::get('reports/stocks/{id}', [App\Http\Controllers\Admin\ReportController::class, 'stockDetails'])->name('reports.stocks.details');
+    Route::get('reports/user-logs', [App\Http\Controllers\Admin\ReportController::class, 'userLogs'])->name('reports.userlog');
+    Route::get('reports/user-logs/search', [App\Http\Controllers\Admin\ReportController::class, 'userLogsSearch'])->name('reports.userlog.search');
 
     // Management Routes
     Route::get('management/employees', [App\Http\Controllers\Admin\ManagementController::class, 'employees'])->name('management.employees');
