@@ -10,7 +10,23 @@ class Stock extends Model
     use HasFactory;
 
     protected $fillable = [
-        "asset_tag", "service_tag", "is_assigned", "status_id", "store_id"
+        'product_id',
+        'purchase_id',
+        'producttype_id',
+        'pproduct_id',
+        'asset_tag',
+        'serial_no',
+        'service_tag',
+        'mac',
+        'warranty',
+        'purchase_date',
+        'expired_date',
+        'quantity',
+        'assigned',
+        'is_assigned',
+        'status_id',
+        'store_id',
+        'asset_condition',
     ];
 
     /**

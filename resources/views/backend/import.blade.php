@@ -53,6 +53,7 @@
                                 <option value="">Select Table</option>
                                 <option value="product">Product</option>
                                 <option value="purchase_product">Purchase Product</option>
+                                <option value="inventory">Inventory</option>
                             </select>
                         </div>
                             <div class="form-group form-float">
