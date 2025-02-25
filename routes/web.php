@@ -185,5 +185,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Test
     Route::get('test-inventory', [InventoryController::class, 'updateStatus']);
+
+
+    //Import route
+    Route::get('imports', [App\Http\Controllers\ImportController::class, 'index'])->name('imports.index');
+    Route::post('imports/store', [App\Http\Controllers\ImportController::class, 'store'])->name('imports.store');
 });
 

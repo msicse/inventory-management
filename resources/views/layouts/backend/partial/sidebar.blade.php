@@ -196,6 +196,13 @@
             </li>
             @endcan
 
+            <li class="{{ Request::is('imports*') ? 'active' : '' }}">
+                <a href="{{ route('imports.index') }}">
+                    <i class="material-icons">published_with_changes</i>
+                    <span>Imports</span>
+                </a>
+            </li>
+
             <li class="header">Reports</li>
 
             {{-- <li class="{{ Request::is('reports/employees*') ? 'active' : '' }}">
