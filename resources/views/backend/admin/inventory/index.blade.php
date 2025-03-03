@@ -1,14 +1,19 @@
 @extends('layouts.backend.app')
 
-@section('title', 'Admin | Inventories')
+@section('title', 'Inventories')
 
 @push('css')
+    <!-- JQuery Select Css -->
+    <link href="{{ asset('backend/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="{{ asset('backend/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css') }}">
+
     <!-- JQuery DataTable Css -->
-    <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}"
         rel="stylesheet">
+    <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/select2/select2.min.css') }}" rel="stylesheet" />
-
     <style>
         .table td {
             vertical-align: middle !important;
@@ -21,207 +26,130 @@
         .custom_width2 {
             width: 140px;
         }
+
+        li a span.text {
+            padding-left: 30px !important;
+        }
+
+        .bs-searchbox input {
+            padding-left: 20px !important;
+        }
+
+        .bootstrap-select .dropdown-toggle:focus {
+            outline: 0 dotted #333333 !important;
+            outline: 0 auto -webkit-focus-ring-color !important;
+            outline-offset: 0 !important;
+
+        }
+
+        .form-group {
+            margin-bottom: 20px !important;
+        }
+
+        .body {
+            min-height: 110px;
+        }
     </style>
 @endpush
 @section('content')
 <div class="container-fluid">
-    {{-- <div class="block-header">
-        <a href="{{ route('inventories.create') }}" class="btn btn-primary waves-effect pull-right"
-            style="margin-bottom:10px;">
-            <i class="material-icons">add</i>
-            <span>Add New Purchases</span>
-        </a>
 
-    </div> --}}
-    <!-- Exportable Table -->
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
-                <div class="header">
-                    <h2>
-                        Inventory
-                        <span class="badge ">{{ $inventories->count() }}</span>
-                    </h2>
-                </div>
+                <div class="body">
+                    <div class="row">
 
-                <div class="header">
-                    <form action="{{ route("inventories.index") }}" method="GET" id="filerForm">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select id="type" class="form-control show-tick" data-live-search="true">
+                                    <option value="">All Type</option>
+                                    @foreach($types as $type)
+                                        <option value="{{$type->id}}">{{ $type->name }}</option>
+                                    @endforeach
 
-                                    <select name="type" id="type" class="form-control show-tick"
-                                        data-live-search="true">
-                                        <option value="">Product Type</option>
-                                        @foreach($types as $type)
-                                            <option value="{{$type->id}}">{{ $type->name }}</option>
-                                        @endforeach
+                                </select>
 
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-
-                                    <select name="status" id="status" class="form-control show-tick"
-                                        data-live-search="true">
-                                        <option value="">Status</option>
-                                        @foreach($statuses as $status)
-                                            <option value="{{$status->id}}">{{ $status->name }}</option>
-                                        @endforeach
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-
-                                    <select name="store" id="store" class="form-control show-tick"
-                                        data-live-search="true">
-                                        <option value="">Location</option>
-                                        @foreach($stores as $store)
-                                            <option value="{{$store->id}}">{{ $store->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-
-                                    <select name="assign" class="form-control">
-                                        <option value="">Assign</option>
-                                        <option value="1">Yes</option>
-                                        <option value="2">No</option>
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <input type="submit" value="Search" class="btn btn-success">
-                            </div>
-                            <div class="col-md-1">
-                                <a href="{{ route('inventories.index') }}" class="btn btn-danger"> Clear </a>
                             </div>
                         </div>
-                    </form>
+
+
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="condition" id="condition" class="form-control form-control-sm show-tick"
+                                    data-live-search="true">
+                                    <option value="">All Condition</option>
+                                    <option value="good">Good</option>
+                                    <option value="obsolete ">Obsolete </option>
+                                    <option value="damaged">Damaged</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+
+                                <select name="supplier" id="supplier" class="form-control show-tick"
+                                    data-live-search="true">
+                                    <option value="">All Supplier</option>
+                                    @foreach ($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="store" id="store" class="form-control show-tick" data-live-search="true">
+                                    <option value="">All Location</option>
+                                    @foreach($stores as $store)
+                                        <option value="{{$store->id}}">{{ $store->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Exportable Table -->
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        Inventories
+                    </h2>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                        <table class="table table-bordered table-striped table-hover" id="stockTable">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>SL</th>
+                                    <th>Type</th>
                                     <th>Product</th>
-                                    <th>SN / IMEI</th>
+                                    <th>SN / IMEI </th>
                                     <th>Asset Tag</th>
-                                    <th title="Product Status">Condition</th>
+                                    <th>Condition</th>
                                     <th title="Quantity">Qty</th>
                                     <th>Supplier</th>
                                     <th>Purchase Date</th>
-                                    <th>Store</th>
-                                    <th>User</th>
+                                    <th>Location</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tfoot>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Product</th>
-                                    <th>SN / IMEI</th>
-                                    <th>Asset Tag</th>
-                                    <th title="Product Condition"> Condition</th>
-                                    <th title="Quantity">Qty</th>
-                                    <th>Supplier</th>
-                                    <th>Purchase Date</th>
-                                    <th>Location / User</th>
-                                    <th>Action</th>
-                                </tr>
-                            </tfoot>
-                            <tbody>
-                                @foreach($inventories as $key => $data)
-
-                                    <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $data->product->title }}</td>
-                                        <td>{{ $data->service_tag }} </td>
-                                        <td>
-                                            @can('inventory-edit')
-                                            <input type="text" class="custom_width" name="asset_tag"
-                                                value="{{ $data->asset_tag }}" id="service-{{ $data->id }}" required>
-                                            @else
-                                            {{ $data->asset_tag }}
-                                            @endcan
-
-                                        </td>
-                                        <td class="">
-                                            @can('inventory-edit')
-                                            <select onchange="update('condition', this.value, {{ $data->id }})">
-                                                <option value="good" {{ $data->condition == "good" ? "selected" : "" }}>Good
-                                                </option>
-                                                <option value="obsolete" {{ $data->condition == "obsolete" ? "selected" : "" }}>Obsolete</option>
-                                                <option value="damaged" {{ $data->condition == "damaged" ? "selected" : "" }}>
-                                                    Damaged</option>
-                                            </select>
-                                            @else
-                                            {{ $data->condition }}
-                                            @endcan
-                                        </td>
-                                        <td>
-                                            @if($data->producttype->slug == 'software')
-                                                {{ $data->quantity }},
-                                                Assigned - {{ $data->assigned }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $data->purchase->supplier->company }}</td>
-                                        <td>{{ date('d-m-Y', strtotime($data->purchase_date)) }} </td>
-                                        <td>
-                                            @can('inventory-edit')
-                                            <select onchange="update('store_id', this.value, {{ $data->id }})">
-                                                @foreach ($stores as $store)
-                                                    <option value="{{ $store->id }}">{{ $store->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @else
-                                            {{ $data->store->name }}
-                                            @endcan
-                                        </td>
-
-                                        <td>
-                                            @can('inventory-edit')
-                                            @if($data->is_assigned == 2)
-                                            <select onchange="update('employee_id', this.value, {{ $data->id }})" class="employee_id">
-                                                <option value="">Select employee</option>
-                                                @foreach ($employees as $employ )
-                                                    <option value="{{ $employ->id }}">{{ $employ->name." - ".$employ->emply_id }}</option>
-                                                @endforeach
-                                            </select>
-                                            @else
-                                            {{ $data->currentUser->count() > 0 ? $data->currentUser->first()->employee->name . " - " . $data->currentUser->first()->employee->emply_id : "" }}
-                                            @endif
-                                            @else
-                                            {{ $data->currentUser->count() > 0 ? $data->currentUser->first()->employee->name . " - " . $data->currentUser->first()->employee->emply_id : "" }}
-                                            @endcan
-                                        </td>
-
-                                        <td>
-                                            <a href=" {{ route('inventories.show', $data->id) }}"
-                                                class="btn btn-info waves-effect ">
-                                                <i class="material-icons">visibility</i>
-                                            </a>
-
-                                            @empty($data->asset_tag)
-                                                <button type="button" title="Update Inventory " data-inv-id="{{ $data->id }}"
-                                                    class="btn btn-success waves-effect updateInv">
-                                                    <i class="material-icons">update</i>
-                                                </button>
-                                            @endempty
-
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -230,6 +158,7 @@
     </div>
     <!-- #END# Exportable Table -->
 </div>
+
 
 @endsection
 
@@ -246,95 +175,112 @@
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
 
 
-    <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
-
     <script src="{{ asset('backend/select2/select2.min.js') }}"></script>
 
     <script>
-
         $(document).ready(function () {
+
+            let exportOptions = {
+                columns: ':visible', // Export only visible columns
+                modifier: {
+                    search: 'applied',
+                    order: 'applied',
+                    page: 'all' // Export all pages, not just the first one
+                }
+            };
+
+            // Initialize DataTable
+            let table = $('#stockTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('inventories.index') }}',
+                    data: function (d) {
+                        // Pass custom filter data to the server
+                        d.product_type = $('#type').val();
+                        d.condition = $('#condition').val();
+                        d.product_id = $('#store').val();
+                        d.store = $('#store').val();
+                    }
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                    { data: 'product_type', name: 'producttypes.name', searchable: false },
+                    { data: 'title', name: 'products.title' },
+                    { data: 'service_tag', name: 'service_tag' },
+                    { data: 'asset_tag', name: 'asset_tag' },
+                    { data: 'asset_condition', name: 'asset_condition' },
+                    { data: 'quantity', name: 'quantity' },
+                    { data: 'supplier_company', name: 'suppliers.company' },
+                    { data: 'purchase_date', name: 'stocks.purchase_date',  searchable: false },
+                    { data: 'assigned_to', name: 'assigned_to', searchable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false},
+
+                ],
+                dom: 'Blfrtip',
+                responsive: true,
+                buttons: [
+                    {
+                        extend: 'copy',
+                        exportOptions: {
+                            modifier: { page: 'all' } // Exports all pages
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        exportOptions: {
+                            modifier: { page: 'all' }
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        exportOptions: {
+                            modifier: { page: 'all' }
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        orientation: 'landscape',
+                        exportOptions: {
+                            modifier: { page: 'all' }
+                        },
+                        customize: function (doc) {
+                            doc.defaultStyle.fontSize = 10;
+                            doc.styles.tableHeader.fontSize = 11;
+                            doc.styles.tableBodyEven.alignment = 'center';
+                            doc.styles.tableBodyOdd.alignment = 'center';
+                            doc.styles.tableHeader.alignment = 'center';
+
+                            doc.content[1].layout = {
+                                tableWidth: '100%',
+                            };
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        exportOptions: {
+                            modifier: { page: 'all' }
+                        }
+                    }
+                ],
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            });
+
+            // Custom Filters Trigger Table Reload
+            $('#type, #condition, #store, #supplier').on('change', function () {
+                table.ajax.reload();
+            });
+
+            $('#product_id').select2({
+                width: '100%',
+            });
 
             // Initialize Select2
             $('#type').select2();
-            $('#status').select2();
             $('#store').select2();
-
-            $('.employee_id').select2({
-                placeholder: "Select User",
-                allowClear: true
-            });
-
+            $('#supplier').select2();
+            $('#condition').select2();
 
         });
-
-        $("#resetForm").click(function () {
-            alert("ok");
-            $("#filerForm")[0].reset();
-        });
-
-
-
-        function update(field, value, stockId) {
-
-            if (!confirm("Are you sure you want to update the inventory?")) {
-                return;
-            }
-            var url = location.origin + '/inventories/' + stockId;
-
-            $.ajax({
-                url: url
-                , type: "POST"
-                , data: {
-                    "_token": "{{ csrf_token() }}",
-                    field: field,
-                    value: value,
-
-                }
-                , success: function (response) {
-
-                    console.log(response);
-
-                    if (response['status'] == 200) {
-                        toastr.success(response['message']);
-                    } else {
-                        toastr.error(response['message']);
-                    }
-                }
-
-            });
-        }
-
-        $(".updateInv").click(function () {
-            // toastr.success('Click Button');
-            var invId = $(this).data('inv-id');
-            var asset = $("#service-" + invId).val();
-            var url = location.origin + '/inventories/' + invId;
-            alert()
-
-            $.ajax({
-                url: url
-                , type: "POST"
-                , data: {
-                    "_token": "{{ csrf_token() }}"
-                    , asset_tag: asset,
-
-                }
-                , success: function (response) {
-
-                    if (response['status'] == 200) {
-                        toastr.success(response['message']);
-                    } else {
-                        toastr.error(response['message']);
-                    }
-                }
-
-            });
-
-        });
-
-
-
-
     </script>
-
 @endpush
