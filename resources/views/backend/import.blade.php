@@ -54,6 +54,7 @@
                                 <option value="product">Product</option>
                                 <option value="purchase_product">Purchase Product</option>
                                 <option value="inventory">Inventory</option>
+                                <option value="transection">Transection</option>
                             </select>
                         </div>
                             <div class="form-group form-float">

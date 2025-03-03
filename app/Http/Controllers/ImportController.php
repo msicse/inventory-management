@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Imports\ProductImport;
 use App\Imports\PurchaseProductImport;
 use App\Imports\StockAllImport;
+use App\Imports\TransectionImport;
 use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -34,6 +35,10 @@ class ImportController extends Controller
 
         if($request->import_table == 'inventory'){
             Excel::import(new StockAllImport, $request->file('csv_file'));
+        }
+
+        if($request->import_table == 'transection'){
+            Excel::import(new TransectionImport, $request->file('csv_file'));
         }
 
         Toastr::success('Succesfully Imported ', 'Success');
