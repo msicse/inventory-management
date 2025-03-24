@@ -52,112 +52,207 @@
     </style>
 @endpush
 @section('content')
-<div class="container-fluid">
+    <div class="container-fluid">
 
-    <div class="row clearfix">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="card">
-                <div class="body">
-                    <div class="row">
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="row">
 
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-                                <select id="type" class="form-control show-tick" data-live-search="true">
-                                    <option value="">All Type</option>
-                                    @foreach($types as $type)
-                                        <option value="{{$type->id}}">{{ $type->name }}</option>
-                                    @endforeach
+                            <div class="col-md-2">
+                                <div class="form-group form-float">
+                                    <select id="type" class="form-control show-tick" data-live-search="true">
+                                        <option value="">All Type</option>
+                                        @foreach($types as $type)
+                                            <option value="{{$type->id}}">{{ $type->name }}</option>
+                                        @endforeach
 
-                                </select>
+                                    </select>
 
+                                </div>
                             </div>
+
+
+                            <div class="col-md-2">
+                                <div class="form-group form-float">
+                                    <select name="condition" id="condition" class="form-control form-control-sm show-tick"
+                                        data-live-search="true">
+                                        <option value="">All Condition</option>
+                                        <option value="good">Good</option>
+                                        <option value="obsolete ">Obsolete </option>
+                                        <option value="damaged">Damaged</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group form-float">
+
+                                    <select name="supplier" id="supplier" class="form-control show-tick"
+                                        data-live-search="true">
+                                        <option value="">All Supplier</option>
+                                        @foreach ($suppliers as $supplier)
+                                            <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group form-float">
+                                    <select name="store" id="store" class="form-control show-tick" data-live-search="true">
+                                        <option value="">All Location</option>
+                                        @foreach($stores as $store)
+                                            <option value="{{$store->id}}">{{ $store->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+
+
                         </div>
 
-
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-                                <select name="condition" id="condition" class="form-control form-control-sm show-tick"
-                                    data-live-search="true">
-                                    <option value="">All Condition</option>
-                                    <option value="good">Good</option>
-                                    <option value="obsolete ">Obsolete </option>
-                                    <option value="damaged">Damaged</option>
-
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-
-                                <select name="supplier" id="supplier" class="form-control show-tick"
-                                    data-live-search="true">
-                                    <option value="">All Supplier</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
-                                    @endforeach
-
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="form-group form-float">
-                                <select name="store" id="store" class="form-control show-tick" data-live-search="true">
-                                    <option value="">All Location</option>
-                                    @foreach($stores as $store)
-                                        <option value="{{$store->id}}">{{ $store->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Exportable Table -->
-    <div class="row clearfix">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-            <div class="card">
-                <div class="header">
-                    <h2>
-                        Inventories
-                    </h2>
-                </div>
-                <div class="body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover" id="stockTable">
-                            <thead>
-                                <tr>
-                                    <th>SL</th>
-                                    <th>Type</th>
-                                    <th>Product</th>
-                                    <th>SN / IMEI </th>
-                                    <th>Asset Tag</th>
-                                    <th>Condition</th>
-                                    <th title="Quantity">Qty</th>
-                                    <th>Supplier</th>
-                                    <th>Purchase Date</th>
-                                    <th>Location</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </div>
+
+
+        <!-- Exportable Table -->
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="card">
+                    <div class="header">
+                        <h2>
+                            Inventories
+                        </h2>
+                    </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover" id="stockTable">
+                                <thead>
+                                    <tr>
+                                        <th>SL</th>
+                                        <th>Type</th>
+                                        <th>Product</th>
+                                        <th>SN / IMEI </th>
+                                        <th>Asset Tag</th>
+                                        <th>Condition</th>
+                                        <th title="Quantity">Qty</th>
+                                        <th>Supplier</th>
+                                        <th>Purchase Date</th>
+                                        <th>Location</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #END# Exportable Table -->
     </div>
-    <!-- #END# Exportable Table -->
-</div>
+
+    <!-- Update  -->
+    <div class="modal fade" id="popupModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form class="edit-form" method="post" id="editForm">
+
+                    <input type="hidden" id="inventoryId">
+
+                    <div class="modal-header custom-modal">
+                        <h4 class="modal-title" id="defaultModalLabel">Update Inventory</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="errorMessages"></div>
+
+
+
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs tab-nav-right" role="tablist">
+                                    <li role="presentation" class="active"><a href="#home" data-toggle="tab">Update
+                                            Product</a></li>
+                                    <li role="presentation"><a href="#assignProduct" data-toggle="tab">Assign
+                                            Product</a></li>
+
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane fade in active" id="home">
+                                        <div class="form-group form-float">
+                                            <select id="updateStore" name="updateStore" class="form-control">
+                                                <option value="">Select Store</option>
+                                                @foreach($stores as $store)
+                                                    <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group form-float">
+                                            <select name="updateCondition" id="updateCondition"
+                                                class="form-control form-control-sm show-tick" data-live-search="true">
+                                                <option value="">Select Condition</option>
+                                                <option value="good">Good</option>
+                                                <option value="obsolete ">Obsolete </option>
+                                                <option value="damaged">Damaged</option>
+
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-float">
+                                            <input type="text" class="form-control" name="serial_no" id="serial_no" value=""
+                                                placeholder="Serial No / IMEI">
+                                        </div>
+                                        <div class="form-group form-float">
+                                            <input type="text" class="form-control" name="asset_tag" id="asset_tag" value=""
+                                                placeholder="Asset Tag">
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" id="assignProduct">
+
+                                        <div class="form-group form-float">
+                                            <select id="updateEmployee" class="form-control form-control-sm show-tick"
+                                                data-live-search="true">
+                                                <option value="">Select Employee</option>
+                                                @foreach ($employees as $employee)
+                                                    <option value="{{ $employee->id }}">
+                                                        {{ $employee->name . ' - ' . $employee->emply_id }}
+                                                    </option>
+                                                @endforeach
+
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-float">
+                                            <input type="date" class="form-control" style="display: none;" id="assignDate"
+                                                placeholder="Assigned Date" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary waves-effect">Update</button>
+                        <button type="button" class="btn btn-danger waves-effect" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
 
 @endsection
@@ -179,6 +274,19 @@
 
     <script>
         $(document).ready(function () {
+
+            $('#updateEmployee').select2({
+                width: '100%',
+                dropdownParent: $('#popupModal'),
+            });
+
+            $('#updateEmployee').on('change', function () {
+                if ($('#updateEmployee').val() > 0) {
+                    $('#assignDate').css('display', 'block');
+                } else {
+                    $('#assignDate').css('display', 'none');
+                }
+            });
 
             let exportOptions = {
                 columns: ':visible', // Export only visible columns
@@ -204,7 +312,7 @@
                     }
                 },
                 columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'product_type', name: 'producttypes.name', searchable: false },
                     { data: 'title', name: 'products.title' },
                     { data: 'service_tag', name: 'service_tag' },
@@ -212,9 +320,20 @@
                     { data: 'asset_condition', name: 'asset_condition' },
                     { data: 'quantity', name: 'quantity' },
                     { data: 'supplier_company', name: 'suppliers.company' },
-                    { data: 'purchase_date', name: 'stocks.purchase_date',  searchable: false },
+                    {
+                        data: 'purchase_date',
+                        name: 'stocks.purchase_date',
+                        title: 'Purchase Date',
+                        render: function (data, type, row) {
+                            if (data) {
+                                let date = new Date(data);
+                                return date.toLocaleDateString('en-GB');
+                            }
+                            return '';
+                        }
+                    },
                     { data: 'assigned_to', name: 'assigned_to', searchable: false },
-                    { data: 'action', name: 'action', orderable: false, searchable: false},
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
 
                 ],
                 dom: 'Blfrtip',
@@ -281,6 +400,70 @@
             $('#supplier').select2();
             $('#condition').select2();
 
+            $(document).on('click', '.open-popup', function () {
+                let inventoryId = $(this).data('id');
+
+                $('#popupModal').modal('show');
+                $('#inventoryId').val(inventoryId);
+            })
+
+            $('#editForm').on("submit", function (e) {
+                e.preventDefault();
+
+                let inventoryId = $('#inventoryId').val();
+                let updateCondition = $('#updateCondition').val();
+                let updateStore = $('#updateStore').val();
+                let updateEmployee = $('#updateEmployee').val();
+                let updateSerial = $('#serial_no').val();
+                let updateAssetTag = $('#asset_tag').val();
+                let assignDate = $('#assignDate').val();
+
+                if (!updateCondition && !updateStore && !updateSerial && !updateAssetTag && !updateEmployee) {
+                    $('#errorMessages').html('<div class="alert alert-danger">Anyone field is required.</div>');
+                    return;
+                }
+
+                // Clear previous error messages
+                $('#errorMessages').html('');
+
+                $.ajax({
+                    url: `/inventories/${inventoryId}`,
+                    type: 'PUT',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        store_id: updateStore,
+                        condition: updateCondition,
+                        serial_no: updateSerial,
+                        asset_tag: updateAssetTag,
+                        employee_id: updateEmployee,
+                        assign_date: assignDate,
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        $('#editForm')[0].reset();
+                        $('#popupModal').modal('hide');
+                        $('#stockTable').DataTable().ajax.reload();
+                        toastr.success(response.message);
+
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422) {
+                            // Handle validation errors
+                            let errors = xhr.responseJSON.errors;
+                            let errorHtml = '<div class="alert alert-danger"><ul>';
+                            $.each(errors, function (key, value) {
+                                errorHtml += '<li>' + value[0] + '</li>';
+                            });
+                            errorHtml += '</ul></div>';
+                            $('#errorMessages').html(errorHtml);
+                        } else {
+                            // Handle server errors
+
+                            alert(xhr.responseJSON.error);
+                        }
+                    }
+                });
+            });
         });
     </script>
 @endpush

@@ -5,7 +5,7 @@
 @push('css')
     <!-- JQuery DataTable Css -->
     <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
-    
+
     <style>
         .show-image {
             margin-bottom: 20px;
@@ -22,7 +22,7 @@
             <i class="material-icons">keyboard_return</i>
             <span>Return</span>
         </a>
-    
+
     </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -30,11 +30,11 @@
                 <div class="header">
                     <h2>
                         <strong>Inventory Details</strong>
-                        
+
                     </h2>
                 </div>
                 <div class="body table-responsive">
-                    
+
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -43,7 +43,7 @@
                                 <th>Product Type</th>
                                 <td>
                                     {{ $stock->product->type->name }}
-                                    
+
                                 </td>
                             </tr>
                             <tr>
@@ -53,52 +53,56 @@
                                 <td> {{ $stock->purchase->supplier->company }} </td>
                             </tr>
                             <tr>
-                                <th>Price</th>
-                                <td>{{ $stock->purchase->unit_price }}</td>
                                 <th>Purchase Date</th>
-                                <td>{{ $stock->purchase->purchase_date }} </td>
-                            </tr>
-                            <tr>
-                                <th>{{ $stock->product->type->slug == 'software' ? 'Subscription Preiod(Month)' : 'Warranty Preiod(Month)' }} </th>
-                                <td>{{ $stock->purchase->warranty }}</td>
+                                <td>{{ formatDate($stock->purchase->purchase_date) }} </td>
                                 <th> {{ $stock->product->type->slug == 'software' ? 'Subscription' : ' Expired' }} Date</th>
-                                <td>{{ $stock->purchase->expired_date}} </td>
-                            </tr>
-                            <tr>
-                                <th>RSC-Serial No.</th>
-                                <td>{{ empty($stock->serial_no) ? '' : "RSC-".$stock->serial_no }}</td>
-                                <th>Serial No.</th>
-                                <td> {{ $stock->service_tag }} </td>
+                                <td>{{ formatDate($stock->purchase->expired_date)}} </td>
                             </tr>
                             <tr>
                                 <th>MAC</th>
                                 <td>{{ $stock->mac }}</td>
-                                <th>Product Status</th>
+                                <th>{{ $stock->product->type->slug == 'software' ? 'Subscription Preiod(Month)' : 'Warranty Preiod(Month)' }} </th>
+                                <td>{{ $stock->purchase->warranty }}</td>
+
+                            </tr>
+                            <tr>
+                                <th>Serial No.</th>
+                                <td> {{ $stock->service_tag }} </td>
+                                <th>Asset Tag</th>
+                                <td> {{ $stock->asset_tag }} </td>
+                            </tr>
+                            <tr>
+
+                                <th>Product Condition</th>
                                 <td>
-                                    @if($stock->product_status == 1)
-                                    <span class="text-success"> Active </span>
-                                    @elseif($stock->product_status == 2)
-                                    <span class="text-warning"> Poor </span>
+                                    @if($stock->asset_condition == 'good')
+                                    <span class="text-success"> {{ $stock->asset_condition }} </span>
                                     @else
-                                    <span class="text-danger"> Damage </span>
+                                    <span class="text-danger"> {{ $stock->asset_condition }} </span>
+                                    @endif
+                                </td>
+                                <th>Assigned To</th>
+                                <td>
+                                    @if($stock->is_assigned == 1)
+                                        {{$stock->currentUser->first()->employee->name }}
+                                    @else
+                                    Not Assigned
                                     @endif
                                 </td>
                             </tr>
                             <tr>
-                                <th>Is Stocked</th>
+
+
+                                <th>Current Location</th>
                                 <td>
-                                    @if($stock->purchase->is_stocked == 1)
-                                    <span class="text-success"> Yes </span>
+                                    @if($stock->store->slug == 'admin-servicing')
+                                    {{$stock->store->name }} / {{ formatDate($stock->updated_at) }}
                                     @else
-                                    <span class="text-danger"> No </span>
-                                    @endif
-                                </td>
-                                <th>Is Assigned </th>
-                                <td>
-                                    @if($stock->is_assigned == 1)
-                                    <span class="text-success"> Yes </span>
-                                    @else
-                                    <span class="text-danger"> No </span>
+                                        @if($stock->is_assigned == 1)
+                                            {{$stock->currentUser->first()->employee->name }}
+                                        @else
+                                        {{$stock->store->name }}
+                                        @endif
                                     @endif
                                 </td>
                             </tr>
@@ -115,11 +119,11 @@
                 <div class="header">
                     <h2>
                         Distribution History <strong>{{ $stock->name }}</strong>
-                        
+
                     </h2>
                 </div>
                 <div class="body table-responsive">
-                    
+
                     <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                         <thead>
                             <tr>
@@ -130,9 +134,9 @@
                                 <th>Issue Date </th>
                                 <th>Return Date </th>
                                 <th>Quantity</th>
-                                
+
                             </tr>
-                            
+
                         </thead>
                         <tfoot>
                             <th>SL</th>
@@ -150,8 +154,8 @@
                                 <td>{{ $data->employee->name }}</td>
                                 <td>{{ $data->employee->designation }}</td>
                                 <td>{{ $data->employee->department->name }}</td>
-                                <td>{{ $data->issued_date }}</td>
-                                <td>{{ $data->return_date }}</td>
+                                <td>{{ formatDate($data->issued_date) }}</td>
+                                <td>{{ formatDate($data->return_date) }}</td>
                                 <td>{{ $data->quantity }}</td>
                             </tr>
                             @endforeach

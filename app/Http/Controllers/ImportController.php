@@ -12,6 +12,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ImportController extends Controller
 {
+
+    function __construct()
+    {
+         $this->middleware('permission:import-create', ['only' => ['index','store']]);
+    }
     public function index() {
         return view('backend.import');
     }

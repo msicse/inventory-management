@@ -186,9 +186,9 @@
                                 </td>
 
                                 <td>
-                                    <a href=" {{ route('inventories.show', $data->id) }}" class="btn btn-info waves-effect ">
+                                    {{-- <a href=" {{ route('inventories.show', $data->id) }}" class="btn btn-info waves-effect ">
                                         <i class="material-icons">visibility</i>
-                                    </a>
+                                    </a> --}}
 
                                     @empty($data->asset_tag)
                                     <button type="button" title="Update Inventory " data-inv-id="{{ $data->id }}" class="btn btn-success waves-effect updateInv">

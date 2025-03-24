@@ -64,7 +64,7 @@ class InventoryController extends Controller
                 'suppliers.company as supplier_company',
 
                 DB::raw('CASE
-                        WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL THEN employees.name
+                        WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL AND stores.id != 5 THEN employees.name
                         ELSE stores.name
                     END as assigned_to')
             )
@@ -99,7 +99,10 @@ class InventoryController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function($row){
                 // Add your action buttons here
-                return '<button>Test</button>';
+                return '
+                    <a href="' . route('inventories.show', $row->stock_id) . '" class="btn btn-info btn-sm">View</a>
+                    <button type="button" class="btn btn-primary btn-sm open-popup" data-id="' . $row->stock_id . '">Update</button>
+                ';
             })
             ->rawColumns(['action'])
             ->make(true);
@@ -173,7 +176,7 @@ class InventoryController extends Controller
         $purchase->purchase_date = $request->date_of_purchase;
         $purchase->save(); //   = $request->date_of_purchase;
 
-        Toastr::success(' Succesfully Saved ', 'Success');
+        Toastr::success('Succesfully Saved ', 'Success');
         return redirect()->route('admin.purchases.index');
     }
     public function show($id)
@@ -201,54 +204,64 @@ class InventoryController extends Controller
         // }
 
 
+        // Validate input
+        $request->validate([
+            'store_id'  => 'nullable|integer|max:255',
+            'condition' => 'nullable|string|max:255',
+            'serial_no' => 'nullable|string|max:255',
+            'asset_tag' => 'nullable|string|max:255',
+        ]);
+// return $request->all();
+        try {
+            $inventory = Stock::findOrFail($id);
+
+            if($request->store_id){
+                $inventory->store_id = $request->store_id;
+            }
+
+            if($request->condition){
+                $inventory->asset_condition = $request->condition;
+            }
+            if($request->serial_no){
+                $inventory->service_tag = $request->serial_no;
+            }
+            if($request->asset_tag){
+                $inventory->asset_tag = $request->asset_tag;
+            }
+
+            if($request->employee_id){
+
+                // return $request->all();
+
+                if($inventory->is_assigned == 1){
+                    $user_transection = Transection::where('stock_id', $id)->whereNull('return_date')->first();
+                    $user_transection->return_date = date("Y-m-d");
+
+                    if($user_transection->save()){
+                        Transection::create([
+                            'stock_id' => $id,
+                            'employee_id' => $request->employee_id,
+                            'quantity' => 1,
+                            'issued_date' => date("Y-m-d")
+                        ]);
+                        UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
+                    }
+                }
+            }
 
 
-        $inventory = Stock::find($id);
-
-        if ($request->field == 'condition') {
-            $inventory->condition = $request->value;
-        }
-        if ($request->field == 'store_id') {
-            $inventory->store_id = $request->value;
-        }
-
-
-        if ($request->field == 'employee_id') {
-
-            $transection = new Transection();
-            $transection->stock_id = $id;
-            $transection->employee_id = $request->value;
-            $transection->quantity = 1;
-            $transection->issued_date = date("Y-m-d");
-            $transection->save();
-
-            $inventory->is_assigned = 1;
-
-            UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
 
             if ($inventory->save()) {
-                return response()->json([
-                    'message' => 'The Product has been assigned',
-                    'status' => 200,
-                ]);
+
+                UserLogHelper::log('update', 'Updated Inventory: ' . $inventory->id);
+                return response()->json(['message' => 'Inventory updated successfully', 201]);
+            } else {
+                return response()->json(['error' => 'Failed to update inventory'], 500);
             }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
         }
 
-
-
-        if ($inventory->save()) {
-            UserLogHelper::log('update', 'Updated Inventory: ' . $inventory->id);
-            return response()->json([
-                'message' => 'Inventory Updated',
-                'status' => 200,
-            ]);
-        } else {
-            UserLogHelper::log('update', 'Trying to update: ' . $inventory->id);
-            return response()->json([
-                'message' => 'Something went wrong',
-                'status' => 400,
-            ]);
-        }
     }
 
 

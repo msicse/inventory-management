@@ -125,7 +125,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('inventories/{id}', [App\Http\Controllers\Admin\InventoryController::class, 'show'])->name('inventories.show');
     Route::get('inventories/create', [App\Http\Controllers\Admin\InventoryController::class, 'create'])->name('inventories.create');
     Route::post('inventories', [App\Http\Controllers\Admin\InventoryController::class, 'store'])->name('inventories.store');
-    Route::post('inventories/{id}', [App\Http\Controllers\Admin\InventoryController::class, 'update'])->name('inventories.update');
+    Route::put('inventories/{id}', [App\Http\Controllers\Admin\InventoryController::class, 'update'])->name('inventories.update');
 
     //Transection Route
     Route::get('transections', [App\Http\Controllers\Admin\TransectionController::class, 'index'])->name('transections.index');

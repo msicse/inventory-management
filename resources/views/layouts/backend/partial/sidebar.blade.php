@@ -154,7 +154,7 @@
             <li class="{{ Request::is('pending-tag-updates') ? 'active' : '' }}">
                 <a href="{{ route('inventories.pending') }}">
                     <i class="material-icons">store_mall_directory</i>
-                    <span>Pending Tag Update </span> <span class="badge  text-white">{{ pending_tag() }}</span>
+                    <span>Pending Tag Update </span> <span class="badge  text-white  {{ pending_tag() > 0 ? 'bg-orange' : '' }} ">{{ pending_tag() }}</span>
                 </a>
             </li>
             @endcan
@@ -166,15 +166,15 @@
                 </a>
             </li>
             @endcan
-            @can("onboarding-list")
+            {{-- @can("onboarding-list")
             <li class="{{ Request::is('onboarding*') ? 'active' : '' }}">
                 <a href="{{ route('onboardings') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Onboarding Acknowledgement</span>
                 </a>
             </li>
-            @endcan
-            @can("management-list")
+            @endcan --}}
+            {{-- @can("management-list")
             <li class="{{ Request::is('management*') ? 'active' : '' }}">
                 <a href="javascript:void(0);" class="menu-toggle">
                     <i class="material-icons">widgets</i>
@@ -194,7 +194,7 @@
 
                 </ul>
             </li>
-            @endcan
+            @endcan --}}
 
             <li class="{{ Request::is('imports*') ? 'active' : '' }}">
                 <a href="{{ route('imports.index') }}">
@@ -212,12 +212,12 @@
                 </a>
             </li> --}}
 
-            <li class="{{ Request::is('reports/transections*') ? 'active' : '' }}">
+            {{-- <li class="{{ Request::is('reports/transections*') ? 'active' : '' }}">
                 <a href="{{ route('reports.transections') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Transections</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="{{ Request::is('reports/stocks*') ? 'active' : '' }}">
                 <a href="{{ route('reports.stocks') }}">
                     <i class="material-icons">published_with_changes</i>

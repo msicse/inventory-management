@@ -1,18 +1,18 @@
 <?php
-    
+
 namespace App\Http\Controllers;
 
 
-use DB;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Permission;
-    
+
 class RoleController extends Controller
 {
     /**
@@ -27,7 +27,7 @@ class RoleController extends Controller
          $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:role-delete', ['only' => ['destroy']]);
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +39,7 @@ class RoleController extends Controller
         // $roles = Role::orderBy('id','DESC')->get();
         return view('backend.admin.roles.index',compact('roles'));
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -50,7 +50,7 @@ class RoleController extends Controller
         $permission = Permission::get();
         return view('backend.admin.roles.create',compact('permission'));
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -75,12 +75,12 @@ class RoleController extends Controller
             Toastr::error('You can\'t add or update', 'Error');
             return redirect()->back();
         }
-    
+
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($permissionsID);
 
         Toastr::success('Succesfully Created ', 'Success');
-    
+
         return redirect()->route('roles.index');
     }
     /**
@@ -95,10 +95,10 @@ class RoleController extends Controller
         $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
             ->where("role_has_permissions.role_id",$id)
             ->get();
-    
+
         return view('backend.admin.roles.show',compact('role','rolePermissions'));
     }
-    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -112,10 +112,10 @@ class RoleController extends Controller
         $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
             ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
             ->all();
-    
+
         return view('backend.admin.roles.edit',compact('role','permission','rolePermissions'));
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -146,11 +146,11 @@ class RoleController extends Controller
             function($value) { return (int)$value; },
             $request->input('permission')
         );
-    
+
         $role->syncPermissions($permissionsID);
 
         Toastr::success('Succesfully Updated', 'Success');
-    
+
         return redirect()->route('roles.index');
     }
     /**

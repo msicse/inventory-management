@@ -162,7 +162,7 @@ class TransectionController extends Controller
             ->join('products', 'products.id', '=', 'stocks.product_id')
             ->join('producttypes', 'producttypes.id', '=', 'stocks.producttype_id')
             //->join('orders', 'users.id', '=', 'orders.user_id')
-            ->select('stocks.id', 'stocks.serial_no', 'stocks.service_tag', 'stocks.quantity', 'products.title', 'products.brand', 'products.model', 'producttypes.slug')
+            ->select('stocks.id', 'stocks.asset_tag', 'stocks.service_tag', 'stocks.quantity', 'products.title', 'products.brand', 'products.model', 'producttypes.slug')
             ->where('stocks.producttype_id', $id);
         //->where('product_status', 1);
 

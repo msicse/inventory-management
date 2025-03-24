@@ -64,9 +64,9 @@
                                 </tr>
                                 <tr>
                                     <th>Date of Join</th>
-                                    <td>{{ $employee->date_of_join }}</td>
+                                    <td>{{ formatDate($employee->date_of_join) }}</td>
                                     <th>Date of Resign</th>
-                                    <td>{{ $employee->resign_date }} </td>
+                                    <td>{{ formatDate($employee->resign_date) }} </td>
                                 </tr>
                             </thead>
                         </table>
@@ -113,13 +113,13 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->stock->product->title }}</td>
                                             <td>{{ $data->stock->product->model }}</td>
-                                            <td class="{{ $data->stock->status->slug == 'active' ? 'text-success' : 'text-danger'  }}">
-                                                {{ $data->stock->status->name }}
+                                            <td class="{{ $data->stock->asset_condition == 'good' ? 'text-success' : 'text-danger'  }}">
+                                                {{ $data->stock->asset_condition }}
                                             </td>
                                             <td>{{ $data->stock->asset_tag}}</td>
                                             <td>{{ $data->stock->service_tag}}</td>
-                                            <td>{{ $data->issued_date }}</td>
-                                            <td>{{ $data->return_date }}</td>
+                                            <td>{{ formatDate($data->issued_date) }}</td>
+                                            <td>{{ formatDate($data->return_date) }}</td>
                                             <td>{{ $data->quantity }}</td>
                                             <td>
                                                 <div class="form-check">

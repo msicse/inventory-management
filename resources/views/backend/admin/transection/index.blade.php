@@ -53,7 +53,7 @@
                                     <th>SL</th>
                                     <th>Product</th>
                                     <th>Type</th>
-
+                                    <th>Asset Tag</th>
                                     <th>Serial No</th>
                                     <th>Employee Name & ID</th>
                                     <th>Designation</th>
@@ -67,9 +67,9 @@
                             </thead>
                             <tfoot>
                                 <th>SL</th>
-
                                 <th>Product</th>
                                 <th>Type</th>
+                                <th>Asset Tag</th>
                                 <th>Serial No</th>
                                 <th>Employee Name & ID</th>
                                 <th>Designation</th>
@@ -88,17 +88,18 @@
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $data->stock->product->title }}</td>
                                     <td>{{ $data->stock->producttype->name }}</td>
+                                    <td> {{ $data->stock->asset_tag  }}</td>
                                     <td> {{ $data->stock->service_tag  }}</td>
                                     <td>{{ $data->employee->name .' - '. sprintf('%03d', $data->employee->emply_id) }}</td>
                                     <td>{{ $data->employee->designation }}</td>
                                     {{-- <td>{{ $data->employee->department->name }}</td> --}}
-                                    <td>{{ $data->issued_date }}</td>
+                                    <td>{{ formatDate($data->issued_date) }}</td>
                                     <td>
                                         @can('distribution-edit')
                                         @empty($data->return_date)
-                                        <input type="text" name="date_of_return" value="{{ old('date_of_return') }}" class="datepicker form-control" style="width: 100px;" placeholder="Return Date...">
+                                        <input type="text" name="date_of_return" value="{{ old('date_of_return') }}" class="datepicker form-control" style="width: 100px;" placeholder="Return Date..." required>
                                         @else
-                                        {{ $data->return_date }}
+                                        {{ formatDate($data->return_date) }}
                                         @endempty
                                         @endcan
 
@@ -113,17 +114,17 @@
                                             <i class="material-icons">print</i>
                                         </a> -->
 
-                                        <a href="{{ route('transections.ack', $data->id) }}" target="blank" title="Print Acknowledgement" class="btn btn-primary waves-effect "  style="margin-top: 5px;">
+                                        {{-- <a href="{{ route('transections.ack', $data->id) }}" target="blank" title="Print Acknowledgement" class="btn btn-primary waves-effect "  style="margin-top: 5px;">
                                             <i class="material-icons">print</i>
-                                        </a>
+                                        </a> --}}
 
-                                        @if ($data->return_date !== null)
+                                        {{-- @if ($data->return_date !== null)
                                             <a href="{{ route('transections.return', $data->id) }}"
                                                 target="blank" title="Print Return Form"
                                                 class="btn btn-warning waves-effect " style="margin-top: 5px;">
                                                 <i class="material-icons">print</i>
                                             </a>
-                                        @endif
+                                        @endif --}}
 
                                         @can('distribution-edit')
                                         @empty($data->return_date)

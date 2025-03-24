@@ -8,6 +8,17 @@ use App\Models\Stock;
 // }
 
 
+if (!function_exists('formatDate')) {
+    function formatDate($date)
+    {
+        if($date){
+            return Carbon::parse($date)->format('d M Y'); // Change to your desired format
+        }
+
+    }
+}
+
+
 function getDateDiff($date): int
 {
     $currentDate = Carbon::now();

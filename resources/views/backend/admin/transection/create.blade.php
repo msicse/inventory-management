@@ -33,7 +33,7 @@
     <div class="block-header">
         <a href="{{ route('transections.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
             <i class="material-icons">keyboard_return</i>
-            <span>Return</span> 
+            <span>Return</span>
         </a>
 
     </div>
@@ -57,7 +57,7 @@
                                     <label class="form-label">Product type </label>
                                     <select name="product_type" id="product_type" data-typename="" class="form-control" required >
                                         <option value="">Select Product Type </option>
-                            
+
                                         @foreach( $types as $data)
                                         <option value="{{ $data->id }}" {{ $data->id == old('product_type') ? 'selected' : '' }}> {{ $data->name }} </option>
                                         @endforeach
@@ -70,17 +70,17 @@
                                     <select class="form-control" name="product" id="product" required></select>
                                     <label id="product-error" class="error" for="product"></label>
                                 </div>
-                            
+
                                 <div class="form-group">
                                     <label class="form-label">Quantity</label>
                                     <input type="number" minlength="1" id="quantity" name="quantity"  class="form-control" value="{{ old('quantity') ? old('quantity') : 1 }}" required onkeyup="calTotal()">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="form-label">Date of Issue </label>
                                     <input type="text" name="date_of_issue" value="{{ old('date_of_issue') }}" class="datepicker form-control" placeholder="Issue Date..." required>
                                 </div>
-        
+
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -99,13 +99,13 @@
                                         <textarea class="form-control" name="comment" rows="5" placeholder="Write Comments Here...">{{ old('comment') }}</textarea>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group row">
                                     <div class="col-md-4" style="padding-top: 20px;">
                                         <div class="form-check">
                                             <input class="form-control form-check-input" type="checkbox" name="print_ack" value="1" id="print_ack" checked>
                                             <label class="form-check-label" for="print_ack">
-                                                <strong>Print ACK</strong> 
+                                                <strong>Print ACK</strong>
                                             </label>
                                         </div>
                                     </div>
@@ -136,7 +136,7 @@
                                         </div>
                                     </div>
                                     </div>
-                                    
+
                                 </div> -->
 
                             </div>
@@ -148,7 +148,7 @@
                         </div>
                     </form>
                 </div>
-            
+
             </div>
         </div>
     </div>
@@ -187,7 +187,7 @@
         $('#total_price').val(total);
 
     }
-    
+
     $('.datepicker').bootstrapMaterialDatePicker({
         format: 'DD-MM-YYYY',
         clearButton: true,
@@ -216,9 +216,9 @@
 
                             if(course.slug == 'software'){
                                 $('select[name="product"]').append('<option value="'+ course.id +'">' + course.title +'-'+ course.brand + ' - '+ course.model+'</option>');
-                                
+
                             }else {
-                                $('select[name="product"]').append('<option value="'+ course.id +'">' + course.title +' - RSC-'+ course.serial_no + ' - '+ course.service_tag+'</option>');
+                                $('select[name="product"]').append('<option value="'+ course.id +'">' + course.title +' - '+ course.asset_tag + ' - '+ course.service_tag+'</option>');
                                 $("#stocksInfo").html("");
                             }
                         });
@@ -235,7 +235,7 @@
     $('#product').change(function(e){
 
         let typeName = $('#typename').val();
-        
+
         if(typeName == 'software'){
             var stockId = $(this).val();
             var url = location.origin + '/single-stock/' + stockId;
@@ -256,7 +256,7 @@
     });
     $("#store_form").validate();
 
-    
+
 </script>
 
 @endpush
