@@ -53,15 +53,22 @@ class InventoryController extends Controller
                 'stocks.id as stock_id',
                 'producttypes.name as product_type',
                 'stocks.service_tag',
+                'stocks.is_assigned',
                 'stocks.asset_tag',
+                'stocks.store_id',
                 'stocks.asset_condition',
                 'stocks.quantity',
                 'stocks.purchase_date',
                 'products.title as title',
                 'stores.name as store_name',
                 'employees.name as employee_name',
-                'employees.emply_id as employee_id',
+                'employees.emply_id as emply_id',
+                'employees.id as employee_id',
                 'suppliers.company as supplier_company',
+                'transections.employee_id',
+                DB::raw('CASE
+                        WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL THEN employees.id
+                    END as assigned_id'),
 
                 DB::raw('CASE
                         WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL AND stores.id != 5 THEN employees.name
@@ -94,15 +101,35 @@ class InventoryController extends Controller
                 $query->where('stocks.asset_condition', $condition);
             }
 
-
             return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('action', function($row){
                 // Add your action buttons here
-                return '
-                    <a href="' . route('inventories.show', $row->stock_id) . '" class="btn btn-info btn-sm">View</a>
-                    <button type="button" class="btn btn-primary btn-sm open-popup" data-id="' . $row->stock_id . '">Update</button>
-                ';
+                // return '
+                //     <a href="' . route('inventories.show', $row->stock_id) . '" class="btn btn-info btn-sm">View</a>asset_condition
+                //     <button type="button" class="btn btn-primary btn-sm open-popup" data-id="' . $row->stock_id . '" data-service-tag="'. $row->service_tag .'" data-store-id="'. $row->store_id .'" >Update</button>
+                // ';
+
+                $viewUrl = route('inventories.show', $row->stock_id);
+                $serviceTag = e($row->service_tag ?? 'N/A');
+                $storeId = e($row->store_id ?? 'N/A');
+                $condition = e($row->asset_condition ?? 'N/A');
+                $assetTag = e($row->asset_tag ?? 'N/A');
+
+                if($row->is_assigned == 1){
+                    $assigned_user = e($row->assigned_id);
+                }else{
+                    $assigned_user = e('N/A');
+                }
+
+                return sprintf(
+                    '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>
+                     <button type="button" class="btn btn-primary btn-sm open-popup"
+                         data-id="%s" data-service-tag="%s" data-store-id="%s" data-condition="%s" data-asset-tag="%s" data-assigned-id="%s" title="Update Stock" >
+                         <i class="material-icons">update</i>
+                     </button>',
+                    e($viewUrl), e($row->stock_id), $serviceTag, $storeId, $condition, $assetTag, $assigned_user
+                );
             })
             ->rawColumns(['action'])
             ->make(true);
@@ -231,13 +258,12 @@ class InventoryController extends Controller
 
             if($request->employee_id){
 
-                // return $request->all();
-
                 if($inventory->is_assigned == 1){
                     $user_transection = Transection::where('stock_id', $id)->whereNull('return_date')->first();
-                    $user_transection->return_date = date("Y-m-d");
 
-                    if($user_transection->save()){
+                    if($user_transection->employee_id != $request->employee_id){
+                        $user_transection->return_date = date("Y-m-d");
+                        $user_transection->save();
                         Transection::create([
                             'stock_id' => $id,
                             'employee_id' => $request->employee_id,
@@ -246,7 +272,19 @@ class InventoryController extends Controller
                         ]);
                         UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
                     }
+
+
+                } else {
+                    Transection::create([
+                        'stock_id' => $id,
+                        'employee_id' => $request->employee_id,
+                        'quantity' => 1,
+                        'issued_date' => date("Y-m-d")
+                    ]);
+                    UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
+                    $inventory->is_assigned = 1;
                 }
+
             }
 
 

@@ -17,13 +17,7 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <a href="{{ route('transections.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">keyboard_return</i>
-            <span>Return</span>
-        </a>
 
-    </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
@@ -34,13 +28,18 @@
                         <strong>Employee Details</strong>
 
                     </h2>
+                    <a href="{{ route('transections.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+                        <i class="material-icons">keyboard_return</i>
+                        <span>Return</span>
+                    </a>
+
                 </div>
                 <div class="body table-responsive">
 
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <td colspan="4" class="text-center">
+                                <td rowspan="4" class="text-center">
                                     <img src="{{ asset('images/employee/'. $transection->employee->image) }}" style="height: 120px;" alt="">
                                 </td>
                             </tr>

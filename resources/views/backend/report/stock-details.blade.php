@@ -269,7 +269,7 @@
                     { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false },
                     { data: 'supplier_company', name: 'suppliers.company' },
                     { data: 'asset_condition', name: 'asset_condition' },
-                    { data: 'assigned_to', name: 'assigned_to', searchable: false },
+                    { data: 'assigned_to', name: 'employees.name' },
                     { data: 'purchase_invoice', name: 'purchases.invoice_no' },
 
 

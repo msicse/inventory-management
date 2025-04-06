@@ -172,77 +172,50 @@
                     </div>
                     <div class="modal-body">
                         <div id="errorMessages"></div>
-
-
-
-
                         <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div class="form-group form-float">
+                                    <select name="updateCondition" id="updateCondition"
+                                        class="form-control form-control-sm show-tick" data-live-search="true">
+                                        <option value="">Select Condition</option>
+                                        <option value="good">Good</option>
+                                        <option value="obsolete">Obsolete </option>
+                                        <option value="damaged">Damaged</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-float">
+                                    <input type="text" class="form-control" name="serial_no" id="serial_no" value=""
+                                        placeholder="Serial No / IMEI">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div class="form-group form-float">
+                                    <select id="updateStore" name="updateStore" class="form-control">
+                                        <option value="">Select Store</option>
+                                        @foreach($stores as $store)
+                                            <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                                <!-- Nav tabs -->
-                                <ul class="nav nav-tabs tab-nav-right" role="tablist">
-                                    <li role="presentation" class="active"><a href="#home" data-toggle="tab">Update
-                                            Product</a></li>
-                                    <li role="presentation"><a href="#assignProduct" data-toggle="tab">Assign
-                                            Product</a></li>
+                                <div class="form-group form-float">
+                                    <input type="text" class="form-control" name="asset_tag" id="asset_tag" value=""
+                                        placeholder="Asset Tag">
+                                </div>
+                                <div class="form-group form-float">
+                                    <select id="updateEmployee" class="form-control form-control-sm show-tick"
+                                        data-live-search="true">
+                                        <option value="">Select Employee</option>
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}">
+                                                {{ $employee->name . ' - ' . $employee->emply_id }}
+                                            </option>
+                                        @endforeach
 
-                                </ul>
-
-                                <!-- Tab panes -->
-                                <div class="tab-content">
-                                    <div role="tabpanel" class="tab-pane fade in active" id="home">
-                                        <div class="form-group form-float">
-                                            <select id="updateStore" name="updateStore" class="form-control">
-                                                <option value="">Select Store</option>
-                                                @foreach($stores as $store)
-                                                    <option value="{{ $store->id }}">{{ $store->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group form-float">
-                                            <select name="updateCondition" id="updateCondition"
-                                                class="form-control form-control-sm show-tick" data-live-search="true">
-                                                <option value="">Select Condition</option>
-                                                <option value="good">Good</option>
-                                                <option value="obsolete ">Obsolete </option>
-                                                <option value="damaged">Damaged</option>
-
-                                            </select>
-                                        </div>
-                                        <div class="form-group form-float">
-                                            <input type="text" class="form-control" name="serial_no" id="serial_no" value=""
-                                                placeholder="Serial No / IMEI">
-                                        </div>
-                                        <div class="form-group form-float">
-                                            <input type="text" class="form-control" name="asset_tag" id="asset_tag" value=""
-                                                placeholder="Asset Tag">
-                                        </div>
-                                    </div>
-                                    <div role="tabpanel" class="tab-pane fade" id="assignProduct">
-
-                                        <div class="form-group form-float">
-                                            <select id="updateEmployee" class="form-control form-control-sm show-tick"
-                                                data-live-search="true">
-                                                <option value="">Select Employee</option>
-                                                @foreach ($employees as $employee)
-                                                    <option value="{{ $employee->id }}">
-                                                        {{ $employee->name . ' - ' . $employee->emply_id }}
-                                                    </option>
-                                                @endforeach
-
-                                            </select>
-                                        </div>
-                                        <div class="form-group form-float">
-                                            <input type="date" class="form-control" style="display: none;" id="assignDate"
-                                                placeholder="Assigned Date" />
-                                        </div>
-                                    </div>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary waves-effect">Update</button>
@@ -280,14 +253,6 @@
                 dropdownParent: $('#popupModal'),
             });
 
-            $('#updateEmployee').on('change', function () {
-                if ($('#updateEmployee').val() > 0) {
-                    $('#assignDate').css('display', 'block');
-                } else {
-                    $('#assignDate').css('display', 'none');
-                }
-            });
-
             let exportOptions = {
                 columns: ':visible', // Export only visible columns
                 modifier: {
@@ -317,7 +282,13 @@
                     { data: 'title', name: 'products.title' },
                     { data: 'service_tag', name: 'service_tag' },
                     { data: 'asset_tag', name: 'asset_tag' },
-                    { data: 'asset_condition', name: 'asset_condition' },
+                    {
+                        data: 'asset_condition',
+                        name: 'asset_condition',
+                        createdCell: function(td) {
+                            $(td).addClass('capitalize');
+                        }
+                    },
                     { data: 'quantity', name: 'quantity' },
                     { data: 'supplier_company', name: 'suppliers.company' },
                     {
@@ -332,7 +303,7 @@
                             return '';
                         }
                     },
-                    { data: 'assigned_to', name: 'assigned_to', searchable: false },
+                    { data: 'assigned_to', name: 'employees.name' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
 
                 ],
@@ -402,6 +373,14 @@
 
             $(document).on('click', '.open-popup', function () {
                 let inventoryId = $(this).data('id');
+                $('#serial_no').val($(this).data('service-tag'));
+                $('#asset_tag').val($(this).data('asset-tag'));
+                $('#updateStore').val($(this).data('store-id'));
+                $('#updateCondition').val($(this).data('condition'));
+                //$('#updateEmployee').val($(this).data('assigned-id'));
+
+                let assignedId = $(this).data('assigned-id');
+                $('#updateEmployee').val(assignedId).trigger('change');
 
                 $('#popupModal').modal('show');
                 $('#inventoryId').val(inventoryId);
@@ -416,7 +395,7 @@
                 let updateEmployee = $('#updateEmployee').val();
                 let updateSerial = $('#serial_no').val();
                 let updateAssetTag = $('#asset_tag').val();
-                let assignDate = $('#assignDate').val();
+
 
                 if (!updateCondition && !updateStore && !updateSerial && !updateAssetTag && !updateEmployee) {
                     $('#errorMessages').html('<div class="alert alert-danger">Anyone field is required.</div>');
@@ -436,7 +415,6 @@
                         serial_no: updateSerial,
                         asset_tag: updateAssetTag,
                         employee_id: updateEmployee,
-                        assign_date: assignDate,
                     },
                     success: function (response) {
                         console.log(response);

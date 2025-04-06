@@ -17,21 +17,17 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <a href="{{ route('inventories.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">keyboard_return</i>
-            <span>Return</span>
-        </a>
-
-    </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
                     <h2>
                         <strong>Inventory Details</strong>
-
                     </h2>
+                    <a href="{{ route('inventories.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+                        <i class="material-icons">keyboard_return</i>
+                        <span>Return</span>
+                    </a>
                 </div>
                 <div class="body table-responsive">
 
@@ -74,7 +70,7 @@
                             <tr>
 
                                 <th>Product Condition</th>
-                                <td>
+                                <td class="capitalize">
                                     @if($stock->asset_condition == 'good')
                                     <span class="text-success"> {{ $stock->asset_condition }} </span>
                                     @else

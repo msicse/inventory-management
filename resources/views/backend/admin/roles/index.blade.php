@@ -4,19 +4,13 @@
 
 @push('css')
     <!-- JQuery DataTable Css -->
-    <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}"
+        rel="stylesheet">
     <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
 @endpush
 @section('content')
     <div class="container-fluid">
-        <div class="block-header">
-            @can("role-create")
-            <a href="{{ route('roles.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;">
-                <i class="material-icons">add</i>
-                <span>Add New Role</span>
-            </a>
-            @endcan
-        </div>
+
         <!-- Exportable Table -->
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -26,6 +20,13 @@
                             All Roles
                             <span class="badge ">{{ $roles->count() }}</span>
                         </h2>
+                        @can("role-create")
+                            <a href="{{ route('roles.create') }}" class="btn btn-primary waves-effect pull-right"
+                                style="margin-bottom:10px;">
+                                <i class="material-icons">add</i>
+                                <span>Add New Role</span>
+                            </a>
+                        @endcan
                     </div>
                     <div class="body">
                         <div class="table-responsive">
@@ -58,18 +59,18 @@
                                                     <i class="material-icons">visibility</i>
                                                 </a>
                                                 @can("role-edit")
-                                                <a href="{{ route('roles.edit', $data->id) }}"
-                                                    class="btn btn-primary waves-effect edit">
-                                                    <i class="material-icons">create</i>
-                                                </a>
+                                                    <a href="{{ route('roles.edit', $data->id) }}"
+                                                        class="btn btn-primary waves-effect edit">
+                                                        <i class="material-icons">create</i>
+                                                    </a>
                                                 @endcan
                                                 @can("role-delete")
-                                                <button type="button" class="btn btn-danger waves-effect delete"
-                                                    data-delete-id="{{ $data->id }}" data-toggle="modal"
-                                                    data-target="#delete-modal">
+                                                    <button type="button" class="btn btn-danger waves-effect delete"
+                                                        data-delete-id="{{ $data->id }}" data-toggle="modal"
+                                                        data-target="#delete-modal">
 
-                                                    <i class="material-icons">delete</i>
-                                                </button>
+                                                        <i class="material-icons">delete</i>
+                                                    </button>
                                                 @endcan
 
 
@@ -132,7 +133,7 @@
     <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 
     <script>
-        $(".delete").click(function() {
+        $(".delete").click(function () {
             var data_id = $(this).data('delete-id');
             var url = location.origin + '/roles/' + data_id;
             $('.delete_form').attr('action', url);

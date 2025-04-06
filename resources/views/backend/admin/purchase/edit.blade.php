@@ -17,27 +17,23 @@
 @endpush
 @section('content')
     <div class="container-fluid">
-        <div class="block-header">
-            <a href="{{ route('purchases.index') }}" class="btn btn-primary waves-effect pull-right"
-                style="margin-bottom:10px;">
-                <i class="material-icons">keyboard_return</i>
-                <span>Return</span>
-            </a>
-
-        </div>
         <!-- Exportable Table -->
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
                     <div class="header">
-                        <h2>
-                            Update Purchase
-
-                        </h2>
+                        <h2>Update Purchase</h2>
+                        <div>
+                            <a href="{{ route('purchases.index') }}" class="btn btn-primary waves-effect"
+                                style="margin-bottom:10px;">
+                                <i class="material-icons">keyboard_return</i>
+                                <span>Return</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="body">
-                        <form action="{{ route('purchases.update', $purchase->id) }}" method="post" enctype="multipart/form-data"
-                            id="purchase_form">
+                        <form action="{{ route('purchases.update', $purchase->id) }}" method="post"
+                            enctype="multipart/form-data" id="purchase_form">
                             @csrf
                             @method("PUT")
                             <div class="row">
@@ -47,9 +43,9 @@
                                         <select name="supplier" id="supplier" class="form-control show-tick" required>
                                             <option value="">Select Supplier</option>
                                             @foreach ($suppliers as $data)
-                                                <option value="{{ $data->id }}"
-                                                    {{ $data->id == $purchase->supplier_id ? 'selected' : '' }}>
-                                                    {{ $data->company }}</option>
+                                                <option value="{{ $data->id }}" {{ $data->id == $purchase->supplier_id ? 'selected' : '' }}>
+                                                    {{ $data->company }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         <label id="supplier-error" class="error" for="supplier"></label>
@@ -57,8 +53,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Invoice No</label>
-                                        <input type="text" name="invoice_no" id="invoice_no" value="{{ $purchase->invoice_no }}" class="form-control"
-                                            required>
+                                        <input type="text" name="invoice_no" id="invoice_no"
+                                            value="{{ $purchase->invoice_no }}" class="form-control" required>
                                     </div>
 
                                     <input type="hidden" name="serial" id="serial" required value="0">
@@ -71,14 +67,16 @@
 
                                     <div class="form-group">
                                         <label class="form-label">Date of Purchase</label>
-                                        <input type="text" name="date_of_purchase" value="{{ empty(old('date_of_purchase')) ? $purchase->purchase_date : old('date_of_purchase') }}"
+                                        <input type="text" name="date_of_purchase"
+                                            value="{{ empty(old('date_of_purchase')) ? $purchase->purchase_date : old('date_of_purchase') }}"
                                             class="datepicker form-control" placeholder="Please choose Purchase Date..."
                                             required>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-label">Challan No</label>
-                                        <input type="text" name="challan_no" id="challan_no" value="{{ $purchase->challan_no }}" class="form-control">
+                                        <input type="text" name="challan_no" id="challan_no"
+                                            value="{{ $purchase->challan_no }}" class="form-control">
                                     </div>
 
 
@@ -131,35 +129,40 @@
                                                         <input type="hidden" class="product_id" name="product_id[]"
                                                             value="{{ $product->product->id }}" />
                                                         <td>
-                                                           {{ $product->product->title }}
+                                                            {{ $product->product->title }}
                                                         </td>
                                                         <td style="width: 15%">
                                                             <input class="price form-control "
-                                                                onchange="calculate_single_entry_sum({{ $product->product->id}})" type="number"
-                                                                id="single_price_{{$product->product->id}}" name="unit_price[]" value="{{$product->unit_price}}">
+                                                                onchange="calculate_single_entry_sum({{ $product->product->id}})"
+                                                                type="number" id="single_price_{{$product->product->id}}"
+                                                                name="unit_price[]" value="{{$product->unit_price}}">
                                                         </td>
                                                         <td style="width: 10%">
-                                                            <input class="form-control quantity" id="single_quantity_{{$product->product->id}}"
+                                                            <input class="form-control quantity"
+                                                                id="single_quantity_{{$product->product->id}}"
                                                                 onchange="calculate_single_entry_sum({{$product->product->id}})"
-                                                                type="number" name="quantity[]" min="1" value="{{$product->total_price}}">
+                                                                type="number" name="quantity[]" min="1"
+                                                                value="{{$product->total_price}}">
                                                         </td>
                                                         <td style="width: 15%">
-                                                            <input class="form-control" id="single_total_{{$product->product->id}}"
-                                                                type="text" name="total[]" value="{{ $product->total_price }}" readonly>
+                                                            <input class="form-control"
+                                                                id="single_total_{{$product->product->id}}" type="text"
+                                                                name="total[]" value="{{ $product->total_price }}" readonly>
                                                         </td>
                                                         <td style="width: 5%">
-                                                            <input class="form-control warranty" type="number" name="month[]" value="{{ $product->warranty }}" required>
+                                                            <input class="form-control warranty" type="number" name="month[]"
+                                                                value="{{ $product->warranty }}" required>
                                                         </td>
                                                         <td style="width: 25%">
                                                             @if($product->serials)
-                                                            @foreach( json_decode($product->serials) as $data )
-                                                            <span class="label label-info">{{ $data }}</span>
-                                                            @endforeach
+                                                                @foreach(json_decode($product->serials) as $data)
+                                                                    <span class="label label-info">{{ $data }}</span>
+                                                                @endforeach
                                                             @endif
                                                         </td>
                                                         <td style="width: 5%">
                                                             <button type="button" class="btn btn-danger btn-xs delete"
-                                                                onclick ="delete_row($(this))">Remove</button>
+                                                                onclick="delete_row($(this))">Remove</button>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -222,7 +225,7 @@
             });
         }
 
-        // Calculate Single Entry 
+        // Calculate Single Entry
 
         function calculate_single_entry_sum(entry_number) {
             selectRefresh();
@@ -238,19 +241,19 @@
         }
 
 
-        // Calculate Sub Total 
+        // Calculate Sub Total
         function calculate_sub_total() {
             var sub_result = 0;
-            $("input[id*='single_total_']").each(function() {
+            $("input[id*='single_total_']").each(function () {
                 sub_result += parseFloat($(this).val());
             });
             document.getElementById('grand_total').value = sub_result;
         }
 
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            // Initialize Select2 
+            // Initialize Select2
             $('#supplier').select2();
             $('#product').select2();
             $('#product_type').select2();
@@ -268,8 +271,8 @@
             });
 
 
-            // Get product by product Type 
-            $('#product_type').change(function(e) {
+            // Get product by product Type
+            $('#product_type').change(function (e) {
                 e.preventDefault();
                 var typeId = $(this).val();
                 var url = location.origin + '/purchases/typed/' + typeId;
@@ -278,11 +281,11 @@
                         url: url,
                         type: "GET",
                         dataType: "json",
-                        success: function(data) {
+                        success: function (data) {
                             if (data) {
                                 $('#product').empty();
                                 $('#product').append('<option hidden>Select Product</option>');
-                                $.each(data, function(key, product) {
+                                $.each(data, function (key, product) {
                                     $('select[name="product"]').append(
                                         '<option value="' + product.id +
                                         '" data-serialed="' + product.is_serial +
@@ -301,8 +304,8 @@
 
             // Get product info on change product
 
-            $('#product').change(function() {
-                
+            $('#product').change(function () {
+
 
                 let id = $(this).val();
                 console.log(id);
@@ -327,30 +330,30 @@
                 if (document.getElementById(id) == null) {
 
                     let add_row = '<tr> <td id=' + id + '>' + id + `</td>
-                        <input type="hidden" class="product_id" name="product_id[]" value="${id}" />
-                        <td>
-                            ${productTitle}
-                        </td>
-                        <td style="width: 15%">
-                            <input class="price form-control " onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]">
-                        </td>
-                        <td style="width: 10%">
-                            <input class="form-control quantity" id="single_quantity_${id}" onchange="calculate_single_entry_sum(${id})" type="number" name="quantity[]" min="1" >
-                        </td>
-                        <td style="width: 15%">
-                            <input class="form-control" id="single_total_${id}" type="text" name="total[]" value="" readonly>
-                        </td>
-                        <td style="width: 5%">
-                            ${warrantyInput}
-                        </td>
-                        <td style="width: 25%">
-                            ${serialInput}
-                        </td>
-                        <td style="width: 5%">
-                            <button type="button" class="btn btn-danger btn-xs delete" onclick ="delete_row($(this))">Remove</button>
-                        </td>
-                        </tr>
-                        `;
+                            <input type="hidden" class="product_id" name="product_id[]" value="${id}" />
+                            <td>
+                                ${productTitle}
+                            </td>
+                            <td style="width: 15%">
+                                <input class="price form-control " onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]">
+                            </td>
+                            <td style="width: 10%">
+                                <input class="form-control quantity" id="single_quantity_${id}" onchange="calculate_single_entry_sum(${id})" type="number" name="quantity[]" min="1" >
+                            </td>
+                            <td style="width: 15%">
+                                <input class="form-control" id="single_total_${id}" type="text" name="total[]" value="" readonly>
+                            </td>
+                            <td style="width: 5%">
+                                ${warrantyInput}
+                            </td>
+                            <td style="width: 25%">
+                                ${serialInput}
+                            </td>
+                            <td style="width: 5%">
+                                <button type="button" class="btn btn-danger btn-xs delete" onclick ="delete_row($(this))">Remove</button>
+                            </td>
+                            </tr>
+                            `;
 
                     $("#ptable tbody").append(add_row);
 
@@ -362,12 +365,12 @@
             });
 
 
-            $('#form_submit').click(function(e) {
+            $('#form_submit').click(function (e) {
                 // e.preventDefault();
                 $("#purchase_form").validate();
                 let isValid = true;
 
-                $('.quantity, .price, .warranty').each(function() {
+                $('.quantity, .price, .warranty').each(function () {
 
                     if ($(this).val() === '') {
                         isValid = false;
@@ -377,7 +380,7 @@
 
                 });
 
-                $('.serials').each(function() {
+                $('.serials').each(function () {
                     var quantity;
                     var serialLength;
 

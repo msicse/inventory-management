@@ -15,46 +15,47 @@
 @endpush
 @section('content')
     <div class="container-fluid">
-        <div class="block-header">
-            <a href="{{ route('employees.index') }}" class="btn btn-primary waves-effect pull-right"
-                style="margin-bottom:10px;">
-                <i class="material-icons">keyboard_return</i>
-                <span>Return</span>
-            </a>
-
-        </div>
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
                     <div class="header">
                         <h2>
                             Information of <strong>{{ $employee->name }}</strong>
-
                         </h2>
+                        <div>
+                            <a href="{{ route('employees.index') }}" class="btn btn-primary waves-effect">
+                                <i class="material-icons">keyboard_return</i>
+                                <span>Return</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="body table-responsive">
-                        <div class="show-image text-center">
-                            <img src="{{ asset('images/employee/' . $employee->image) }}" alt="">
-                        </div>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
+                                    <td rowspan="3">
+                                        <img src="{{ asset('images/employee/' . $employee->image) }}" height="80" alt="">
+                                    </td>
                                     <th>Name</th>
-                                    <td colspan="3">{{ $employee->name }}</td>
-                                </tr>
-                                <tr>
+                                    <td>{{ $employee->name }}</td>
                                     <th>Employee ID</th>
                                     <td>{{ sprintf('%03d', $employee->emply_id) }}</td>
-                                    <th>Designation</th>
-                                    <td>{{ $employee->designation }}</td>
+                                <tr>
+
                                 </tr>
                                 <tr>
+                                    <th>Designation</th>
+                                    <td>{{ $employee->designation }}</td>
                                     <th>Department</th>
                                     <td>{{ $employee->department->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Location</th>
+                                    <td>{{ $employee->location }}</td>
                                     <th>Employee Status</th>
                                     <td>{!! $employee->status == 1
-                                        ? '<span class=text-success>Active</span>'
-                                        : '<span class=text-danger>Inactive</span>' !!} </td>
+        ? '<span class=text-success>Active</span>'
+        : '<span class=text-danger>Inactive</span>' !!} </td>
                                 </tr>
                                 <tr>
                                     <th>Phone</th>
@@ -113,7 +114,8 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $data->stock->product->title }}</td>
                                             <td>{{ $data->stock->product->model }}</td>
-                                            <td class="{{ $data->stock->asset_condition == 'good' ? 'text-success' : 'text-danger'  }}">
+                                            <td
+                                                class="{{ $data->stock->asset_condition == 'good' ? 'text-success' : 'text-danger'  }} capitalize">
                                                 {{ $data->stock->asset_condition }}
                                             </td>
                                             <td>{{ $data->stock->asset_tag}}</td>
@@ -125,8 +127,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="print_ack[]"
                                                         value="{{ $data->id }}" id="license-{{ $data->id }}">
-                                                    <label class="form-check-label text-bold"
-                                                        for="license-{{ $data->id }}">
+                                                    <label class="form-check-label text-bold" for="license-{{ $data->id }}">
                                                     </label>
                                                 </div>
                                             </td>

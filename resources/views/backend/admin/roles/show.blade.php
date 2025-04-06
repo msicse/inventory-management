@@ -9,20 +9,16 @@
 @endpush
 @section('content')
     <div class="container-fluid">
-        <div class="block-header">
-            <a href="{{ route('roles.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;">
-                <i class="material-icons">keyboard_return</i>
-                <span>Return</span>
-            </a>
-
-
-        </div>
         <!-- Exportable Table -->
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
                     <div class="header">
                         <h2>Role: {{ $role->name }} </h2>
+                        <a href="{{ route('roles.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;">
+                            <i class="material-icons">keyboard_return</i>
+                            <span>Return</span>
+                        </a>
                     </div>
                     <div class="body">
                         <div class="">

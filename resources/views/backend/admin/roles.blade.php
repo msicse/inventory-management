@@ -10,13 +10,7 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <button type="button" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" data-toggle="modal" data-target="#craeateCategory">
-            <i class="material-icons">add</i>
-            <span>Add New Role</span>
-        </button>
 
-    </div>
     <!-- Exportable Table -->
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -26,6 +20,10 @@
                         All Categories
                         <span class="badge ">{{ $roles->count() }}</span>
                     </h2>
+                    <button type="button" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" data-toggle="modal" data-target="#craeateCategory">
+                        <i class="material-icons">add</i>
+                        <span>Add New Role</span>
+                    </button>
                 </div>
                 <div class="body">
                     <div class="table-responsive">

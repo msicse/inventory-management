@@ -31,10 +31,10 @@
 }
 
 button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-button:hover:not(.disabled), input.dt-button:hover:not(.disabled) {
-     border: 0px solid #666 !important; 
-     background: #607D8B !important; 
+     border: 0px solid #666 !important;
+     background: #607D8B !important;
 
-    
+
 }
 .btn {
     margin-top: 3px !important;
@@ -46,4 +46,18 @@ button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-
 
 .block-header > button, .block-header > a {
     margin-bottom: 10px !important;
+}
+
+section.content {
+    margin: 55px 15px 0 315px !important;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.capitalize {
+    text-transform: capitalize;
 }

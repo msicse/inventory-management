@@ -14,21 +14,17 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <a href="{{ route('purchases.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">keyboard_return</i>
-            <span>Return</span>
-        </a>
-    
-    </div>
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
-                    <h2>
-                        Purchase Information
-                        
-                    </h2>
+                    <h2>Purchase Information</h2>
+                    <div>
+                        <a href="{{ route('purchases.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+                            <i class="material-icons">keyboard_return</i>
+                            <span>Return</span>
+                        </a>
+                    </div>
                 </div>
                 <div class="body table-responsive">
 
@@ -45,7 +41,7 @@
                                 <td>{{ $purchase->challan_no }}</td>
                                 <th>Date of Purchase</th>
                                 <td>{{ $purchase->purchase_date }}</td>
-                                
+
                             </tr>
                             <tr>
                                 <th>Total</th>
@@ -65,8 +61,8 @@
                                 <th>Address</th>
                                 <td> {{ $purchase->supplier->address }} </td>
                             </tr>
-                            
-                            
+
+
                         </thead>
                     </table>
                 </div>
@@ -83,7 +79,7 @@
                     </h2>
                 </div>
                 <div class="body table-responsive">
-                    
+
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -121,15 +117,15 @@
                                             } else {
                                             event.preventDefault();
                                             }">
-    
+
                                                 <i class="material-icons">add</i>
                                             </button>
-    
+
                                             <form id="delete-form-{{ $product->id }}" style="display: none;"
                                                 action="{{  route('purchases.inventory',$product->id) }}" method="post">
                                                 @csrf
-                                                
-                                        
+
+
                                             </form>
                                     @endif
                                 </td>

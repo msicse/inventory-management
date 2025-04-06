@@ -30,13 +30,6 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <a href="{{ route('transections.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">keyboard_return</i>
-            <span>Return</span>
-        </a>
-
-    </div>
     <!-- Exportable Table -->
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -46,6 +39,10 @@
                         Add New Distribution
                         <span class="pull-right text-danger" id="stocksInfo"></span>
                     </h2>
+                    <a href="{{ route('transections.index') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
+                        <i class="material-icons">keyboard_return</i>
+                        <span>Return</span>
+                    </a>
                 </div>
                 <div class="body">
                     <form action="{{ route('transections.store')}}" method="post" id="store_form" enctype="multipart/form-data">
@@ -103,7 +100,7 @@
                                 <div class="form-group row">
                                     <div class="col-md-4" style="padding-top: 20px;">
                                         <div class="form-check">
-                                            <input class="form-control form-check-input" type="checkbox" name="print_ack" value="1" id="print_ack" checked>
+                                            <input class="form-control form-check-input" type="checkbox" name="print_ack" value="1" id="print_ack">
                                             <label class="form-check-label" for="print_ack">
                                                 <strong>Print ACK</strong>
                                             </label>

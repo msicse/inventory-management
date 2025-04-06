@@ -10,12 +10,6 @@
 @endpush
 @section('content')
     <div class="container-fluid">
-        <div class="block-header">
-            <a href="{{ route('users.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;">
-                <i class="material-icons">add</i>
-                <span>Add New User</span>
-            </a>
-        </div>
         <!-- Exportable Table -->
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -25,8 +19,10 @@
                             All Users
                             <span class="badge ">{{ $users->count() }}</span>
                         </h2>
-
-
+                        <a href="{{ route('users.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;">
+                            <i class="material-icons">add</i>
+                            <span>Add New User</span>
+                        </a>
                     </div>
                     <div class="body">
                         <div class="table-responsive">

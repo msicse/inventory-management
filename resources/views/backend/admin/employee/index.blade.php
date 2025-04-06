@@ -14,22 +14,21 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="block-header">
-        <a href="{{ route('employees.create') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
-            <i class="material-icons">add</i>
-            <span>Add New Employee</span>
-        </a>
-
-    </div>
     <!-- Exportable Table -->
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
-                    <h2>
-                        All Employees
-                        <span class="badge ">{{ $employees->count() }}</span>
-                    </h2>
+                        <h2>
+                            All Employees
+                            <span class="badge ">{{ $employees->count() }}</span>
+                        </h2>
+                        <div>
+                            <a href="{{ route('employees.create') }}" class="btn btn-primary waves-effect" style="margin-bottom:10px;" >
+                                <i class="material-icons">add</i>
+                                <span>Add New Employee</span>
+                            </a>
+                        </div>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
