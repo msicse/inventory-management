@@ -20,14 +20,19 @@ class TransectionImport implements ToCollection, WithHeadingRow
     {
         foreach ($rows as $row) {
 
-            Transection::create([
-                'stock_id'      => $row['stock_id'],
-                'employee_id'   => $row['employee_id'],
-                'issued_date'   => $row['issued_date'],
-                'quantity'      => $row['quantity'],
-            ]);
+            $stock = Stock::where('service_tag', $row['service_tag'])->first();
+            if ($stock) {
+                Transection::create([
+                    'stock_id'      => $stock->id,
+                    'employee_id'   => $row['employee_id'],
+                    'issued_date'   => $row['issued_date'],
+                    'quantity'      => $row['quantity'],
+                ]);
 
-            Stock::findOrFail($row['stock_id'])->update(['is_assigned' => 1]);
+                Stock::findOrFail($stock->id)->update(['is_assigned' => 1]);
+            }
+
+
 
 
 
