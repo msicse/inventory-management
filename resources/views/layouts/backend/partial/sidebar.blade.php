@@ -195,13 +195,14 @@
                 </ul>
             </li>
             @endcan --}}
-
+            @can('imports-list')
             <li class="{{ Request::is('imports*') ? 'active' : '' }}">
                 <a href="{{ route('imports.index') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Imports</span>
                 </a>
             </li>
+            @endcan
 
             <li class="header">Reports</li>
 
@@ -230,12 +231,15 @@
                     <span>Detailed Inventory</span>
                 </a>
             </li>
+            @can('users-log')
             <li class="{{ Request::is('reports/user-logs*') ? 'active' : '' }}">
                 <a href="{{ route('reports.userlog') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>User Logs</span>
                 </a>
             </li>
+            @endcan
+
 <!--
             <li>
                 <a href="javascript:void(0);" class="menu-toggle">

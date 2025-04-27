@@ -297,8 +297,10 @@ class PurchaseController extends Controller
 
                     // $stock->serial_no = $max_serial + $x;
 
-                    $stock->product_status = 1;
+                    $stock->status_id  = 1;
+                    $stock->store_id  = 1;
                     $stock->is_assigned = 2;
+                    $stock->asset_condition = 'good';
                     $stock->save();
                     $x++;
 

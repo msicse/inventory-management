@@ -305,7 +305,6 @@
                     },
                     { data: 'assigned_to', name: 'employees.name' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
-
                 ],
                 dom: 'Blfrtip',
                 responsive: true,

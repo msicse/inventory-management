@@ -55,6 +55,8 @@ class PermissionTableSeeder extends Seeder
             'distribution-delete',
             'onboarding-list',
             'onboarding-create',
+            'imports-list',
+            'users-log'
 
          ];
 

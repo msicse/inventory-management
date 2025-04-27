@@ -46,7 +46,7 @@ class InventoryController extends Controller
         $condition = $request->condition;
         $store = $request->store;
         $supplier = $request->supplier;
-
+        //{ data: 'assigned_to', name: 'employees.name' }, this is my datatable column, it showing if assigned show employeee name else show store name,  i have join query , i want to enable search from both table
         // return $query->get()
         if ($request->ajax()) {
             $query = Stock::select(
@@ -73,7 +73,7 @@ class InventoryController extends Controller
                 DB::raw('CASE
                         WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL AND stores.id != 5 THEN employees.name
                         ELSE stores.name
-                    END as assigned_to')
+                    END as assigned_to'),
             )
             ->join('products', 'stocks.product_id', '=', 'products.id')
             ->join('stores', 'stocks.store_id', '=', 'stores.id')
@@ -115,6 +115,10 @@ class InventoryController extends Controller
                 $storeId = e($row->store_id ?? 'N/A');
                 $condition = e($row->asset_condition ?? 'N/A');
                 $assetTag = e($row->asset_tag ?? 'N/A');
+                $updateBtn = auth()->user()->can('inventory-edit') ? '<button type="button" class="btn btn-primary btn-sm open-popup"
+                         data-id="%s" data-service-tag="%s" data-store-id="%s" data-condition="%s" data-asset-tag="%s" data-assigned-id="%s" title="Update Stock" >
+                         <i class="material-icons">update</i>
+                     </button>' : "";
 
                 if($row->is_assigned == 1){
                     $assigned_user = e($row->assigned_id);
@@ -123,11 +127,7 @@ class InventoryController extends Controller
                 }
 
                 return sprintf(
-                    '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>
-                     <button type="button" class="btn btn-primary btn-sm open-popup"
-                         data-id="%s" data-service-tag="%s" data-store-id="%s" data-condition="%s" data-asset-tag="%s" data-assigned-id="%s" title="Update Stock" >
-                         <i class="material-icons">update</i>
-                     </button>',
+                    '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>' . $updateBtn ,
                     e($viewUrl), e($row->stock_id), $serviceTag, $storeId, $condition, $assetTag, $assigned_user
                 );
             })
