@@ -202,7 +202,8 @@ Route::get('/send-mail', function () {
         'body' => 'This is a test email using new Mailable structure.'
     ];
 
-    Mail::to('receiver@example.com')->send(new TestMail($details));
+    Mail::to('masud@rsc-bd.org')->send(new TestMail($details));
+    Mail::to('sumon.bd969@gmail.com')->send(new TestMail($details));
 
     return 'Email Sent!';
 });
