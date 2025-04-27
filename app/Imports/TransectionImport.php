@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Employee;
 use App\Models\Stock;
 use App\Models\Transection;
 use Illuminate\Support\Collection;
@@ -21,20 +22,17 @@ class TransectionImport implements ToCollection, WithHeadingRow
         foreach ($rows as $row) {
 
             $stock = Stock::where('service_tag', $row['service_tag'])->first();
-            if ($stock) {
+            $employee = Employee::where('emply_id', $row['employee_id'])->first();
+            if ($stock && $employee) {
                 Transection::create([
                     'stock_id'      => $stock->id,
-                    'employee_id'   => $row['employee_id'],
+                    'employee_id'   => $employee->id,
                     'issued_date'   => $row['issued_date'],
                     'quantity'      => $row['quantity'],
                 ]);
 
                 Stock::findOrFail($stock->id)->update(['is_assigned' => 1]);
             }
-
-
-
-
 
         }
     }
