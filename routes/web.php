@@ -1,5 +1,7 @@
 <?php
 
+use App\Mail\TestMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LoginController;
@@ -192,3 +194,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('imports/store', [App\Http\Controllers\ImportController::class, 'store'])->name('imports.store');
 });
 
+
+
+Route::get('/send-mail', function () {
+    $details = [
+        'title' => 'Hello from Laravel 12',
+        'body' => 'This is a test email using new Mailable structure.'
+    ];
+
+    Mail::to('receiver@example.com')->send(new TestMail($details));
+
+    return 'Email Sent!';
+});
