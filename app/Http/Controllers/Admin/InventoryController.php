@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Helpers\UserLogHelper;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
@@ -41,6 +42,7 @@ class InventoryController extends Controller
         $stores = Store::all();
         $suppliers = Supplier::all();
         $employees = Employee::where('status', 1)->get();
+        $departments = Department::all();
 
         $type = $request->product_type;
         $condition = $request->condition;
@@ -75,67 +77,81 @@ class InventoryController extends Controller
                         ELSE stores.name
                     END as assigned_to'),
             )
-            ->join('products', 'stocks.product_id', '=', 'products.id')
-            ->join('stores', 'stocks.store_id', '=', 'stores.id')
-            ->join('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
-            ->join('purchases', 'stocks.purchase_id', '=', 'purchases.id')
-            ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
-            ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
-            ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id');
+                ->join('products', 'stocks.product_id', '=', 'products.id')
+                ->join('stores', 'stocks.store_id', '=', 'stores.id')
+                ->join('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
+                ->join('purchases', 'stocks.purchase_id', '=', 'purchases.id')
+                ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
+                ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
+                ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id')
+                ->when($type, fn($q) => $q->where('stocks.producttype_id', $type))
+                ->when($store, fn($q) => $q->where(function ($q2) use ($store) {
+                    $q2->where('stocks.store_id', $store)
+                        ->where('stocks.is_assigned', 2);
+                }))
+                ->when($supplier, fn($q) => $q->where('purchases.supplier_id', $supplier))
+                ->when($condition, fn($q) => $q->where('stocks.asset_condition', $condition));
 
-            if ($type) {
-                $query->where('stocks.producttype_id', $type);
-            }
-            if ($store) {
-                $query->where(function ($q) use ($store) {
-                    $q->where('stocks.store_id', $store)
-                      ->where('stocks.is_assigned', 2);
-                });
-            }
 
-            if ($supplier) {
-                $query->where('purchases.supplier_id', $supplier);
-            }
+            // if ($type) {
+            //     $query->where('stocks.producttype_id', $type);
+            // }
+            // if ($store) {
+            //     $query->where(function ($q) use ($store) {
+            //         $q->where('stocks.store_id', $store)
+            //             ->where('stocks.is_assigned', 2);
+            //     });
+            // }
 
-            if ($condition) {
-                $query->where('stocks.asset_condition', $condition);
-            }
+            // if ($supplier) {
+            //     $query->where('purchases.supplier_id', $supplier);
+            // }
+
+            // if ($condition) {
+            //     $query->where('stocks.asset_condition', $condition);
+            // }
 
             return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('action', function($row){
-                // Add your action buttons here
-                // return '
-                //     <a href="' . route('inventories.show', $row->stock_id) . '" class="btn btn-info btn-sm">View</a>asset_condition
-                //     <button type="button" class="btn btn-primary btn-sm open-popup" data-id="' . $row->stock_id . '" data-service-tag="'. $row->service_tag .'" data-store-id="'. $row->store_id .'" >Update</button>
-                // ';
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    // Add your action buttons here
+                    // return '
+                    //     <a href="' . route('inventories.show', $row->stock_id) . '" class="btn btn-info btn-sm">View</a>asset_condition
+                    //     <button type="button" class="btn btn-primary btn-sm open-popup" data-id="' . $row->stock_id . '" data-service-tag="'. $row->service_tag .'" data-store-id="'. $row->store_id .'" >Update</button>
+                    // ';
 
-                $viewUrl = route('inventories.show', $row->stock_id);
-                $serviceTag = e($row->service_tag ?? 'N/A');
-                $storeId = e($row->store_id ?? 'N/A');
-                $condition = e($row->asset_condition ?? 'N/A');
-                $assetTag = e($row->asset_tag ?? 'N/A');
-                $updateBtn = auth()->user()->can('inventory-edit') ? '<button type="button" class="btn btn-primary btn-sm open-popup"
+                    $viewUrl = route('inventories.show', $row->stock_id);
+                    $serviceTag = e($row->service_tag ?? 'N/A');
+                    $storeId = e($row->store_id ?? 'N/A');
+                    $condition = e($row->asset_condition ?? 'N/A');
+                    $assetTag = e($row->asset_tag ?? 'N/A');
+                    $updateBtn = auth()->user()->can('inventory-edit') ? '<button type="button" class="btn btn-primary btn-sm open-popup"
                          data-id="%s" data-service-tag="%s" data-store-id="%s" data-condition="%s" data-asset-tag="%s" data-assigned-id="%s" title="Update Stock" >
                          <i class="material-icons">update</i>
                      </button>' : "";
 
-                if($row->is_assigned == 1){
-                    $assigned_user = e($row->assigned_id);
-                }else{
-                    $assigned_user = e('N/A');
-                }
+                    if ($row->is_assigned == 1) {
+                        $assigned_user = e($row->assigned_id);
+                    } else {
+                        $assigned_user = e('N/A');
+                    }
 
-                return sprintf(
-                    '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>' . $updateBtn ,
-                    e($viewUrl), e($row->stock_id), $serviceTag, $storeId, $condition, $assetTag, $assigned_user
-                );
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+                    return sprintf(
+                        '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>' . $updateBtn,
+                        e($viewUrl),
+                        e($row->stock_id),
+                        $serviceTag,
+                        $storeId,
+                        $condition,
+                        $assetTag,
+                        $assigned_user
+                    );
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
 
-        return view('backend.admin.inventory.index')->with(compact( 'suppliers', 'types', 'statuses', 'stores', 'employees'));
+        return view('backend.admin.inventory.index')->with(compact('suppliers', 'types', 'statuses', 'stores', 'employees','departments'));
     }
 
 
@@ -233,35 +249,35 @@ class InventoryController extends Controller
 
         // Validate input
         $request->validate([
-            'store_id'  => 'nullable|integer|max:255',
+            'store_id' => 'nullable|integer|max:255',
             'condition' => 'nullable|string|max:255',
             'serial_no' => 'nullable|string|max:255',
             'asset_tag' => 'nullable|string|max:255',
         ]);
-// return $request->all();
+        // return $request->all();
         try {
             $inventory = Stock::findOrFail($id);
 
-            if($request->store_id){
+            if ($request->store_id) {
                 $inventory->store_id = $request->store_id;
             }
 
-            if($request->condition){
+            if ($request->condition) {
                 $inventory->asset_condition = $request->condition;
             }
-            if($request->serial_no){
+            if ($request->serial_no) {
                 $inventory->service_tag = $request->serial_no;
             }
-            if($request->asset_tag){
+            if ($request->asset_tag) {
                 $inventory->asset_tag = $request->asset_tag;
             }
 
-            if($request->employee_id){
+            if ($request->employee_id) {
 
-                if($inventory->is_assigned == 1){
+                if ($inventory->is_assigned == 1) {
                     $user_transection = Transection::where('stock_id', $id)->whereNull('return_date')->first();
 
-                    if($user_transection->employee_id != $request->employee_id){
+                    if ($user_transection->employee_id != $request->employee_id) {
                         $user_transection->return_date = date("Y-m-d");
                         $user_transection->save();
                         Transection::create([
@@ -292,7 +308,7 @@ class InventoryController extends Controller
             if ($inventory->save()) {
 
                 UserLogHelper::log('update', 'Updated Inventory: ' . $inventory->id);
-                return response()->json(['message' => 'Inventory updated successfully', 201]);
+                return response()->json(['message' => 'Inventory updated successfully'], 201);
             } else {
                 return response()->json(['error' => 'Failed to update inventory'], 500);
             }
@@ -353,7 +369,7 @@ class InventoryController extends Controller
 
     public function updateStatus()
     {
-        $stockes = Stock::where('is_assigned', 1)->get();
+        $stockes = Stock::where('is_assigned', 1)->pluck('id', 'service_tag');
 
         $arr = [];
         foreach ($stockes as $data) {

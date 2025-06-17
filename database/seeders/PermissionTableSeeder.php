@@ -56,7 +56,8 @@ class PermissionTableSeeder extends Seeder
             'onboarding-list',
             'onboarding-create',
             'imports-list',
-            'users-log'
+            'users-log',
+            'purchase-addinventory',
 
          ];
 

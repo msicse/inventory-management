@@ -73,6 +73,21 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-2">
+                                <div class="form-group form-float">
+
+                                    <select name="department" id="department" class="form-control show-tick"
+                                        data-live-search="true">
+                                        <option value="">All Supplier</option>
+                                        @foreach ($departments as $department)
+                                            <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+                            </div>
+
+
 
                             <div class="col-md-2">
                                 <div class="form-group form-float">

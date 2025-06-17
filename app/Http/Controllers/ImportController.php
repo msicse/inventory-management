@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\EmployeesImport;
 use Illuminate\Http\Request;
 use App\Imports\ProductImport;
 use App\Imports\PurchaseProductImport;
@@ -15,12 +16,14 @@ class ImportController extends Controller
 
     function __construct()
     {
-         $this->middleware('permission:import-create', ['only' => ['index','store']]);
+        $this->middleware('permission:import-create', ['only' => ['index', 'store']]);
     }
-    public function index() {
+    public function index()
+    {
         return view('backend.import');
     }
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
 
         $request->validate([
             'import_table' => 'required|string',
@@ -29,24 +32,43 @@ class ImportController extends Controller
 
         // return $request->all();
 
-        // Import and update records
-        if($request->import_table == 'product'){
-            Excel::import(new ProductImport, $request->file('csv_file'));
+
+        try {
+            // Check if the file is valid
+            if (!$request->file('csv_file')->isValid()) {
+                Toastr::error('Invalid file uploaded', 'Error');
+                return redirect()->back();
+            }
+
+            // Import and update records
+            if ($request->import_table == 'product') {
+                Excel::import(new ProductImport, $request->file('csv_file'));
+            }
+
+            if ($request->import_table == 'purchase_product') {
+                Excel::import(new PurchaseProductImport, $request->file('csv_file'));
+            }
+
+            if ($request->import_table == 'inventory') {
+                Excel::import(new StockAllImport, $request->file('csv_file'));
+            }
+
+            if ($request->import_table == 'transection') {
+                Excel::import(new TransectionImport, $request->file('csv_file'));
+            }
+
+            if ($request->import_table == 'employee') {
+                Excel::import(new EmployeesImport, $request->file('csv_file'));
+            }
+
+            Toastr::success('Succesfully Imported ', 'Success');
+
+
+        } catch (\Exception $e) {
+            Toastr::error('File upload error: ' . $e->getMessage(), 'Error');
+            return redirect()->back();
         }
 
-        if($request->import_table == 'purchase_product'){
-            Excel::import(new PurchaseProductImport, $request->file('csv_file'));
-        }
-
-        if($request->import_table == 'inventory'){
-            Excel::import(new StockAllImport, $request->file('csv_file'));
-        }
-
-        if($request->import_table == 'transection'){
-            Excel::import(new TransectionImport, $request->file('csv_file'));
-        }
-
-        Toastr::success('Succesfully Imported ', 'Success');
         return redirect()->back();
     }
 

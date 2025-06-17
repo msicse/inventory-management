@@ -45,9 +45,9 @@
                                 </tr>
                             </tfoot>
                             <tbody>
-                                @foreach( $types as $key => $data)
+                                @foreach( $types as $data)
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $data->id }}</td>
                                     <td>{{ $data->name }}</td>
                                     <td>{{ $data->stocks->count() }}</td>
                                     <td>

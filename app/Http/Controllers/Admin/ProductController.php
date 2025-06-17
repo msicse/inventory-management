@@ -53,7 +53,7 @@ class ProductController extends Controller
         $product->is_serial = $request->serial ?? 2;
         $product->description = $request->description;
         // $product->description       = $request->title." ". $request->brand." ". $request->model." ".$request->description;
-        $product->slug = Str::slug($request->title);
+        $product->slug = Str::slug($title);
         $product->save();
 
         UserLogHelper::log('create', 'Created a new Product : '. $product->id );
