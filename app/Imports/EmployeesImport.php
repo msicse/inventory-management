@@ -22,6 +22,7 @@ class EmployeesImport implements ToCollection, WithHeadingRow
 
             $department = Department::where('short_name', $row['department'])->first();
             Employee::create([
+                'type' => $row['type'],
                 'emply_id' => $row['employee_id'],
                 'name' => $row['name'],
                 'email' => $row['email'],

@@ -32,7 +32,7 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employees = Employee::all();
+        $employees = Employee::orderBy('name', "asc")->get();
         return view('backend.admin.employee.index')->with(compact('employees'));
     }
 

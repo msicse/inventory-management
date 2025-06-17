@@ -160,7 +160,7 @@
                                         <th title="Quantity">Qty</th>
                                         <th>Supplier</th>
                                         <th>Purchase Date</th>
-                                        <th>Location</th>
+                                        <th>User/Location</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>

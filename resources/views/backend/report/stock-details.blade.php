@@ -180,7 +180,7 @@
                                     <th title="Warranty Remaining(days)">Warr.</th>
                                     <th>Supplier</th>
                                     <th>Condition</th>
-                                    <th>Location</th>
+                                    <th>User/Location</th>
                                     <th>Invoice</th>
                                 </tr>
                             </thead>

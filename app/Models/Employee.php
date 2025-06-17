@@ -9,7 +9,7 @@ class Employee extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["department_id", "emply_id", "name", "designation", "phone", "email", "status", "date_of_join"];
+    protected $fillable = ["department_id", "emply_id", "name", "designation", "phone", "email", "status", "date_of_join", "type"];
     /**
      * Get the user that owns the Employee
      *
