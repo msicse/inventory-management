@@ -77,11 +77,11 @@ class InventoryController extends Controller
                         ELSE stores.name
                     END as assigned_to'),
             )
-                ->join('products', 'stocks.product_id', '=', 'products.id')
-                ->join('stores', 'stocks.store_id', '=', 'stores.id')
-                ->join('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
-                ->join('purchases', 'stocks.purchase_id', '=', 'purchases.id')
-                ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
+                ->leftJoin('products', 'stocks.product_id', '=', 'products.id')
+                ->leftJoin('stores', 'stocks.store_id', '=', 'stores.id')
+                ->leftJoin('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
+                ->leftJoin('purchases', 'stocks.purchase_id', '=', 'purchases.id')
+                ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
                 ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
                 ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id')
                 ->when($type, fn($q) => $q->where('stocks.producttype_id', $type))
