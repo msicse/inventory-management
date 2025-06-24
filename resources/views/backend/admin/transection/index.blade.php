@@ -54,7 +54,7 @@
                                     <th>Asset Tag</th>
                                     <th>Serial No</th>
                                     <th>Employee Name & ID</th>
-                                    <th>Designation</th>
+                                    <th>Department</th>
                                     <th>Issue Date </th>
                                     <th>Return Date </th>
                                     <th>Qty.</th>
@@ -70,7 +70,7 @@
                                 <th>Asset Tag</th>
                                 <th>Serial No</th>
                                 <th>Employee Name & ID</th>
-                                <th>Designation</th>
+                                <th>Department</th>
                                 <th>Issue Date </th>
                                 <th>Return Date </th>
                                 <th>Qty.</th>
@@ -89,8 +89,7 @@
                                     <td> {{ $data->stock->asset_tag  }}</td>
                                     <td> {{ $data->stock->service_tag  }}</td>
                                     <td>{{ $data->employee->name .' - '. sprintf('%03d', $data->employee->emply_id) }}</td>
-                                    <td>{{ $data->employee->designation }}</td>
-                                    {{-- <td>{{ $data->employee->department->name }}</td> --}}
+                                    <td>{{ $data->employee->department->name }}</td>
                                     <td>{{ formatDate($data->issued_date) }}</td>
                                     <td>
                                         @can('distribution-edit')
