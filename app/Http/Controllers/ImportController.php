@@ -27,10 +27,12 @@ class ImportController extends Controller
 
         $request->validate([
             'import_table' => 'required|string',
-            'csv_file' => 'required|file|mimes:xlsx,xls,csv',
+            'csv_file' => 'required|file|mimes:csv',
         ]);
 
         // return $request->all();
+
+        $status = false;
 
 
         try {
@@ -43,30 +45,41 @@ class ImportController extends Controller
             // Import and update records
             if ($request->import_table == 'product') {
                 Excel::import(new ProductImport, $request->file('csv_file'));
+                $status = true;
             }
 
             if ($request->import_table == 'purchase_product') {
                 Excel::import(new PurchaseProductImport, $request->file('csv_file'));
+                $status = true;
             }
 
             if ($request->import_table == 'inventory') {
                 Excel::import(new StockAllImport, $request->file('csv_file'));
+
             }
 
             if ($request->import_table == 'transection') {
+                TransectionImport::$errors = []; // Reset errors
                 Excel::import(new TransectionImport, $request->file('csv_file'));
+                if (empty(TransectionImport::$errors)) {
+                    $status = true;
+                }
             }
 
             if ($request->import_table == 'employee') {
                 Excel::import(new EmployeesImport, $request->file('csv_file'));
+                $status = true;
+
             }
 
-            Toastr::success('Succesfully Imported ', 'Success');
-
-
+            if (!$status) {
+                Toastr::error('Invalid Import', 'Error');
+                return redirect()->back();
+            } else {
+                Toastr::success('File imported successfully', 'Success');
+            }
         } catch (\Exception $e) {
             Toastr::error('File upload error: ' . $e->getMessage(), 'Error');
-            return redirect()->back();
         }
 
         return redirect()->back();
