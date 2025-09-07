@@ -165,31 +165,62 @@
             calculate_sub_total();
         }
 
-        // Select2 refresh
+        // Select2 refresh for specific product
+        function selectRefresh(entry_number, quantity = 1) {
+            if (entry_number) {
+                // Refresh specific product's serial input
+                $("#setmax_" + entry_number).select2({
+                    tags: true,
+                    width: '100%',
+                    minimumResultsForSearch: -1,
+                    maximumSelectionLength: quantity,
+                    minimumSelectionLength: quantity,
+                });
+            } else {
+                // Refresh all serial inputs (for initial setup)
+                $('.serials').each(function() {
+                    var productRow = $(this).closest('tr');
+                    var quantityInput = productRow.find('.quantity');
+                    var qty = parseInt(quantityInput.val()) || 1;
 
-        function selectRefresh(quantity = 1) {
-            $('.serials').select2({
-                tags: true,
-                width: '100%',
-                minimumResultsForSearch: -1,
-                maximumSelectionLength: quantity,
-                minimumSelectionLength: quantity,
-            });
+                    $(this).select2({
+                        tags: true,
+                        width: '100%',
+                        minimumResultsForSearch: -1,
+                        maximumSelectionLength: qty,
+                        minimumSelectionLength: qty,
+                    });
+                });
+            }
+        }
+
+        // Validate serials for a specific product row
+        function validateSerials(entry_number) {
+            var quantity = parseInt($("#single_quantity_" + entry_number).val());
+            var serialsSelect = $("#setmax_" + entry_number);
+            var selectedSerials = serialsSelect.val();
+
+            if (serialsSelect.length > 0) { // Only validate if serial input exists
+                if (selectedSerials && selectedSerials.length !== quantity) {
+                    alert('Number of serials (' + selectedSerials.length + ') must match the quantity (' + quantity + ')');
+                    return false;
+                }
+            }
+            return true;
         }
 
         // Calculate Single Entry
-
         function calculate_single_entry_sum(entry_number) {
-            selectRefresh();
             quantity = parseInt($("#single_quantity_" + entry_number).val());
-            // alert(quantity);
             purchase_price = parseFloat($("#single_price_" + entry_number).val());
-            // alert(purchase_price);
             single_entry_total = parseFloat(quantity * purchase_price);
             $("#single_total_" + entry_number).val(single_entry_total);
 
             calculate_sub_total();
-            selectRefresh(quantity);
+
+            // Clear existing serials when quantity changes and refresh with new limit
+            $("#setmax_" + entry_number).val(null).trigger('change');
+            selectRefresh(entry_number, quantity);
         }
 
 
@@ -303,67 +334,55 @@
 
                     $("#ptable tbody").append(add_row);
 
-                    selectRefresh();
+                    // Initialize Select2 for this specific product's serials
+                    if (isSerialProduct === 1) {
+                        selectRefresh(id, 1); // Start with minimum quantity of 1
+                    }
                 } else {
-                    alert('Alredy Exsist');
+                    alert('Already Exists');
                 }
 
             });
 
 
             $('#form_submit').click(function(e) {
-                // e.preventDefault();
+                e.preventDefault();
                 $("#purchase_form").validate();
                 let isValid = true;
 
                 $('.quantity, .price, .warranty').each(function() {
-
                     if ($(this).val() === '') {
                         isValid = false;
-                        alert('All filds are required');
+                        alert('All fields are required');
                         return false;
                     }
-
                 });
 
+                // Validate serials match quantity for each product
                 $('.serials').each(function() {
-                    var quantity;
-                    var serialLength;
+                    var serialsSelect = $(this);
+                    var productRow = serialsSelect.closest('tr');
+                    var quantityInput = productRow.find('.quantity');
+                    var quantity = parseInt(quantityInput.val());
+                    var selectedSerials = serialsSelect.val();
 
-                    if($(this).val() === null){
+                    if(selectedSerials === null || selectedSerials.length === 0){
                         isValid = false;
-                        alert('Serials is required');
+                        alert('Serials are required for this product');
                         return false;
                     }
 
-
-                    // if ($(this).hasClass('quantity')){
-                    //     quantity = $(this).val();
-                    // }
-
-                    // if($(this).hasClass('serials')){
-                    //     serialLength = $(this).val().length;
-                    // }
-
+                    if(selectedSerials.length !== quantity){
+                        isValid = false;
+                        alert('Number of serials (' + selectedSerials.length + ') must match the quantity (' + quantity + ')');
+                        return false;
+                    }
                 });
-
 
                 if (isValid) {
-                    $("#purchase_form").validate();
-                    console.log("submited");
                     $("#purchase_form").submit();
-
                 }
-
-
             });
-
-
-
-
-
-
-
         });
     </script>
 @endpush
