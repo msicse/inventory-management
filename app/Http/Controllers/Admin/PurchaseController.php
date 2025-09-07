@@ -370,15 +370,17 @@ class PurchaseController extends Controller
         $this->validate(
             $request,
             array(
-                'product' => 'required|integer',
+                'product_id' => 'required|array',
+                'product_id.*' => 'required|integer',
                 'invoice_no' => 'required',
                 'supplier' => 'required|integer',
-                'unit_price' => 'required',
-                // 'quantity'          => 'required|integer',
+                'unit_price' => 'required|array',
+                'unit_price.*' => 'required|numeric',
+                'quantity' => 'required|array',
+                'quantity.*' => 'required|integer',
                 'date_of_purchase' => 'required',
-                // 'serials'           => 'required_if:serial,1',
-                'month' => 'required_if:license,1',
-
+                'month' => 'required|array',
+                'month.*' => 'required_if:license,1',
             )
         );
 
@@ -391,75 +393,70 @@ class PurchaseController extends Controller
         $purchase->challan_no = $request->challan_no;
         $purchase->purchase_date = $request->date_of_purchase;
         $purchase->is_stocked = 2;
-        // $purchase->save();
+        $purchase->save();
 
+        // Get current products in this purchase
+        $existingProducts = PurchaseProduct::where('purchase_id', $id)->get();
+        $submittedProductIds = $request->product_id ?? [];
 
-        // Purchase Products Add
+        // Remove products that are no longer in the form
+        foreach ($existingProducts as $existingProduct) {
+            if (!in_array($existingProduct->product_id, $submittedProductIds)) {
+                $existingProduct->delete();
+            }
+        }
 
+        // Process submitted products (update existing or create new)
         $input = $request->all();
 
-        // return $input['product_id'];
-
-        $purchase_date = (int) $request->date_of_purchase;
-        for ($i = 0; $i < count($input['product_id']); $i++) {
-
-            $product_id = $input['product_id'][$i];
-            return $product_id;
-
+        for ($i = 0; $i < count($submittedProductIds); $i++) {
+            $product_id = $submittedProductIds[$i];
             $current_product = Product::find($product_id);
-            $product_exsits = PurchaseProduct::where("purchase_id", $id)->where("product_id", $product_id)->exists();
 
-
+            // Handle warranty/expiry date
+            $warranty = null;
+            $expired_date = null;
             if ($current_product->is_license == 1) {
-                $warranty = (int) $input['month'][$i];
-                $dt = Carbon::create($purchase_date);
-                $dt->addMonth($warranty);
-                $dt->subDays();
-                $expired_date = $dt->isoFormat('YYYY-MM-DD');
-            } else {
-                $expired_date = null;
-            }
-
-
-            if (!$product_exsits && $current_product->is_serial == 1) {
-
-                $serial_new = 'serials-' . $product_id;
-
-                if (!empty($input[$serial_new])) {
-                    $product_serial = json_encode($input[$serial_new]);
-                } else {
-                    $product_serial = $input[$serial_new];
+                $warranty = (int) ($input['month'][$i] ?? 0);
+                if ($warranty > 0) {
+                    $purchase_date = Carbon::create($request->date_of_purchase);
+                    $expired_date = $purchase_date->copy()->addMonths($warranty)->format('Y-m-d');
                 }
-            } else {
-                $product_serial = null;
             }
 
-
-            $product_exsits = PurchaseProduct::where("purchase_id", $id)->where("product_id", $product_id)->exists();
-            return $product_exsits;
-
-            if ($product_exsits) {
-                $purchase_items = PurchaseProduct::find($product_id);
-            } else {
-                $purchase_items = new PurchaseProduct();
+            // Handle serials
+            $product_serial = null;
+            if ($current_product->is_serial == 1) {
+                $serial_field = 'serials-' . $product_id;
+                if (!empty($input[$serial_field])) {
+                    $product_serial = json_encode($input[$serial_field]);
+                }
             }
 
+            // Find existing product or create new
+            $purchase_item = PurchaseProduct::where('purchase_id', $id)
+                                           ->where('product_id', $product_id)
+                                           ->first();
 
+            if (!$purchase_item) {
+                $purchase_item = new PurchaseProduct();
+            }
 
-            $purchase_items->purchase_id = $purchase->id;
-            $purchase_items->supplier_id = $purchase->supplier_id;
-            $purchase_items->product_id = $input['product_id'][$i];
-            $purchase_items->quantity = $input['quantity'][$i];
-            $purchase_items->unit_price = $input['unit_price'][$i];
-            $purchase_items->total_price = $input['total'][$i];
-            $purchase_items->serials = $product_serial;
-            $purchase_items->warranty = $warranty;
-            $purchase_items->purchase_date = $request->date_of_purchase;
-            $purchase_items->expired_date = $expired_date;
-            $purchase_items->is_stocked = 2;
+            // Update/set product data
+            $purchase_item->purchase_id = $purchase->id;
+            $purchase_item->supplier_id = $purchase->supplier_id;
+            $purchase_item->product_id = $product_id;
+            $purchase_item->quantity = $input['quantity'][$i];
+            $purchase_item->unit_price = $input['unit_price'][$i];
+            $purchase_item->total_price = $input['total'][$i];
+            $purchase_item->serials = $product_serial;
+            $purchase_item->warranty = $warranty;
+            $purchase_item->purchase_date = $request->date_of_purchase;
+            $purchase_item->expired_date = $expired_date;
+            $purchase_item->is_stocked = 2;
 
-            $purchase_items->save();
-        } //End For Loop
+            $purchase_item->save();
+        }
 
 
         Toastr::success('Succesfully Updated ', 'Success');

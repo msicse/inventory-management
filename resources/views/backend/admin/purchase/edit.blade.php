@@ -142,7 +142,7 @@
                                                                 id="single_quantity_{{$product->product->id}}"
                                                                 onchange="calculate_single_entry_sum({{$product->product->id}})"
                                                                 type="number" name="quantity[]" min="1"
-                                                                value="{{$product->total_price}}">
+                                                                value="{{$product->quantity}}">
                                                         </td>
                                                         <td style="width: 15%">
                                                             <input class="form-control"
@@ -154,10 +154,14 @@
                                                                 value="{{ $product->warranty }}" required>
                                                         </td>
                                                         <td style="width: 25%">
-                                                            @if($product->serials)
-                                                                @foreach(json_decode($product->serials) as $data)
-                                                                    <span class="label label-info">{{ $data }}</span>
-                                                                @endforeach
+                                                            @if($product->product->is_serial == 1)
+                                                                <select class="form-control serials" id="setmax_{{$product->product->id}}" name="serials-{{$product->product->id}}[]" multiple data-minimum-results-for-search="Infinity">
+                                                                    @if($product->serials)
+                                                                        @foreach(json_decode($product->serials) as $data)
+                                                                            <option value="{{ $data }}" selected>{{ $data }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
                                                             @endif
                                                         </td>
                                                         <td style="width: 5%">
@@ -213,31 +217,46 @@
             calculate_sub_total();
         }
 
-        // Select2 refresh
+        // Select2 refresh for specific product
+        function selectRefresh(entry_number, quantity = 1) {
+            if (entry_number) {
+                // Refresh specific product's serial input
+                $("#setmax_" + entry_number).select2({
+                    tags: true,
+                    width: '100%',
+                    minimumResultsForSearch: -1,
+                    maximumSelectionLength: quantity,
+                    minimumSelectionLength: quantity,
+                });
+            } else {
+                // Refresh all serial inputs (for initial setup)
+                $('.serials').each(function() {
+                    var productRow = $(this).closest('tr');
+                    var quantityInput = productRow.find('.quantity');
+                    var qty = parseInt(quantityInput.val()) || 1;
 
-        function selectRefresh(quantity = 1) {
-            $('.serials').select2({
-                tags: true,
-                width: '100%',
-                minimumResultsForSearch: -1,
-                maximumSelectionLength: quantity,
-                minimumSelectionLength: quantity,
-            });
+                    $(this).select2({
+                        tags: true,
+                        width: '100%',
+                        minimumResultsForSearch: -1,
+                        maximumSelectionLength: qty,
+                        minimumSelectionLength: qty,
+                    });
+                });
+            }
         }
 
         // Calculate Single Entry
-
         function calculate_single_entry_sum(entry_number) {
-            selectRefresh();
             quantity = parseInt($("#single_quantity_" + entry_number).val());
-            // alert(quantity);
             purchase_price = parseFloat($("#single_price_" + entry_number).val());
-            // alert(purchase_price);
             single_entry_total = parseFloat(quantity * purchase_price);
             $("#single_total_" + entry_number).val(single_entry_total);
 
             calculate_sub_total();
-            selectRefresh(quantity);
+
+            // Update serial input limit for this specific product
+            selectRefresh(entry_number, quantity);
         }
 
 
@@ -257,6 +276,9 @@
             $('#supplier').select2();
             $('#product').select2();
             $('#product_type').select2();
+
+            // Initialize Select2 for existing serial inputs
+            selectRefresh();
 
             $('.serialsInput').tagsinput({
                 maxTags: 3
@@ -330,86 +352,81 @@
                 if (document.getElementById(id) == null) {
 
                     let add_row = '<tr> <td id=' + id + '>' + id + `</td>
-                            <input type="hidden" class="product_id" name="product_id[]" value="${id}" />
-                            <td>
-                                ${productTitle}
-                            </td>
-                            <td style="width: 15%">
-                                <input class="price form-control " onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]">
-                            </td>
-                            <td style="width: 10%">
-                                <input class="form-control quantity" id="single_quantity_${id}" onchange="calculate_single_entry_sum(${id})" type="number" name="quantity[]" min="1" >
-                            </td>
-                            <td style="width: 15%">
-                                <input class="form-control" id="single_total_${id}" type="text" name="total[]" value="" readonly>
-                            </td>
-                            <td style="width: 5%">
-                                ${warrantyInput}
-                            </td>
-                            <td style="width: 25%">
-                                ${serialInput}
-                            </td>
-                            <td style="width: 5%">
-                                <button type="button" class="btn btn-danger btn-xs delete" onclick ="delete_row($(this))">Remove</button>
-                            </td>
-                            </tr>
-                            `;
+                                <input type="hidden" class="product_id" name="product_id[]" value="${id}" />
+                                <td>
+                                    ${productTitle}
+                                </td>
+                                <td style="width: 15%">
+                                    <input class="price form-control " onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]">
+                                </td>
+                                <td style="width: 10%">
+                                    <input class="form-control quantity" id="single_quantity_${id}" onchange="calculate_single_entry_sum(${id})" type="number" name="quantity[]" min="1" >
+                                </td>
+                                <td style="width: 15%">
+                                    <input class="form-control" id="single_total_${id}" type="text" name="total[]" value="" readonly>
+                                </td>
+                                <td style="width: 5%">
+                                    ${warrantyInput}
+                                </td>
+                                <td style="width: 25%">
+                                    ${serialInput}
+                                </td>
+                                <td style="width: 5%">
+                                    <button type="button" class="btn btn-danger btn-xs delete" onclick ="delete_row($(this))">Remove</button>
+                                </td>
+                                </tr>
+                                `;
 
                     $("#ptable tbody").append(add_row);
 
-                    selectRefresh();
+                    // Initialize Select2 for this specific product's serials
+                    if (isSerialProduct === 1) {
+                        selectRefresh(id, 1); // Start with minimum quantity of 1
+                    }
                 } else {
-                    alert('Alredy Exsist');
+                    alert('Already Exists');
                 }
 
             });
 
 
-            $('#form_submit').click(function (e) {
-                // e.preventDefault();
+            $('#form_submit').click(function(e) {
+                e.preventDefault();
                 $("#purchase_form").validate();
                 let isValid = true;
 
-                $('.quantity, .price, .warranty').each(function () {
-
+                $('.quantity, .price, .warranty').each(function() {
                     if ($(this).val() === '') {
                         isValid = false;
-                        alert('All filds are required');
+                        alert('All fields are required');
                         return false;
                     }
-
                 });
 
-                $('.serials').each(function () {
-                    var quantity;
-                    var serialLength;
+                // Validate serials match quantity for each product
+                $('.serials').each(function() {
+                    var serialsSelect = $(this);
+                    var productRow = serialsSelect.closest('tr');
+                    var quantityInput = productRow.find('.quantity');
+                    var quantity = parseInt(quantityInput.val());
+                    var selectedSerials = serialsSelect.val();
 
-                    if ($(this).val() === null) {
+                    if(selectedSerials === null || selectedSerials.length === 0){
                         isValid = false;
-                        alert('Serials is required');
+                        alert('Serials are required for this product');
                         return false;
                     }
 
-
-                    // if ($(this).hasClass('quantity')){
-                    //     quantity = $(this).val();
-                    // }
-
-                    // if($(this).hasClass('serials')){
-                    //     serialLength = $(this).val().length;
-                    // }
-
+                    if(selectedSerials.length !== quantity){
+                        isValid = false;
+                        alert('Number of serials (' + selectedSerials.length + ') must match the quantity (' + quantity + ')');
+                        return false;
+                    }
                 });
-
 
                 if (isValid) {
-                    $("#purchase_form").validate();
-                    console.log("submited");
                     $("#purchase_form").submit();
-
                 }
-
-
             });
 
 
