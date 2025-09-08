@@ -36,9 +36,17 @@ class PurchaseController extends Controller
         $this->middleware('permission:purchase-delete', ['only' => ['destroy']]);
         $this->middleware('permission:purchase-addinventory', ['only' => ['addInventory']]);
     }
-    public function index()
+    public function index(Request $request)
     {
-        $purchases = Purchase::all();
+        $query = Purchase::query();
+
+        // Filter by approved status (is_stocked)
+        if ($request->has('approved') && $request->approved !== '') {
+            $query->where('is_stocked', $request->approved);
+        }
+
+        $purchases = $query->orderBy('created_at', 'desc')->get();
+
         return view('backend.admin.purchase.index')->with(compact('purchases'));
     }
 

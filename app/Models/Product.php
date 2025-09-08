@@ -18,6 +18,7 @@ class Product extends Model
         'unit',
         'is_serial',
         'is_license',
+        'is_taggable',
         'description'
     ];
 

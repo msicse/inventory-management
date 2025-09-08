@@ -23,6 +23,11 @@
                         <h2>
                             All Purchases
                             <span class="badge ">{{ $purchases->count() }}</span>
+                            @if(request('approved') == '1')
+                                <small class="text-success">(Approved Only)</small>
+                            @elseif(request('approved') == '2')
+                                <small class="text-warning">(Pending Only)</small>
+                            @endif
                         </h2>
                         <div>
                             @can('purchase-create')
@@ -35,6 +40,33 @@
                         </div>
                     </div>
                     <div class="body">
+                        <!-- Filter Section -->
+                        <div class="row" style="margin-bottom: 20px;">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Filter by Approved Status</label>
+                                    <select name="approved" id="approved" class="form-control">
+                                        <option value="">All Purchases</option>
+                                        <option value="1" {{ request('approved') == '1' ? 'selected' : '' }}>Approved (In Inventory)</option>
+                                        <option value="2" {{ request('approved') == '2' ? 'selected' : '' }}>Pending (Not Approved)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label" style="visibility: hidden;">Actions</label>
+                                    <div>
+                                        <button type="button" id="filterBtn" class="btn btn-primary waves-effect" style="margin-right: 5px;">
+                                            <i class="material-icons">search</i> Filter
+                                        </button>
+                                        <a href="{{ route('purchases.index') }}" class="btn btn-default waves-effect">
+                                            <i class="material-icons">clear</i> Clear
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                                 <thead>
@@ -111,8 +143,8 @@
                                                 @can('purchase-addinventory')
                                                     @if($data->is_stocked == 2)
                                                         <a href="{{ route('purchases.show', $data->id) }}"
-                                                            class="btn btn-info waves-effect ">
-                                                            <i class="material-icons">add</i>
+                                                            class="btn btn-info waves-effect " title="Approve to Inventory">
+                                                             <i class="material-icons">check_circle</i>
                                                         </a>
                                                     @endif
                                                 @endcan
@@ -182,7 +214,25 @@
             var data_id = $(this).data('delete-id');
             var url = location.origin + '/admin/employees/status/' + data_id;
             $('.delete_form').attr('action', url);
+        });
 
+        // Filter functionality
+        $("#filterBtn").click(function() {
+            var approved = $("#approved").val();
+            var url = "{{ route('purchases.index') }}";
+
+            if (approved !== '') {
+                url += '?approved=' + approved;
+            }
+
+            window.location.href = url;
+        });
+
+        // Handle Enter key on filter dropdown
+        $("#approved").on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                $("#filterBtn").click();
+            }
         });
 
     </script>

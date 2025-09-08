@@ -37,6 +37,7 @@ class ProductController extends Controller
             'unit' => 'required|alpha|max:255',
             'serial' => 'sometimes|numeric|max:1',
             'license' => 'sometimes|numeric|max:1',
+            'taggable' => 'sometimes|numeric|max:1',
             'description' => 'required',
         ));
 
@@ -51,6 +52,7 @@ class ProductController extends Controller
         $product->unit = $request->unit;
         $product->is_license = $request->license ?? 2;
         $product->is_serial = $request->serial ?? 2;
+        $product->is_taggable = $request->taggable ?? 2;
         $product->description = $request->description;
         // $product->description       = $request->title." ". $request->brand." ". $request->model." ".$request->description;
         $product->slug = Str::slug($title);
@@ -77,6 +79,7 @@ class ProductController extends Controller
             'unit' => 'required|alpha|max:255',
             'serial' => 'sometimes|numeric|max:1',
             'license' => 'sometimes|numeric|max:1',
+            'taggable' => 'sometimes|numeric|max:1',
             'description' => 'required|max:255',
         ));
 
@@ -99,6 +102,7 @@ class ProductController extends Controller
             $product->unit = $request->unit;
             $product->is_license = $request->license ?? 2;
             $product->is_serial = $request->serial ?? 2;
+            $product->is_taggable = $request->taggable ?? 2;
             $product->description = $request->description;
             $product->save();
 

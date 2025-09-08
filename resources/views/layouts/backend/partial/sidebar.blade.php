@@ -111,13 +111,23 @@
             </li> --}}
 
             @can("purchase-list")
-            <li class="{{ Request::is('purchases*') ? 'active' : '' }}">
+            <li class="{{ Request::is('purchases*') && request('approved') == null ? 'active' : '' }}">
                 <a href="{{ route('purchases.index') }}">
                     <i class="material-icons">add_shopping_cart</i>
                     <span>Purchase (PO)</span>
                 </a>
             </li>
             @endcan
+
+            @can("purchase-list")
+            <li class="{{ Request::is('purchases*') && request('approved') == '2' ? 'active' : '' }}">
+                <a href="{{ route('purchases.index', ['approved' => 2]) }}">
+                    <i class="material-icons">pending_actions</i>
+                    <span>Pending Purchase Approval</span>
+                </a>
+            </li>
+            @endcan
+
 {{--
             <li class="{{ Request::is('purchased-products*') ? 'active' : '' }}">
                 <a href="{{ route('purchased.products') }}">
