@@ -17,8 +17,7 @@ use App\Models\PurchaseProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
-
-
+use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
 
 class PurchaseController extends Controller
 {
@@ -28,9 +27,9 @@ class PurchaseController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    function __construct()
+    public function __construct()
     {
-        $this->middleware('permission:purchase-list|purchase-create|purchase-edit|purchase-delete', ['only' => ['index', 'store', 'grn', 'purchasedProductShow', 'purchasedProducts', 'invoice', 'addInventory', 'typedProducts']]);
+        $this->middleware('permission:purchase-list|purchase-create|purchase-edit|purchase-delete', ['only' => ['index', 'store', 'grn', 'purchasedProductShow', 'purchasedProducts', 'invoice', 'addInventory', 'typedProducts', 'generateBarcode', 'printBarcode', 'printMultipleBarcodes']]);
         $this->middleware('permission:purchase-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:purchase-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:purchase-delete', ['only' => ['destroy']]);
@@ -253,6 +252,12 @@ class PurchaseController extends Controller
                     // }
 
                     $stock->service_tag = empty($new_serials) ? NULL : $new_serials[$x - 1];
+
+                    // Auto-assign asset tag if product is taggable
+                    if ($data->product->is_taggable == 1) {
+                        $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
+                    }
+
                     $stock->serial_no = NULL; //$max_serial + $x;
                     $stock->status_id = 1;
                     $stock->store_id = 1;
@@ -274,6 +279,12 @@ class PurchaseController extends Controller
                 $stock->warranty = $data->warranty;
                 $stock->quantity = $data->quantity;
                 $stock->service_tag = NULL;
+
+                // Auto-assign asset tag if product is taggable
+                if ($data->product->is_taggable == 1) {
+                    $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
+                }
+
                 $stock->product_status = 1;
                 $stock->is_assigned = 2;
                 $stock->assigned = 0;
@@ -302,6 +313,11 @@ class PurchaseController extends Controller
                     // }
 
                     $stock->service_tag = empty($new_serials) ? NULL : $new_serials[$x - 1];
+
+                    // Auto-assign asset tag if product is taggable
+                    if ($data->product->is_taggable == 1) {
+                        $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
+                    }
 
                     // $stock->serial_no = $max_serial + $x;
 
@@ -498,6 +514,159 @@ class PurchaseController extends Controller
     }
 
     /**
+     * Generate barcode for a stock item
+     *
+     * @param  int  $stockId
+     * @return \Illuminate\Http\Response
+     */
+    public function generateBarcode($id)
+    {
+        try {
+            // Step 1: Basic data retrieval without relationships
+            $stock = Stock::findOrFail($id);
+
+            // Step 2: Create simple barcode data
+            $barcodeData = $this->createBarcodeData($stock);
+
+            // Step 3: Try barcode generation using the facade
+            // Simple barcode settings for testing
+            $barcodeHTML = DNS1D::getBarcodeHTML($barcodeData, 'C128', 1, 50, 'black', false);
+
+            return response('<div style="text-align: center; padding: 20px;">
+                <h3>Test Barcode Generation</h3>
+                <div>' . $barcodeHTML . '</div>
+                <p>Data: ' . $barcodeData . '</p>
+                <p>Stock ID: ' . $stock->id . '</p>
+            </div>');
+
+        } catch (\Exception $e) {
+            return response('<div style="color: red; padding: 20px;">
+                <h3>Error occurred:</h3>
+                <p>' . $e->getMessage() . '</p>
+                <pre>' . $e->getTraceAsString() . '</pre>
+            </div>', 500);
+        }
+    }    /**
+     * Generate and print barcode label for a stock item
+     *
+     * @param  int  $stockId
+     * @return \Illuminate\Http\Response
+     */
+    public function printBarcode($stockId)
+    {
+        // Simple stock loading without relationships
+        $stock = Stock::findOrFail($stockId);
+
+        // Create simple barcode data
+        $barcodeData = $this->createBarcodeData($stock);
+
+        try {
+            // Simple HTML barcode generation without file operations
+            $dns1d = new \Milon\Barcode\DNS1D();
+            // Simple barcode settings
+            $barcodeHTML = $dns1d->getBarcodeHTML($barcodeData, 'C128', 1, 50, 'black', false);
+
+            $data = [
+                'stock' => $stock,
+                'barcodeHTML' => $barcodeHTML,
+                'barcodeData' => $barcodeData,
+                'assetTag' => $stock->asset_tag
+            ];
+
+            // Custom paper size: 3.5" width x 1.4" height (252pt x 100.8pt) with margins
+            $pdf = Pdf::loadView('backend.admin.pdf.barcode-html', $data)
+                      ->setPaper([0, 0, 252, 100.8], 'portrait')
+                      ->setOptions([
+                          'isHtml5ParserEnabled' => true,
+                          'isRemoteEnabled' => false,
+                          'chroot' => public_path(),
+                      ]);
+
+            UserLogHelper::log('create', 'Generated barcode for Stock ID: ' . $stockId);
+
+            return $pdf->stream('barcode-' . $stock->asset_tag . '.pdf');
+
+        } catch (\Exception $e) {
+            return response('Barcode generation failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Generate barcodes for multiple stock items
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printMultipleBarcodes(Request $request)
+    {
+        $stockIds = $request->input('stock_ids', []);
+
+        if (empty($stockIds)) {
+            return response('No items selected', 400);
+        }
+
+        // Simple stock loading without relationships
+        $stocks = Stock::whereIn('id', $stockIds)->get();
+        $barcodeData = [];
+
+        foreach ($stocks as $stock) {
+            $data = $this->createBarcodeData($stock);
+            try {
+                // Simple barcode generation without file operations
+                $dns1d = new \Milon\Barcode\DNS1D();
+                // Simple barcode settings
+                $barcode = $dns1d->getBarcodePNG($data, 'C128', 1, 50);
+
+                $barcodeData[] = [
+                    'stock' => $stock,
+                    'barcode' => 'data:image/png;base64,' . base64_encode($barcode),
+                    'barcodeText' => $data,
+                    'assetTag' => $stock->asset_tag
+                ];
+            } catch (\Exception $e) {
+                // Skip this item if barcode generation fails
+                continue;
+            }
+        }
+
+        $pdf = Pdf::loadView('backend.admin.pdf.multiple-barcodes', compact('barcodeData'))
+                  ->setPaper('a4', 'portrait')
+                  ->setOptions([
+                      'dpi' => 300,
+                      'defaultFont' => 'Arial',
+                      'isRemoteEnabled' => true
+                  ]);
+
+        UserLogHelper::log('create', 'Generated multiple barcodes for ' . count($stockIds) . ' items');
+
+        return $pdf->stream('barcodes-' . date('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
+     * Create barcode data string
+     *
+     * @param  \App\Models\Stock  $stock
+     * @return string
+     */
+    private function createBarcodeData($stock)
+    {
+        try {
+            // Use only basic stock data to avoid relationship issues
+            $serial = $stock->service_tag ?? 'N/A';
+            $assetTag = $stock->asset_tag ?? 'N/A';
+
+            // Original barcode data format
+            $barcodeData = "RMG Sustainability Council|S/N:{$serial}|Asset:{$assetTag}|URL:its.rsc-bd.org";
+
+            return $barcodeData;
+
+        } catch (\Exception $e) {
+            // Simple fallback
+            return "RMG|Asset:" . ($stock->asset_tag ?? 'UNKNOWN') . "|URL:its.rsc-bd.org";
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -505,18 +674,38 @@ class PurchaseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // Implementation for deleting purchase records if needed
+        return response('Delete functionality not implemented yet', 501);
     }
 
+    /**
+     * Generate the next asset tag based on product type
+     *
+     * @param  string  $typeName
+     * @return string
+     */
+    private function generateAssetTag($typeName)
+    {
+        // Get the first letter of the product type name in uppercase
+        $prefix = strtoupper(substr($typeName, 0, 1));
 
+        // Find the highest existing asset tag for this prefix
+        $latestAssetTag = Stock::where('asset_tag', 'like', $prefix . '%')
+                               ->orderByRaw('CAST(SUBSTRING(asset_tag, 2) AS UNSIGNED) DESC')
+                               ->first();
 
+        if ($latestAssetTag && $latestAssetTag->asset_tag) {
+            // Extract the numeric part and increment it
+            $numericPart = (int) substr($latestAssetTag->asset_tag, 1);
+            $nextNumber = $numericPart + 1;
+        } else {
+            // Start with 1 if no existing asset tags found
+            $nextNumber = 1;
+        }
 
-
-
-
-
-
-
+        // Format as prefix + 5-digit zero-padded number (e.g., L00001, M00002)
+        return $prefix . sprintf('%05d', $nextNumber);
+    }
 
     //Update serial
     function updateAssetTag() {
@@ -596,6 +785,27 @@ class PurchaseController extends Controller
         foreach ($updates as $serialNumber => $data) {
             Stock::where('service_tag', $serialNumber)
             ->update($data);
+        }
+    }
+
+    /**
+     * Test method to isolate barcode generation issues
+     */
+    public function testSimpleBarcode($id)
+    {
+        try {
+            // Test without any barcode generation library first
+            $stock = Stock::findOrFail($id);
+
+            return response('<div style="text-align: center; padding: 20px;">
+                <h3>Simple Test - No Barcode Generation</h3>
+                <p>Stock ID: ' . $stock->id . '</p>
+                <p>Asset Tag: ' . ($stock->asset_tag ?? 'N/A') . '</p>
+                <p>Test successful - no infinite loop</p>
+            </div>');
+
+        } catch (\Exception $e) {
+            return response('Error: ' . $e->getMessage(), 500);
         }
     }
 }

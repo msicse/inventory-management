@@ -113,6 +113,14 @@ class InventoryController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
+                ->addColumn('checkbox', function ($row) {
+                    // Only add checkbox if asset_tag exists
+                    if (!empty($row->asset_tag)) {
+                        return '<input type="checkbox" class="stock-checkbox filled-in" value="' . $row->stock_id . '" id="check-' . $row->stock_id . '" />
+                                <label for="check-' . $row->stock_id . '"></label>';
+                    }
+                    return '';
+                })
                 ->addColumn('action', function ($row) {
                     // Add your action buttons here
                     // return '
@@ -130,6 +138,27 @@ class InventoryController extends Controller
                          <i class="material-icons">update</i>
                      </button>' : "";
 
+                    // Barcode and QR Code buttons (only show if asset_tag exists)
+                    $barcodeBtn = '';
+                    if (!empty($row->asset_tag)) {
+                        $barcodeBtn = '<a href="' . route('stock.print.barcode', $row->stock_id) . '"
+                                          class="btn btn-warning btn-sm" title="Print Barcode" target="_blank">
+                                          <i class="material-icons">print</i>
+                                      </a>
+                                      <a href="' . route('stock.barcode', $row->stock_id) . '"
+                                          class="btn btn-secondary btn-sm" title="View Barcode" target="_blank">
+                                          <i class="material-icons">qr_code</i>
+                                      </a>
+                                      <a href="' . route('stock.print.qrcode', $row->stock_id) . '"
+                                          class="btn btn-success btn-sm" title="Print QR Code" target="_blank">
+                                          <i class="material-icons">qr_code_2</i>
+                                      </a>
+                                      <a href="' . route('stock.qrcode', $row->stock_id) . '"
+                                          class="btn btn-info btn-sm" title="View QR Code" target="_blank">
+                                          <i class="material-icons">qr_code_scanner</i>
+                                      </a>';
+                    }
+
                     if ($row->is_assigned == 1) {
                         $assigned_user = e($row->assigned_id);
                     } else {
@@ -137,7 +166,7 @@ class InventoryController extends Controller
                     }
 
                     return sprintf(
-                        '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>' . $updateBtn,
+                        '<a href="%s" class="btn btn-info btn-sm"><i class="material-icons">visibility</i></a>' . $updateBtn . ' ' . $barcodeBtn,
                         e($viewUrl),
                         e($row->stock_id),
                         $serviceTag,
@@ -147,7 +176,7 @@ class InventoryController extends Controller
                         $assigned_user
                     );
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['checkbox', 'action'])
                 ->make(true);
         }
 

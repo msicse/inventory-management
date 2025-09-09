@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\QrCodeController;
 
 Route::get('/', function () {
     return view('login-home');
@@ -118,6 +119,26 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('invoice', [App\Http\Controllers\Admin\PurchaseController::class, 'invoice'])->name('purchases.invoice');
     Route::get('grn/{id}', [App\Http\Controllers\Admin\PurchaseController::class, 'grn'])->name('purchases.grn');
+
+    // Barcode Routes
+    Route::get('stock/{id}/barcode', [App\Http\Controllers\Admin\PurchaseController::class, 'generateBarcode'])->name('stock.barcode');
+    Route::get('stock/{id}/print-barcode', [App\Http\Controllers\Admin\PurchaseController::class, 'printBarcode'])->name('stock.print.barcode');
+    Route::post('stock/print-multiple-barcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'printMultipleBarcodes'])->name('stock.print.multiple.barcodes');
+    Route::post('stock/print-multiple-qrcodes', [QrCodeController::class, 'printMultipleQrCodes'])->name('stock.print.multiple.qrcodes');
+    Route::get('test-simple-barcode/{id}', [App\Http\Controllers\Admin\PurchaseController::class, 'testSimpleBarcode'])->name('test.simple.barcode');
+
+    // Stock QR Code Routes
+    Route::get('stock/{id}/qrcode', [QrCodeController::class, 'generateStockQrCode'])->name('stock.qrcode');
+    Route::get('stock/{id}/print-qrcode', [QrCodeController::class, 'printStockQrCode'])->name('stock.print.qrcode');
+
+    // QR Code routes
+    Route::get('qr-codes', [QrCodeController::class, 'index'])->name('admin.qrcodes.index');
+    Route::get('qr-generator', [QrCodeController::class, 'index'])->name('qrcode.generator');
+    Route::get('qr-codes/generate/{stockId}', [QrCodeController::class, 'generateStockQrCode'])->name('admin.qrcodes.generate');
+    Route::get('qr-codes/print/{stockId}', [QrCodeController::class, 'printStockQrCode'])->name('admin.qrcodes.print');
+    Route::post('qr-codes/print-multiple', [QrCodeController::class, 'printMultipleQrCodes'])->name('admin.qrcodes.print.multiple');
+    Route::post('qr-codes/generate-custom', [QrCodeController::class, 'generateCustomQrCode'])->name('admin.qrcodes.custom');
+    Route::post('qr-codes/generate-url', [QrCodeController::class, 'generateUrlQrCode'])->name('admin.qrcodes.url');
 
     //Inventories Route
     Route::get('inventories', [App\Http\Controllers\Admin\InventoryController::class, 'index'])->name('inventories.index');

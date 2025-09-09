@@ -145,12 +145,32 @@
                         <h2>
                             Inventories
                         </h2>
+                        <div class="pull-right">
+                            <button type="button" id="bulk-barcode-btn" class="btn btn-warning waves-effect"
+                                    style="display:none;" onclick="printSelectedBarcodes()">
+                                <i class="material-icons">print</i>
+                                <span>Print Selected Barcodes</span>
+                            </button>
+                            <button type="button" id="bulk-qrcode-btn" class="btn btn-info waves-effect"
+                                    style="display:none;" onclick="printSelectedQrCodes()">
+                                <i class="material-icons">qr_code_2</i>
+                                <span>Print Selected QR Codes</span>
+                            </button>
+                            <a href="{{ route('qrcode.generator') }}" class="btn btn-success waves-effect">
+                                <i class="material-icons">qr_code</i>
+                                <span>QR Generator</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-hover" id="stockTable">
                                 <thead>
                                     <tr>
+                                        <th>
+                                            <input type="checkbox" id="select-all" class="filled-in" />
+                                            <label for="select-all"></label>
+                                        </th>
                                         <th>SL</th>
                                         <th>Type</th>
                                         <th>Product</th>
@@ -292,6 +312,7 @@
                     }
                 },
                 columns: [
+                    { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'product_type', name: 'producttypes.name', searchable: false },
                     { data: 'title', name: 'products.title' },
@@ -457,5 +478,111 @@
                 });
             });
         });
+
+        // Checkbox functionality
+        $(document).ready(function() {
+            // Select All checkbox
+            $('#select-all').on('change', function() {
+                let isChecked = $(this).is(':checked');
+                $('.stock-checkbox').prop('checked', isChecked);
+                toggleBulkBarcodeBtn();
+            });
+
+            // Individual checkbox change
+            $(document).on('change', '.stock-checkbox', function() {
+                let totalCheckboxes = $('.stock-checkbox').length;
+                let checkedCheckboxes = $('.stock-checkbox:checked').length;
+
+                $('#select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+                toggleBulkBarcodeBtn();
+            });
+
+            function toggleBulkBarcodeBtn() {
+                let checkedBoxes = $('.stock-checkbox:checked').length;
+                if (checkedBoxes > 0) {
+                    $('#bulk-barcode-btn').show();
+                    $('#bulk-qrcode-btn').show();
+                } else {
+                    $('#bulk-barcode-btn').hide();
+                    $('#bulk-qrcode-btn').hide();
+                }
+            }
+        });
+
+        // Print selected barcodes function
+        function printSelectedBarcodes() {
+            let selectedIds = [];
+            $('.stock-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                alert('Please select at least one item to print barcodes.');
+                return;
+            }
+
+            // Create form and submit
+            let form = $('<form>', {
+                'method': 'POST',
+                'action': '{{ route("stock.print.multiple.barcodes") }}',
+                'target': '_blank'
+            });
+
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': '_token',
+                'value': '{{ csrf_token() }}'
+            }));
+
+            $.each(selectedIds, function(index, value) {
+                form.append($('<input>', {
+                    'type': 'hidden',
+                    'name': 'stock_ids[]',
+                    'value': value
+                }));
+            });
+
+            $('body').append(form);
+            form.submit();
+            form.remove();
+        }
+
+        // Print selected QR codes function
+        function printSelectedQrCodes() {
+            let selectedIds = [];
+            $('.stock-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                alert('Please select at least one item to print QR codes.');
+                return;
+            }
+
+            // Create form and submit
+            let form = $('<form>', {
+                'method': 'POST',
+                'action': '{{ route("stock.print.multiple.qrcodes") }}',
+                'target': '_blank'
+            });
+
+            form.append($('<input>', {
+                'type': 'hidden',
+                'name': '_token',
+                'value': '{{ csrf_token() }}'
+            }));
+
+            $.each(selectedIds, function(index, value) {
+                form.append($('<input>', {
+                    'type': 'hidden',
+                    'name': 'stock_ids[]',
+                    'value': value
+                }));
+            });
+
+            $('body').append(form);
+            form.submit();
+            form.remove();
+        }
     </script>
 @endpush
