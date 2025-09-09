@@ -124,6 +124,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('stock/{id}/barcode', [App\Http\Controllers\Admin\PurchaseController::class, 'generateBarcode'])->name('stock.barcode');
     Route::get('stock/{id}/print-barcode', [App\Http\Controllers\Admin\PurchaseController::class, 'printBarcode'])->name('stock.print.barcode');
     Route::post('stock/print-multiple-barcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'printMultipleBarcodes'])->name('stock.print.multiple.barcodes');
+
+    // Purchase QR Code Routes
+    Route::get('purchase/{id}/print-qrcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'printPurchaseQrCodes'])->name('purchase.print.qrcodes');
+    Route::get('purchase/{id}/print-qrcode-labels', [App\Http\Controllers\Admin\PurchaseController::class, 'printPurchaseQrCodeLabels'])->name('purchase.print.qrcode.labels');
+    Route::get('purchase/{id}/debug-qrcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'debugPurchaseQrCodes'])->name('purchase.debug.qrcodes');
+
     Route::post('stock/print-multiple-qrcodes', [QrCodeController::class, 'printMultipleQrCodes'])->name('stock.print.multiple.qrcodes');
     Route::get('test-simple-barcode/{id}', [App\Http\Controllers\Admin\PurchaseController::class, 'testSimpleBarcode'])->name('test.simple.barcode');
 

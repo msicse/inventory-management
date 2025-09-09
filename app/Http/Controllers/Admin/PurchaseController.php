@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Helpers\UserLogHelper;
 use App\Models\PurchaseProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\QrCodeService;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
@@ -806,6 +807,305 @@ class PurchaseController extends Controller
 
         } catch (\Exception $e) {
             return response('Error: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Print QR codes for all stocks in a purchase
+     *
+     * @param int $purchaseId
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printPurchaseQrCodes($purchaseId, Request $request)
+    {
+        try {
+            $purchase = Purchase::findOrFail($purchaseId);
+
+            // Check if purchase is approved (stocked)
+            if ($purchase->is_stocked != 1) {
+                return response('Purchase must be approved before generating QR codes', 400);
+            }
+
+            // Get all stocks from this purchase
+            $stocks = Stock::where('purchase_id', $purchaseId)->get();
+
+            if ($stocks->isEmpty()) {
+                return response('No stock items found for this purchase', 404);
+            }
+
+            $qrCodeService = app(QrCodeService::class);
+            $qrCodeData = [];
+            $size = $request->get('size', 200);
+            $type = $request->get('type', 'simple');
+
+            foreach ($stocks as $stock) {
+                try {
+                    if ($type === 'simple') {
+                        $qrCode = $qrCodeService->generateSimpleStockQrCode($stock, 'svg', $size);
+                        $qrData = $qrCodeService->createSimpleStockQrData($stock);
+                    } else {
+                        $qrCode = $qrCodeService->generateStockQrCode($stock, 'svg', $size);
+                        $qrData = $qrCodeService->createStockQrData($stock);
+                    }
+
+                    $qrCodeData[] = [
+                        'stock' => $stock,
+                        'qrcode' => $qrCode,
+                        'qrData' => $qrData,
+                        'assetTag' => $stock->asset_tag
+                    ];
+                } catch (\Exception $e) {
+                    // Skip this item if QR generation fails
+                    continue;
+                }
+            }
+
+            if (empty($qrCodeData)) {
+                return response('Failed to generate QR codes for any items', 500);
+            }
+
+            $data = [
+                'qrCodeData' => $qrCodeData,
+                'purchase' => $purchase,
+                'type' => $type,
+                'size' => $size
+            ];
+
+            $pdf = Pdf::loadView('backend.admin.pdf.purchase-qrcodes', $data)
+                      ->setPaper('a4', 'portrait')
+                      ->setOptions([
+                          'dpi' => 300,
+                          'defaultFont' => 'Arial',
+                          'isRemoteEnabled' => true
+                      ]);
+
+            UserLogHelper::log('create', 'Generated QR codes for Purchase ID: ' . $purchaseId . ' (' . count($qrCodeData) . ' items)');
+
+            return $pdf->stream('purchase-qrcodes-' . $purchase->id . '-' . date('Y-m-d-H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return response('QR code generation failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Print individual QR code labels for all stocks in a purchase (1.4" format)
+     *
+     * @param int $purchaseId
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printPurchaseQrCodeLabels($purchaseId, Request $request)
+    {
+        try {
+            $purchase = Purchase::findOrFail($purchaseId);
+
+            // Check if purchase is approved (stocked)
+            if ($purchase->is_stocked != 1) {
+                return response('Purchase must be approved before generating QR codes', 400);
+            }
+
+            // Get all stocks from this purchase
+            $stocks = Stock::where('purchase_id', $purchaseId)->get();
+
+            if ($stocks->isEmpty()) {
+                return response('No stock items found for this purchase', 404);
+            }
+
+            $qrCodeService = app(QrCodeService::class);
+            $qrCodeData = [];
+            $size = $request->get('size', 200);
+            $type = $request->get('type', 'simple');
+
+            foreach ($stocks as $stock) {
+                try {
+                    // Generate QR data
+                    if ($type === 'simple') {
+                        $qrData = $qrCodeService->createSimpleStockQrData($stock);
+                    } else {
+                        $qrData = $qrCodeService->createStockQrData($stock);
+                    }
+
+                    // Generate QR code as PNG for better PDF compatibility (like original)
+                    $qrCodeBase64 = null;
+                    $qrCodeHtml = null;
+                    $qrCodePngPath = null;
+
+                    try {
+                        // Create temporary PNG (exactly like working QrCodeController)
+                        $tempDir = storage_path('app/temp');
+                        if (!file_exists($tempDir)) {
+                            mkdir($tempDir, 0755, true);
+                        }
+
+                        $filename = 'qr_purchase_' . $purchaseId . '_stock_' . $stock->id . '_' . time() . '.png';
+                        $qrCodePngPath = $tempDir . '/' . $filename;
+
+                        // Generate PNG QR code (exactly like working version)
+                        \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                            ->format('png')
+                            ->backgroundColor(255, 255, 255)
+                            ->color(0, 0, 0)
+                            ->margin(1)
+                            ->errorCorrection('M')
+                            ->generate($qrData, $qrCodePngPath);
+
+                        // Convert to base64 data URL (exactly like working version)
+                        if (file_exists($qrCodePngPath)) {
+                            $imageData = file_get_contents($qrCodePngPath);
+                            $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+                        }
+
+                    } catch (\Exception $e) {
+                        $qrCodeBase64 = null;
+
+                        // Fallback to SVG as base64 (like original)
+                        try {
+                            $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                                ->format('svg')
+                                ->backgroundColor(255, 255, 255)
+                                ->color(0, 0, 0)
+                                ->margin(1)
+                                ->errorCorrection('M')
+                                ->generate($qrData);
+
+                            $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($svg);
+                        } catch (\Exception $svgError) {
+                            // Final fallback - use HTML table (like original)
+                            $qrCodeHtml = '<div style="width: 1.0in; height: 1.0in; border: 2px solid black; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold;">QR ERROR</div>';
+                        }
+                    }
+
+                    // Clean up temporary file
+                    if ($qrCodePngPath && file_exists($qrCodePngPath)) {
+                        unlink($qrCodePngPath);
+                    }
+
+                    $qrCodeData[] = [
+                        'stock' => $stock,
+                        'qrCodeBase64' => $qrCodeBase64,
+                        'qrCodeHtml' => $qrCodeHtml,
+                        'qrData' => $qrData,
+                        'assetTag' => $stock->asset_tag,
+                        'type' => $type,
+                        'size' => $size
+                    ];
+
+                } catch (\Exception $e) {
+                    // Skip this item if QR generation fails
+                    continue;
+                }
+            }
+
+            if (empty($qrCodeData)) {
+                return response('Failed to generate QR codes for any items', 500);
+            }
+
+            // Generate individual labels for each stock item
+            $pdf = Pdf::loadView('backend.admin.pdf.purchase-qrcode-labels', ['qrCodeData' => $qrCodeData, 'purchase' => $purchase])
+                      ->setPaper([0, 0, 100.8, 100.8], 'portrait') // 1.4" x 1.4" format
+                      ->setOptions([
+                          'isHtml5ParserEnabled' => true,
+                          'isRemoteEnabled' => false,
+                          'chroot' => storage_path('app'),
+                          'dpi' => 150,
+                          'defaultFont' => 'Arial'
+                      ]);
+
+            UserLogHelper::log('create', 'Generated QR code labels for Purchase ID: ' . $purchaseId . ' (' . count($qrCodeData) . ' items)');
+
+            return $pdf->stream('purchase-qrcode-labels-' . $purchase->id . '-' . date('Y-m-d-H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return response('QR code label generation failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Debug QR code generation for purchase
+     */
+    public function debugPurchaseQrCodes($purchaseId, Request $request)
+    {
+        try {
+            $purchase = Purchase::findOrFail($purchaseId);
+
+            // Check if purchase is approved (stocked)
+            if ($purchase->is_stocked != 1) {
+                return response('Purchase must be approved before generating QR codes', 400);
+            }
+
+            // Get all stocks from this purchase
+            $stocks = Stock::where('purchase_id', $purchaseId)->get();
+
+            if ($stocks->isEmpty()) {
+                return response('No stock items found for this purchase', 404);
+            }
+
+            $qrCodeService = app(QrCodeService::class);
+            $qrCodeData = [];
+            $size = $request->get('size', 200);
+            $type = $request->get('type', 'simple');
+
+            foreach ($stocks as $stock) {
+                try {
+                    // Generate QR data
+                    if ($type === 'simple') {
+                        $qrData = $qrCodeService->createSimpleStockQrData($stock);
+                    } else {
+                        $qrData = $qrCodeService->createStockQrData($stock);
+                    }
+
+                    // Generate QR code - Try SVG first for better PDF compatibility
+                    $qrCodeBase64 = null;
+                    $qrCodeSvg = null;
+                    $qrCodeHtml = null;
+
+                    try {
+                        // Generate SVG QR code directly (better for PDF)
+                        $qrCodeSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                            ->format('svg')
+                            ->backgroundColor(255, 255, 255)
+                            ->color(0, 0, 0)
+                            ->margin(1)
+                            ->errorCorrection('M')
+                            ->generate($qrData);
+
+                    } catch (\Exception $e) {
+                        // Fallback to PNG if SVG fails
+                        $qrCodeHtml = 'SVG Error: ' . $e->getMessage();
+                    }
+
+                    $qrCodeData[] = [
+                        'stock' => $stock,
+                        'qrCodeBase64' => $qrCodeBase64,
+                        'qrCodeSvg' => $qrCodeSvg,
+                        'qrCodeHtml' => $qrCodeHtml,
+                        'qrData' => $qrData,
+                        'assetTag' => $stock->asset_tag,
+                        'type' => $type,
+                        'size' => $size
+                    ];
+
+                } catch (\Exception $e) {
+                    // Add error info for debugging
+                    $qrCodeData[] = [
+                        'stock' => $stock,
+                        'qrCodeBase64' => null,
+                        'qrCodeSvg' => null,
+                        'qrCodeHtml' => 'Error: ' . $e->getMessage(),
+                        'qrData' => 'Error generating QR data',
+                        'assetTag' => $stock->asset_tag ?? 'No Asset Tag',
+                        'type' => $type,
+                        'size' => $size
+                    ];
+                }
+            }
+
+            return view('backend.admin.pdf.debug-purchase-qrcodes', ['qrCodeData' => $qrCodeData, 'purchase' => $purchase]);
+
+        } catch (\Exception $e) {
+            return response('Debug failed: ' . $e->getMessage(), 500);
         }
     }
 }

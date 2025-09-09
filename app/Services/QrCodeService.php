@@ -200,9 +200,29 @@ class QrCodeService
         // Add product information if available
         try {
             if ($stock->product) {
-                $qrData['product_name'] = $stock->product->name;
+                // Use product title as product name
+                $qrData['product_name'] = $stock->product->title;
+
+                // Use product type name (not type field)
                 if ($stock->product->type) {
-                    $qrData['product_type'] = $stock->product->type->type;
+                    $qrData['product_type'] = $stock->product->type->name;
+                }
+
+                // Add brand + model combination
+                $modelText = '';
+                if ($stock->product->brand) {
+                    $modelText .= $stock->product->brand;
+                }
+                if ($stock->product->model) {
+                    if ($modelText) {
+                        $modelText .= ' ' . $stock->product->model;
+                    } else {
+                        $modelText = $stock->product->model;
+                    }
+                }
+
+                if ($modelText) {
+                    $qrData['product_model'] = $modelText;
                 }
             }
         } catch (Exception $e) {
@@ -226,10 +246,30 @@ class QrCodeService
         // Add product type and model if available
         try {
             if ($stock->product) {
+                // Show product type name
                 if ($stock->product->type) {
-                    $qrText .= "Type: " . $stock->product->type->type . "\n";
+                    $qrText .= "Type: " . $stock->product->type->name . "\n";
                 }
-                $qrText .= "Model: " . $stock->product->name . "\n";
+
+                // Show brand + model combination
+                $modelText = '';
+                if ($stock->product->brand) {
+                    $modelText .= $stock->product->brand;
+                }
+                if ($stock->product->model) {
+                    if ($modelText) {
+                        $modelText .= ' ' . $stock->product->model;
+                    } else {
+                        $modelText = $stock->product->model;
+                    }
+                }
+
+                // If no brand or model, fall back to product title
+                if (!$modelText) {
+                    $modelText = $stock->product->title ?: 'N/A';
+                }
+
+                $qrText .= "Model: " . $modelText . "\n";
             }
         } catch (Exception $e) {
             $qrText .= "Type: N/A\n";

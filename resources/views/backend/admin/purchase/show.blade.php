@@ -57,6 +57,43 @@
         .header .pull-right {
             margin-top: -5px;
         }
+
+        /* QR Code Section Styling */
+        .bg-light-green {
+            background-color: #C8E6C9 !important;
+        }
+
+        .bg-blue {
+            background-color: #BBDEFB !important;
+        }
+
+        .alert {
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
+
+        .alert-info {
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+            color: #31708f;
+        }
+
+        .card .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .card .header .material-icons {
+            vertical-align: middle;
+            margin-right: 8px;
+        }
     </style>
 @endpush
 @section('content')
@@ -184,6 +221,84 @@
             </div>
         </div>
     </div>
+
+    {{-- QR Code Section --}}
+    @php
+        $allApproved = $purchase->products->every(function($product) {
+            return $product->is_stocked == 1;
+        });
+        $hasProducts = $purchase->products->count() > 0;
+    @endphp
+
+    @if($hasProducts && $allApproved)
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        <i class="material-icons">qr_code</i>
+                        QR Code Generation
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="alert alert-success" role="alert">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">check_circle</i>
+                        <strong>All products have been approved!</strong> You can now generate QR codes for all items in this purchase.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="header bg-light-green">
+                                    <h2><i class="material-icons">description</i> Standard QR Codes (A4)</h2>
+                                </div>
+                                <div class="body">
+                                    <p>Generate multiple QR codes on a single A4 page with product information.</p>
+                                    <a href="{{ route('purchase.print.qrcodes', $purchase->id) }}"
+                                       class="btn btn-success waves-effect"
+                                       target="_blank">
+                                        <i class="material-icons">print</i>
+                                        Print QR Codes (A4)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="header bg-blue">
+                                    <h2><i class="material-icons">label</i> QR Code Labels (1.4")</h2>
+                                </div>
+                                <div class="body">
+                                    <p>Generate individual 1.4" x 1.4" square labels for each item, perfect for printing on label sheets.</p>
+                                    <a href="{{ route('purchase.print.qrcode.labels', $purchase->id) }}"
+                                       class="btn btn-primary waves-effect"
+                                       target="_blank">
+                                        <i class="material-icons">label</i>
+                                        Print QR Labels (1.4")
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" role="alert">
+                                <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">info</i>
+                                <strong>Note:</strong> QR codes will contain professional asset information including organization details, serial numbers, product types, and asset tags.
+                                <br><br>
+                                <a href="{{ route('purchase.debug.qrcodes', $purchase->id) }}" class="btn btn-warning btn-sm" target="_blank">
+                                    <i class="material-icons">bug_report</i> Debug QR Generation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @endsection
