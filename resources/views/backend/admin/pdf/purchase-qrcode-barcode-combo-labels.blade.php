@@ -9,8 +9,11 @@
         body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fff; }
 
     /* Redesigned simple block layout */
+    /* Each label forces a new page except the last to prevent trailing blank page */
     .label { width:1.4in; height:2.5in; padding:5px; box-sizing:border-box; background:#fff; position:relative; page-break-after:always; display:table; }
-    .label:last-child { page-break-after:auto; }
+    body > .label:last-of-type { page-break-after:auto !important; }
+    /* Extra safety: remove accidental breaks after the last element DomPDF sometimes inserts */
+    body:after { content:""; display:none; }
     .center-wrapper { display:table-cell; vertical-align:middle; text-align:center; }
 
     .qr-box { width:100%; height:0.95in; display:flex; align-items:center; justify-content:center; }

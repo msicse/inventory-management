@@ -645,6 +645,125 @@ class PurchaseController extends Controller
     }
 
     /**
+     * Generate QR + Barcode combo labels for selected stock items (1.4" x 2.5")
+     */
+    public function printMultipleComboLabels(Request $request)
+    {
+        $stockIds = $request->input('stock_ids', []);
+        if (empty($stockIds)) {
+            return response('No items selected', 400);
+        }
+    // Eager load minimal relationships needed for QR data (product->type)
+    $stocks = Stock::with(['product.type'])->whereIn('id', $stockIds)->get();
+        if ($stocks->isEmpty()) {
+            return response('No valid stock items found', 404);
+        }
+
+        $qrCodeService = app(QrCodeService::class);
+        $qrCodeData = [];
+    $size = (int)$request->get('qr_size', 200);
+    if ($size < 80) { $size = 80; }
+    if ($size > 400) { $size = 400; }
+    $type = 'simple';
+    $barcodeScaleOverride = $request->get('barcode_scale');
+    $barcodeHeightOverride = $request->get('barcode_height');
+
+        foreach ($stocks as $stock) {
+            try {
+                // QR data
+                try {
+                    $qrData = $qrCodeService->createSimpleStockQrData($stock);
+                } catch (\Exception $inner) {
+                    // Fallback very simple QR payload
+                    $qrData = 'S/N:' . ($stock->service_tag ?: 'NA') . "\nAsset:" . ($stock->asset_tag ?: 'NA');
+                }
+                $qrCodeBase64 = null; $qrCodeHtml = null; $qrCodePngPath = null;
+                try {
+                    $tempDir = storage_path('app/temp');
+                    if (!file_exists($tempDir)) { mkdir($tempDir, 0755, true); }
+                    $filename = 'qr_combo_multi_' . $stock->id . '_' . time() . '.png';
+                    $qrCodePngPath = $tempDir . '/' . $filename;
+                    \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                        ->format('png')->backgroundColor(255,255,255)->color(0,0,0)
+                        ->margin(1)->errorCorrection('M')->generate($qrData, $qrCodePngPath);
+                    if (file_exists($qrCodePngPath)) {
+                        $imageData = file_get_contents($qrCodePngPath);
+                        $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+                    }
+                } catch (\Exception $e) {
+                    try {
+                        $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)->format('svg')->backgroundColor(255,255,255)->color(0,0,0)->margin(1)->errorCorrection('M')->generate($qrData);
+                        $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($svg);
+                    } catch (\Exception $e2) {
+                        $qrCodeHtml = '<div style="width:1in;height:1in;border:1px solid #000;font-size:8px;display:flex;align-items:center;justify-content:center;">QR ERR</div>';
+                    }
+                }
+                if ($qrCodePngPath && file_exists($qrCodePngPath)) { unlink($qrCodePngPath); }
+
+                // Barcode HTML
+                $barcodeHTML = null;
+                try {
+                    $dns1d = new \Milon\Barcode\DNS1D();
+                    $rawSerial = $stock->asset_tag ?: ($stock->service_tag ?: 'NA');
+                    $serialNumber = trim(preg_replace('/[^A-Za-z0-9\-_.]/', '', $rawSerial));
+                    if ($serialNumber === '') { $serialNumber = 'NA'; }
+                    // Adaptive scale
+                    $baseScale = 1.6;
+                    $len = strlen($serialNumber);
+                    if ($len > 20) { $baseScale = 1.0; }
+                    elseif ($len > 16) { $baseScale = 1.2; }
+                    elseif ($len > 12) { $baseScale = 1.4; }
+                    // Overrides
+                    if ($barcodeScaleOverride !== null) {
+                        $ov = (float)$barcodeScaleOverride; if ($ov > 0 && $ov <= 3.0) { $baseScale = $ov; }
+                    }
+                    $height = 60;
+                    if ($barcodeHeightOverride !== null) {
+                        $h = (int)$barcodeHeightOverride; if ($h >= 30 && $h <= 100) { $height = $h; }
+                    }
+                    $barcodeHTML = $dns1d->getBarcodeHTML($serialNumber, 'C128B', $baseScale, $height, 'black', false);
+                } catch (\Exception $e) {
+                    $barcodeHTML = '<div style="border:1px solid #000;padding:2px;font-size:8px;">BAR ERR</div>';
+                }
+
+                $qrCodeData[] = [
+                    'stock' => $stock,
+                    'qrCodeBase64' => $qrCodeBase64,
+                    'qrCodeHtml' => $qrCodeHtml,
+                    'barcodeHTML' => $barcodeHTML,
+                    'serialNumber' => $stock->service_tag ?: 'N/A',
+                    'qrData' => $qrData,
+                    'assetTag' => strtoupper(trim($stock->asset_tag)),
+                    'type' => $type,
+                    'size' => $size
+                ];
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        if (empty($qrCodeData)) {
+            return response('Failed to generate labels for selected items', 500);
+        }
+
+        // Debug mode: return raw HTML (append ?debug=1)
+        if ($request->boolean('debug')) {
+            return view('backend.admin.pdf.purchase-qrcode-barcode-combo-labels', ['qrCodeData' => $qrCodeData]);
+        }
+
+        $pdf = Pdf::loadView('backend.admin.pdf.purchase-qrcode-barcode-combo-labels', ['qrCodeData' => $qrCodeData])
+                  ->setPaper([0,0,100.8,180],'portrait')
+                  ->setOptions([
+                      'isHtml5ParserEnabled' => true,
+                      'isRemoteEnabled' => false,
+                      'chroot' => storage_path('app'),
+                      'dpi' => 150,
+                      'defaultFont' => 'Arial'
+                  ]);
+        return $pdf->stream('stock-combo-labels-' . date('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
      * Create barcode data string
      *
      * @param  \App\Models\Stock  $stock

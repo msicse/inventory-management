@@ -52,78 +52,7 @@
     </style>
 @endpush
 @section('content')
-    <div class="container-fluid">
-
-        <div class="row clearfix">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="card">
-                    <div class="body">
-                        <div class="row">
-
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-                                    <select id="type" class="form-control show-tick" data-live-search="true">
-                                        <option value="">All Type</option>
-                                        @foreach($types as $type)
-                                            <option value="{{$type->id}}">{{ $type->name }}</option>
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-
-                                    <select name="department" id="department" class="form-control show-tick"
-                                        data-live-search="true">
-                                        <option value="">All Supplier</option>
-                                        @foreach ($departments as $department)
-                                            <option value="{{ $department->id }}">{{ $department->name }}</option>
-                                        @endforeach
-
-                                    </select>
-                                </div>
-                            </div>
-
-
-
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-                                    <select name="condition" id="condition" class="form-control form-control-sm show-tick"
-                                        data-live-search="true">
-                                        <option value="">All Condition</option>
-                                        <option value="good">Good</option>
-                                        <option value="obsolete ">Obsolete </option>
-                                        <option value="damaged">Damaged</option>
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-
-                                    <select name="supplier" id="supplier" class="form-control show-tick"
-                                        data-live-search="true">
-                                        <option value="">All Supplier</option>
-                                        @foreach ($suppliers as $supplier)
-                                            <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
-                                        @endforeach
-
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="form-group form-float">
-                                    <select name="store" id="store" class="form-control show-tick" data-live-search="true">
-                                        <option value="">All Location</option>
-                                        @foreach($stores as $store)
-                                            <option value="{{$store->id}}">{{ $store->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+    {{-- Removed old individual barcode/QR print functions. Combo printing only. --}}
                             </div>
 
 
@@ -146,20 +75,10 @@
                             Inventories
                         </h2>
                         <div class="pull-right">
-                            <button type="button" id="bulk-barcode-btn" class="btn btn-warning waves-effect"
-                                    style="display:none;" onclick="printSelectedBarcodes()">
-                                <i class="material-icons">print</i>
-                                <span>Print Selected Barcodes</span>
-                            </button>
-                            <button type="button" id="bulk-qrcode-btn" class="btn btn-info waves-effect"
-                                    style="display:none;" onclick="printSelectedQrCodes()">
+                            <button type="button" id="bulk-combo-btn" class="btn btn-primary waves-effect" style="display:none;" onclick="printSelectedComboLabels()">
                                 <i class="material-icons">qr_code_2</i>
-                                <span>Print Selected QR Codes</span>
+                                <span>Print Selected Combo Labels</span>
                             </button>
-                            <a href="{{ route('qrcode.generator') }}" class="btn btn-success waves-effect">
-                                <i class="material-icons">qr_code</i>
-                                <span>QR Generator</span>
-                            </a>
                         </div>
                     </div>
                     <div class="body">
@@ -500,89 +419,22 @@
             function toggleBulkBarcodeBtn() {
                 let checkedBoxes = $('.stock-checkbox:checked').length;
                 if (checkedBoxes > 0) {
-                    $('#bulk-barcode-btn').show();
-                    $('#bulk-qrcode-btn').show();
+                    $('#bulk-combo-btn').show();
                 } else {
-                    $('#bulk-barcode-btn').hide();
-                    $('#bulk-qrcode-btn').hide();
+                    $('#bulk-combo-btn').hide();
                 }
             }
         });
 
-        // Print selected barcodes function
-        function printSelectedBarcodes() {
+    // Print selected combo labels function
+        function printSelectedComboLabels() {
             let selectedIds = [];
-            $('.stock-checkbox:checked').each(function() {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                alert('Please select at least one item to print barcodes.');
-                return;
-            }
-
-            // Create form and submit
-            let form = $('<form>', {
-                'method': 'POST',
-                'action': '{{ route("stock.print.multiple.barcodes") }}',
-                'target': '_blank'
-            });
-
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': '_token',
-                'value': '{{ csrf_token() }}'
-            }));
-
-            $.each(selectedIds, function(index, value) {
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': 'stock_ids[]',
-                    'value': value
-                }));
-            });
-
-            $('body').append(form);
-            form.submit();
-            form.remove();
-        }
-
-        // Print selected QR codes function
-        function printSelectedQrCodes() {
-            let selectedIds = [];
-            $('.stock-checkbox:checked').each(function() {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                alert('Please select at least one item to print QR codes.');
-                return;
-            }
-
-            // Create form and submit
-            let form = $('<form>', {
-                'method': 'POST',
-                'action': '{{ route("stock.print.multiple.qrcodes") }}',
-                'target': '_blank'
-            });
-
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': '_token',
-                'value': '{{ csrf_token() }}'
-            }));
-
-            $.each(selectedIds, function(index, value) {
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': 'stock_ids[]',
-                    'value': value
-                }));
-            });
-
-            $('body').append(form);
-            form.submit();
-            form.remove();
+            $('.stock-checkbox:checked').each(function() { selectedIds.push($(this).val()); });
+            if (selectedIds.length === 0) { alert('Please select at least one item.'); return; }
+            let form = $('<form>', { method: 'POST', action: '{{ route("stock.print.multiple.combo") }}', target: '_blank' });
+            form.append($('<input>', { type: 'hidden', name: '_token', value: '{{ csrf_token() }}' }));
+            $.each(selectedIds, function(i,v){ form.append($('<input>', { type:'hidden', name:'stock_ids[]', value:v })); });
+            $('body').append(form); form.submit(); form.remove();
         }
     </script>
 @endpush

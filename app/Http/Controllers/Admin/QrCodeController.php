@@ -386,6 +386,8 @@ class QrCodeController extends Controller
             $stock = Stock::findOrFail($stockId);
             $size = $request->get('size', 200);
             $type = $request->get('type', 'simple');
+            // Normalize size bounds similar to multi-label
+            $size = (int)$size; if ($size < 80) { $size = 80; } if ($size > 400) { $size = 400; }
 
             // Generate QR data
             if ($type === 'simple') {
@@ -394,67 +396,71 @@ class QrCodeController extends Controller
                 $qrData = $this->qrCodeService->createStockQrData($stock);
             }
 
-            // Generate QR code as PNG for better PDF compatibility
-            $qrCodeBase64 = null;
-            $qrCodePngPath = null;
-
+            // Generate QR code with fallback chain: PNG -> SVG -> HTML placeholder
+            $qrCodeBase64 = null; $qrCodeHtml = null; $qrCodePngPath = null;
             try {
-                // Create temporary PNG file
                 $tempDir = storage_path('app/temp');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0755, true);
-                }
-
+                if (!file_exists($tempDir)) { mkdir($tempDir, 0755, true); }
                 $filename = 'qr_combo_' . $stockId . '_' . time() . '.png';
                 $qrCodePngPath = $tempDir . '/' . $filename;
-
-                // Generate QR code as PNG
                 \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
-                    ->format('png')
-                    ->backgroundColor(255, 255, 255)
-                    ->color(0, 0, 0)
-                    ->margin(1)
-                    ->errorCorrection('M')
-                    ->generate($qrData, $qrCodePngPath);
-
-                // Convert to base64 data URL
+                    ->format('png')->backgroundColor(255,255,255)->color(0,0,0)
+                    ->margin(1)->errorCorrection('M')->generate($qrData, $qrCodePngPath);
                 if (file_exists($qrCodePngPath)) {
                     $imageData = file_get_contents($qrCodePngPath);
                     $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($imageData);
                 }
-
             } catch (Exception $e) {
-                $qrCodeBase64 = null;
+                // PNG failed: try SVG
+                try {
+                    $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                        ->format('svg')->backgroundColor(255,255,255)->color(0,0,0)
+                        ->margin(1)->errorCorrection('M')->generate($qrData);
+                    $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($svg);
+                } catch (Exception $e2) {
+                    // Final fallback simple placeholder
+                    $qrCodeHtml = '<div style="width:1in;height:1in;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;">QR ERROR</div>';
+                }
             }
 
-            // Generate barcode for serial number
-            $barcodeHTML = null;
+            // Generate barcode with adaptive scaling like multi-label
+            $barcodeHTML = null; $serialNumber = $stock->asset_tag ?: ($stock->service_tag ?: 'NA');
+            $barcodeScaleOverride = $request->get('barcode_scale');
+            $barcodeHeightOverride = $request->get('barcode_height');
             try {
                 $dns1d = new DNS1D();
-                $serialNumber = $stock->service_tag ?: $stock->asset_tag;
-                // Clean the serial number to ensure it's alphanumeric only
-                $cleanSerial = preg_replace('/[^A-Za-z0-9]/', '', $serialNumber);
-                if (empty($cleanSerial)) {
-                    $cleanSerial = $stock->asset_tag;
-                }
-                // Use CODE128B with optimal parameters for scanning
-                $barcodeHTML = $dns1d->getBarcodeHTML($cleanSerial, 'C128B', 2, 60, 'black', false);
+                $serialNumber = trim(preg_replace('/[^A-Za-z0-9\-_.]/', '', $serialNumber));
+                if ($serialNumber === '') { $serialNumber = 'NA'; }
+                $baseScale = 1.6; $len = strlen($serialNumber);
+                if ($len > 20) { $baseScale = 1.0; }
+                elseif ($len > 16) { $baseScale = 1.2; }
+                elseif ($len > 12) { $baseScale = 1.4; }
+                if ($barcodeScaleOverride !== null) { $ov=(float)$barcodeScaleOverride; if ($ov>0 && $ov<=3.0) { $baseScale=$ov; } }
+                $height = 60;
+                if ($barcodeHeightOverride !== null) { $h=(int)$barcodeHeightOverride; if ($h>=30 && $h<=100) { $height=$h; } }
+                $barcodeHTML = $dns1d->getBarcodeHTML($serialNumber, 'C128B', $baseScale, $height, 'black', false);
             } catch (Exception $e) {
-                $barcodeHTML = '<div style="border: 1px solid black; padding: 2px; font-size: 8px;">BARCODE ERROR</div>';
+                $barcodeHTML = '<div style="border:1px solid #000;padding:2px;font-size:8px;">BAR ERR</div>';
             }
 
             $data = [
                 'stock' => $stock,
                 'qrCodeBase64' => $qrCodeBase64,
+                'qrCodeHtml' => $qrCodeHtml,
                 'barcodeHTML' => $barcodeHTML,
                 'serialNumber' => $stock->service_tag ?: 'N/A',
                 'qrData' => $qrData,
-                'assetTag' => $stock->asset_tag,
+                'assetTag' => strtoupper(trim($stock->asset_tag)),
                 'type' => $type,
                 'size' => $size
             ];
 
             // Custom paper size: 1.4" width x 2.5" height (100.8pt x 180pt) - Vertical layout
+            // Debug mode: show raw HTML (append ?debug=1)
+            if ($request->boolean('debug')) {
+                return response()->view('backend.admin.pdf.qrcode-barcode-combo-label', $data);
+            }
+
             $pdf = Pdf::loadView('backend.admin.pdf.qrcode-barcode-combo-label', $data)
                       ->setPaper([0, 0, 100.8, 180], 'portrait')
                       ->setOptions([
@@ -468,9 +474,7 @@ class QrCodeController extends Controller
             UserLogHelper::log('create', 'Generated QR+Barcode combo label for Stock ID: ' . $stockId);
 
             // Clean up temporary file
-            if ($qrCodePngPath && file_exists($qrCodePngPath)) {
-                unlink($qrCodePngPath);
-            }
+            if ($qrCodePngPath && file_exists($qrCodePngPath)) { unlink($qrCodePngPath); }
 
             return $pdf->stream('qr-barcode-combo-' . $stock->asset_tag . '.pdf');
 

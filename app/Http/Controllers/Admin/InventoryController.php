@@ -138,29 +138,10 @@ class InventoryController extends Controller
                          <i class="material-icons">update</i>
                      </button>' : "";
 
-                    // Barcode and QR Code buttons (only show if asset_tag exists)
+                    // Only single combo button (QR + Barcode) if asset_tag exists
                     $barcodeBtn = '';
                     if (!empty($row->asset_tag)) {
-                        $barcodeBtn = '<a href="' . route('stock.print.barcode', $row->stock_id) . '"
-                                          class="btn btn-warning btn-sm" title="Print Barcode" target="_blank">
-                                          <i class="material-icons">print</i>
-                                      </a>
-                                      <a href="' . route('stock.barcode', $row->stock_id) . '"
-                                          class="btn btn-secondary btn-sm" title="View Barcode" target="_blank">
-                                          <i class="material-icons">qr_code</i>
-                                      </a>
-                                      <a href="' . route('stock.print.qrcode', $row->stock_id) . '"
-                                          class="btn btn-success btn-sm" title="Print QR Code" target="_blank">
-                                          <i class="material-icons">qr_code_2</i>
-                                      </a>
-                                      <a href="' . route('stock.print.qr.barcode.combo', $row->stock_id) . '"
-                                          class="btn btn-warning btn-sm" title="Print QR + Barcode Combo" target="_blank">
-                                          <i class="material-icons">view_module</i>
-                                      </a>
-                                      <a href="' . route('stock.qrcode', $row->stock_id) . '"
-                                          class="btn btn-info btn-sm" title="View QR Code" target="_blank">
-                                          <i class="material-icons">qr_code_scanner</i>
-                                      </a>';
+                        $barcodeBtn = '<a href="' . route('stock.print.qr.barcode.combo', $row->stock_id) . '" class="btn btn-warning btn-sm" title="Print QR + Barcode Combo" target="_blank"><i class="material-icons">view_module</i></a>';
                     }
 
                     if ($row->is_assigned == 1) {
@@ -252,8 +233,8 @@ class InventoryController extends Controller
         $purchase->purchase_date = $request->date_of_purchase;
         $purchase->save(); //   = $request->date_of_purchase;
 
-        Toastr::success('Succesfully Saved ', 'Success');
-        return redirect()->route('admin.purchases.index');
+    session()->flash('toast.success', 'Succesfully Saved');
+    return redirect()->route('purchases.index');
     }
     public function show($id)
     {
@@ -395,7 +376,7 @@ class InventoryController extends Controller
         // Import and update records
         Excel::import(new StockImport, $request->file('asset_file'));
 
-        Toastr::success('Succesfully Imported ', 'Success');
+    session()->flash('toast.success', 'Succesfully Imported');
         return redirect()->back();
     }
 

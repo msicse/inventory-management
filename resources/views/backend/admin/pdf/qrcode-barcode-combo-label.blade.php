@@ -2,164 +2,55 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>QR Code + Barcode Label</title>
+    <title>QR + Barcode Label</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @page {
-            margin: 0;
-            size: 1.4in 2.5in; /* Width: 1.4in, Height: 2.5in for better vertical layout */
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: white;
-        }
-
-        .page {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            page-break-after: always;
-        }
-
-        .page:last-child {
-            page-break-after: avoid;
-        }
-
-        .label {
-            width: 100%;
-            height: 100%;
-            padding: 4px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .qr-section {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .qr-section svg,
-        .qr-section img {
-            width: 120px !important;
-            height: 120px !important;
-            background: white;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .qr-fallback {
-            width: 120px;
-            height: 120px;
-            text-align: center;
-            font-size: 14px;
-            background: white;
-            line-height: 120px;
-            font-weight: bold;
-            margin: 0 auto;
-        }
-
-        .asset-tag-section {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 8px;
-            padding: 4px;
-        }
-
-        .asset-tag {
-            font-size: 12px;
-            font-weight: bold;
-            color: black;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 14px;
-        }
-
-        .barcode-section {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .barcode-container {
-            width: 100%;
-            height: 70px;
-            text-align: center;
-            margin-bottom: 6px;
-            padding: 5px;
-            line-height: 70px;
-            background: white;
-        }
-
-        .barcode-container svg {
-            height: 60px;
-            width: auto;
-            max-width: 95%;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .asset-tag-bottom {
-            font-size: 30px;
-            font-weight: bold;
-            text-align: center;
-            color: black;
-            padding: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .clearfix {
-            clear: both;
-        }
-
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .page {
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        @page { margin:0; size:1.4in 2.5in; }
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fff; width:1.4in; height:2.5in; }
+    html { width:1.4in; height:2.5in; }
+    /* Prevent DomPDF from appending an extra blank page */
+    .label { width:1.4in; height:2.5in; padding:5px; box-sizing:border-box; background:#fff; position:relative; display:table; page-break-after:avoid; }
+    body:after { content:""; display:none; }
+        .center-wrapper { display:table-cell; vertical-align:middle; text-align:center; }
+        .qr-box { width:100%; height:0.95in; display:flex; align-items:center; justify-content:center; }
+        .qr-inner { width:0.95in; height:100%; display:flex; align-items:center; justify-content:center; margin:0 auto; }
+        .qr-box img { max-width:100%; max-height:100%; width:auto; height:auto; display:block; margin:0 auto; image-rendering:crisp-edges; image-rendering:pixelated; }
+        .qr-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; }
+        .asset-tag { width:100%; height:0.30in; line-height:0.30in; font-size:26px; font-weight:bold; text-transform:uppercase; letter-spacing:1px; text-align:center; display:flex; align-items:center; justify-content:center; }
+        .barcode-box { width:100%; margin-top:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; max-height:1.05in; }
+        .barcode-inner-fixed { width:0.95in; margin:0 auto; display:flex; align-items:center; justify-content:center; }
+        .barcode-box img, .barcode-box svg { max-width:100%; height:auto; display:block; margin:0 auto; }
+        .barcode-box table { margin:0 auto !important; border-collapse:collapse; width:100% !important; }
+        .barcode-box table td { padding:0 !important; }
+        .barcode-wrapper { display:inline-block; max-width:100%; text-align:center; }
+        .barcode-wrapper br { display:none; }
+        .barcode-wrapper > div { display:inline-block; }
+        .barcode-fallback { font-size:10px; }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="label">
-            <!-- QR Code Section (Top) -->
-            <div class="qr-section">
-                @if(isset($qrCodeBase64) && $qrCodeBase64)
-                    <img src="{{ $qrCodeBase64 }}" alt="QR Code">
-                @else
-                    <div class="qr-fallback">
-                        NO QR
-                    </div>
-                @endif
-            </div>
-
-            <!-- Barcode Section (Middle) -->
-            <div class="barcode-section">
-                <div class="barcode-container">
-                    @if(isset($barcodeHTML) && $barcodeHTML)
-                        {!! $barcodeHTML !!}
+    <div class="label">
+        <div class="center-wrapper">
+            <div class="qr-box">
+                <div class="qr-inner">
+                    @if(!empty($qrCodeBase64))
+                        <img src="{{ $qrCodeBase64 }}" alt="QR Code">
+                    @elseif(!empty($qrCodeHtml))
+                        {!! $qrCodeHtml !!}
                     @else
-                        <div style="padding: 4px; font-size: 10px;">NO BARCODE</div>
+                        <div class="qr-fallback">NO QR</div>
                     @endif
                 </div>
-                <div class="asset-tag-bottom">{{ $assetTag ?? 'ASSET TAG' }}</div>
+            </div>
+            <div class="asset-tag">{{ $assetTag ?? 'ASSET TAG' }}</div>
+            <div class="barcode-box">
+                <div class="barcode-inner-fixed">
+                    @if(!empty($barcodeHTML))
+                        <div class="barcode-wrapper">{!! $barcodeHTML !!}</div>
+                    @else
+                        <div class="barcode-fallback">NO BARCODE</div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
