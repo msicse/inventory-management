@@ -277,7 +277,7 @@ class QrCodeService
         }
 
         $qrText .= "Asset Tag: " . $stock->asset_tag . "\n";
-        $qrText .= "URL: its.rsc-bd.org";
+        $qrText .= "URL: www.rsc-bd.org";
 
         return $qrText;
     }
