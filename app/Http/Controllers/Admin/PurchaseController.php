@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
 use App\Models\Stock;
-
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -12,6 +11,8 @@ use App\Models\Supplier;
 use Illuminate\View\View;
 use App\Models\Producttype;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Collection;
 use App\Helpers\UserLogHelper;
 use App\Models\PurchaseProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -55,7 +56,7 @@ class PurchaseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $products = Product::all();
         $suppliers = Supplier::all();
@@ -81,7 +82,7 @@ class PurchaseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
 
         $this->validate(
@@ -161,7 +162,7 @@ class PurchaseController extends Controller
         } //End For Loop
 
 
-        Toastr::success('Succesfully Saved ', 'Success');
+    session()->flash('toast.success', 'Succesfully Saved');
         return redirect()->route('purchases.index');
 
     }
@@ -172,7 +173,7 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id): View
     {
         $purchase = Purchase::find($id);
         return view('backend.admin.purchase.show')->with(compact('purchase'));
@@ -187,7 +188,7 @@ class PurchaseController extends Controller
      */
 
 
-    public function typedProducts($id)
+    public function typedProducts($id): Collection
     {
 
         // $products = DB::table('stocks')
@@ -339,11 +340,11 @@ class PurchaseController extends Controller
 
             UserLogHelper::log('create', 'Added Purchase to Inventory PurchaseProduct ID : '. $id );
 
-            Toastr::success(' Succesfully Added to Inventory ', 'Success');
+            session()->flash('toast.success', 'Succesfully Added to Inventory');
             return redirect()->back();
 
         } else {
-            Toastr::error(' Already Added in Inventory ', 'Failed');
+            session()->flash('toast.error', 'Already Added in Inventory');
 
             return redirect()->back();
         }
@@ -389,7 +390,7 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): RedirectResponse
     {
 
         $this->validate(
@@ -484,7 +485,7 @@ class PurchaseController extends Controller
         }
 
 
-        Toastr::success('Succesfully Updated ', 'Success');
+    session()->flash('toast.success', 'Succesfully Updated');
         return redirect()->route('purchases.index');
     }
 
@@ -1106,6 +1107,168 @@ class PurchaseController extends Controller
 
         } catch (\Exception $e) {
             return response('Debug failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Print QR + Barcode combo labels for all stocks in a purchase
+     *
+     * @param int $purchaseId
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printPurchaseQrBarcodeComboLabels($purchaseId, Request $request)
+    {
+        try {
+            $purchase = Purchase::findOrFail($purchaseId);
+
+            // Check if purchase is approved (stocked)
+            if ($purchase->is_stocked != 1) {
+                return response('Purchase must be approved before generating QR + Barcode combo labels', 400);
+            }
+
+            // Get all stocks from this purchase
+            $stocks = Stock::where('purchase_id', $purchaseId)->get();
+
+            if ($stocks->isEmpty()) {
+                return response('No stock items found for this purchase', 404);
+            }
+
+            $qrCodeService = app(QrCodeService::class);
+            $qrCodeData = [];
+            $size = $request->get('size', 200);
+            $type = $request->get('type', 'simple');
+
+            foreach ($stocks as $stock) {
+                try {
+                    // Generate QR data
+                    if ($type === 'simple') {
+                        $qrData = $qrCodeService->createSimpleStockQrData($stock);
+                    } else {
+                        $qrData = $qrCodeService->createStockQrData($stock);
+                    }
+
+                    // Generate QR code as PNG for better PDF compatibility
+                    $qrCodeBase64 = null;
+                    $qrCodeHtml = null;
+                    $qrCodePngPath = null;
+
+                    try {
+                        // Create temporary PNG
+                        $tempDir = storage_path('app/temp');
+                        if (!file_exists($tempDir)) {
+                            mkdir($tempDir, 0755, true);
+                        }
+
+                        $filename = 'qr_combo_purchase_' . $purchaseId . '_stock_' . $stock->id . '_' . time() . '.png';
+                        $qrCodePngPath = $tempDir . '/' . $filename;
+
+                        // Generate PNG QR code
+                        \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                            ->format('png')
+                            ->backgroundColor(255, 255, 255)
+                            ->color(0, 0, 0)
+                            ->margin(1)
+                            ->errorCorrection('M')
+                            ->generate($qrData, $qrCodePngPath);
+
+                        // Convert to base64 data URL
+                        if (file_exists($qrCodePngPath)) {
+                            $imageData = file_get_contents($qrCodePngPath);
+                            $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+                        }
+
+                    } catch (\Exception $e) {
+                        $qrCodeBase64 = null;
+
+                        // Fallback to SVG as base64
+                        try {
+                            $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                                ->format('svg')
+                                ->backgroundColor(255, 255, 255)
+                                ->color(0, 0, 0)
+                                ->margin(1)
+                                ->errorCorrection('M')
+                                ->generate($qrData);
+
+                            $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($svg);
+                        } catch (\Exception $svgError) {
+                            // Final fallback - use HTML table
+                            $qrCodeHtml = '<div style="width: 1.0in; height: 1.0in; border: 2px solid black; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold;">QR ERROR</div>';
+                        }
+                    }
+
+                    // Clean up temporary file
+                    if ($qrCodePngPath && file_exists($qrCodePngPath)) {
+                        unlink($qrCodePngPath);
+                    }
+
+                    // Generate barcode (use HTML output for better DomPDF compatibility)
+                    $barcodeHTML = null;
+                    $scale = 1.6; // default fallback
+                    $height = 60; // default fallback
+                    try {
+                        $dns1d = new \Milon\Barcode\DNS1D();
+                        $rawSerial = $stock->asset_tag ?: ($stock->service_tag ?: 'NA');
+                        // Clean serial: keep printable ASCII except spaces at ends
+                        $serialNumber = trim(preg_replace('/[^A-Za-z0-9\-_.]/', '', $rawSerial));
+                        if ($serialNumber === '') { $serialNumber = 'NA'; }
+
+                        // Allow optional scale override (?barcode_scale=1.6)
+                        $scale = (float)($request->get('barcode_scale', 1.6)); // width factor
+                        if ($scale <= 0) { $scale = 1.6; }
+                        $height = (int)($request->get('barcode_height', 60));
+                        if ($height < 30) { $height = 30; }
+                        if ($height > 90) { $height = 90; }
+
+                        // getBarcodeHTML(type, widthFactor, totalHeight)
+                        $barcodeHTML = $dns1d->getBarcodeHTML($serialNumber, 'C128B', $scale, $height, 'black', false);
+                    } catch (\Exception $e) {
+                        $barcodeHTML = '<div style="border:1px solid #000; padding:2px; font-size:8px;">BARCODE ERROR</div>';
+                    }
+
+                    // (Removed extra width wrapper; Blade template enforces 0.95in width uniformly for QR and Barcode)
+
+                    // Normalize asset tag (uppercase & trim)
+                    $assetTag = strtoupper(trim($stock->asset_tag));
+
+                    $qrCodeData[] = [
+                        'stock' => $stock,
+                        'qrCodeBase64' => $qrCodeBase64,
+                        'qrCodeHtml' => $qrCodeHtml,
+                        'barcodeHTML' => $barcodeHTML,
+                        'serialNumber' => $stock->service_tag ?: 'N/A',
+                        'qrData' => $qrData,
+                        'assetTag' => $assetTag,
+                        'type' => $type,
+                        'size' => $size
+                    ];
+
+                } catch (\Exception $e) {
+                    // Skip this item if generation fails
+                    continue;
+                }
+            }
+
+            if (empty($qrCodeData)) {
+                return response('Failed to generate QR + Barcode combo labels for any items', 500);
+            }
+
+            // Generate combo labels for each stock item
+            $pdf = Pdf::loadView('backend.admin.pdf.purchase-qrcode-barcode-combo-labels', ['qrCodeData' => $qrCodeData, 'purchase' => $purchase])
+                      ->setPaper([0, 0, 100.8, 180], 'portrait') // 1.4" x 2.5" format (100.8pt x 180pt)
+                      ->setOptions([
+                          'isHtml5ParserEnabled' => true,
+                          'isRemoteEnabled' => false,
+                          'chroot' => storage_path('app'),
+                          'dpi' => 150,
+                          'defaultFont' => 'Arial'
+                      ]);
+
+            return $pdf->stream('purchase-' . $purchase->id . '-qr-barcode-combo-labels.pdf');
+
+        } catch (\Exception $e) {
+            return response('QR + Barcode combo label generation failed: ' . $e->getMessage(), 500);
         }
     }
 }

@@ -284,6 +284,25 @@
 
                     <div class="row">
                         <div class="col-md-12">
+                            <div class="card">
+                                <div class="header bg-orange">
+                                    <h2><i class="material-icons">view_module</i> QR Code + Barcode Combo Labels (1.4" x 2.5")</h2>
+                                </div>
+                                <div class="body">
+                                    <p>Generate combo labels with QR code on the left and barcode with serial number on the right. Vertically centered on full-height labels, perfect for dual scanning needs.</p>
+                                    <a href="{{ route('purchase.print.qrcode.barcode.combo.labels', $purchase->id) }}"
+                                       class="btn btn-warning waves-effect"
+                                       target="_blank">
+                                        <i class="material-icons">view_module</i>
+                                        Print QR + Barcode Combo Labels (1.4" x 2.5")
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="alert alert-info" role="alert">
                                 <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">info</i>
                                 <strong>Note:</strong> QR codes will contain professional asset information including organization details, serial numbers, product types, and asset tags.

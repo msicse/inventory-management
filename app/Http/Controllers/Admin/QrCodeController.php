@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Helpers\UserLogHelper;
 use Exception;
+use Milon\Barcode\DNS1D;
 
 class QrCodeController extends Controller
 {
@@ -369,6 +370,112 @@ class QrCodeController extends Controller
                 <h3>Error occurred:</h3>
                 <p>' . $e->getMessage() . '</p>
             </div>', 500);
+        }
+    }
+
+    /**
+     * Print QR code + Barcode combo label for a stock item
+     *
+     * @param int $stockId
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printStockQrBarcodeCombo($stockId, Request $request)
+    {
+        try {
+            $stock = Stock::findOrFail($stockId);
+            $size = $request->get('size', 200);
+            $type = $request->get('type', 'simple');
+
+            // Generate QR data
+            if ($type === 'simple') {
+                $qrData = $this->qrCodeService->createSimpleStockQrData($stock);
+            } else {
+                $qrData = $this->qrCodeService->createStockQrData($stock);
+            }
+
+            // Generate QR code as PNG for better PDF compatibility
+            $qrCodeBase64 = null;
+            $qrCodePngPath = null;
+
+            try {
+                // Create temporary PNG file
+                $tempDir = storage_path('app/temp');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
+
+                $filename = 'qr_combo_' . $stockId . '_' . time() . '.png';
+                $qrCodePngPath = $tempDir . '/' . $filename;
+
+                // Generate QR code as PNG
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::size($size)
+                    ->format('png')
+                    ->backgroundColor(255, 255, 255)
+                    ->color(0, 0, 0)
+                    ->margin(1)
+                    ->errorCorrection('M')
+                    ->generate($qrData, $qrCodePngPath);
+
+                // Convert to base64 data URL
+                if (file_exists($qrCodePngPath)) {
+                    $imageData = file_get_contents($qrCodePngPath);
+                    $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+                }
+
+            } catch (Exception $e) {
+                $qrCodeBase64 = null;
+            }
+
+            // Generate barcode for serial number
+            $barcodeHTML = null;
+            try {
+                $dns1d = new DNS1D();
+                $serialNumber = $stock->service_tag ?: $stock->asset_tag;
+                // Clean the serial number to ensure it's alphanumeric only
+                $cleanSerial = preg_replace('/[^A-Za-z0-9]/', '', $serialNumber);
+                if (empty($cleanSerial)) {
+                    $cleanSerial = $stock->asset_tag;
+                }
+                // Use CODE128B with optimal parameters for scanning
+                $barcodeHTML = $dns1d->getBarcodeHTML($cleanSerial, 'C128B', 2, 60, 'black', false);
+            } catch (Exception $e) {
+                $barcodeHTML = '<div style="border: 1px solid black; padding: 2px; font-size: 8px;">BARCODE ERROR</div>';
+            }
+
+            $data = [
+                'stock' => $stock,
+                'qrCodeBase64' => $qrCodeBase64,
+                'barcodeHTML' => $barcodeHTML,
+                'serialNumber' => $stock->service_tag ?: 'N/A',
+                'qrData' => $qrData,
+                'assetTag' => $stock->asset_tag,
+                'type' => $type,
+                'size' => $size
+            ];
+
+            // Custom paper size: 1.4" width x 2.5" height (100.8pt x 180pt) - Vertical layout
+            $pdf = Pdf::loadView('backend.admin.pdf.qrcode-barcode-combo-label', $data)
+                      ->setPaper([0, 0, 100.8, 180], 'portrait')
+                      ->setOptions([
+                          'isHtml5ParserEnabled' => true,
+                          'isRemoteEnabled' => false,
+                          'chroot' => storage_path('app'),
+                          'dpi' => 150,
+                          'defaultFont' => 'Arial'
+                      ]);
+
+            UserLogHelper::log('create', 'Generated QR+Barcode combo label for Stock ID: ' . $stockId);
+
+            // Clean up temporary file
+            if ($qrCodePngPath && file_exists($qrCodePngPath)) {
+                unlink($qrCodePngPath);
+            }
+
+            return $pdf->stream('qr-barcode-combo-' . $stock->asset_tag . '.pdf');
+
+        } catch (Exception $e) {
+            return response('QR+Barcode combo generation failed: ' . $e->getMessage(), 500);
         }
     }
 

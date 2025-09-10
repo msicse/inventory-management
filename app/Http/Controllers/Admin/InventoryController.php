@@ -153,6 +153,10 @@ class InventoryController extends Controller
                                           class="btn btn-success btn-sm" title="Print QR Code" target="_blank">
                                           <i class="material-icons">qr_code_2</i>
                                       </a>
+                                      <a href="' . route('stock.print.qr.barcode.combo', $row->stock_id) . '"
+                                          class="btn btn-warning btn-sm" title="Print QR + Barcode Combo" target="_blank">
+                                          <i class="material-icons">view_module</i>
+                                      </a>
                                       <a href="' . route('stock.qrcode', $row->stock_id) . '"
                                           class="btn btn-info btn-sm" title="View QR Code" target="_blank">
                                           <i class="material-icons">qr_code_scanner</i>

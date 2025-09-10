@@ -128,6 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Purchase QR Code Routes
     Route::get('purchase/{id}/print-qrcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'printPurchaseQrCodes'])->name('purchase.print.qrcodes');
     Route::get('purchase/{id}/print-qrcode-labels', [App\Http\Controllers\Admin\PurchaseController::class, 'printPurchaseQrCodeLabels'])->name('purchase.print.qrcode.labels');
+    Route::get('purchase/{id}/print-qrcode-barcode-combo-labels', [App\Http\Controllers\Admin\PurchaseController::class, 'printPurchaseQrBarcodeComboLabels'])->name('purchase.print.qrcode.barcode.combo.labels');
     Route::get('purchase/{id}/debug-qrcodes', [App\Http\Controllers\Admin\PurchaseController::class, 'debugPurchaseQrCodes'])->name('purchase.debug.qrcodes');
 
     Route::post('stock/print-multiple-qrcodes', [QrCodeController::class, 'printMultipleQrCodes'])->name('stock.print.multiple.qrcodes');
@@ -136,6 +137,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Stock QR Code Routes
     Route::get('stock/{id}/qrcode', [QrCodeController::class, 'generateStockQrCode'])->name('stock.qrcode');
     Route::get('stock/{id}/print-qrcode', [QrCodeController::class, 'printStockQrCode'])->name('stock.print.qrcode');
+    Route::get('stock/{id}/print-qr-barcode-combo', [QrCodeController::class, 'printStockQrBarcodeCombo'])->name('stock.print.qr.barcode.combo');
 
     // QR Code routes
     Route::get('qr-codes', [QrCodeController::class, 'index'])->name('admin.qrcodes.index');
