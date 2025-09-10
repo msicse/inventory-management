@@ -100,10 +100,11 @@
         }
 
         .barcode-inner-fixed {
-            width: 68pt;
+            width: 80pt;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto;
         }
 
         .barcode-wrapper {
