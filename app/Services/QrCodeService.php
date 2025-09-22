@@ -224,6 +224,10 @@ class QrCodeService
                 if ($modelText) {
                     $qrData['product_model'] = $modelText;
                 }
+
+                if ($stock->purchase_date) {
+                    $qrData['purchase_date'] = $stock->purchase_date->format('d-m-Y');
+                }
             }
         } catch (Exception $e) {
             // Skip product info if relationship fails
@@ -277,6 +281,7 @@ class QrCodeService
         }
 
         $qrText .= "Asset Tag: " . $stock->asset_tag . "\n";
+        $qrText .= "Purchase Date: " . ($stock->purchase_date ? $stock->purchase_date->format('d-m-Y') : 'N/A') . "\n";
         $qrText .= "URL: www.rsc-bd.org";
 
         return $qrText;

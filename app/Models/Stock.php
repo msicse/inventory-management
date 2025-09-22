@@ -29,6 +29,11 @@ class Stock extends Model
         'asset_condition',
     ];
 
+    protected $casts = [
+        'purchase_date' => 'datetime',
+        'expired_date' => 'datetime',
+    ];
+
     /**
      * Get the user that owns the Stock
      *
@@ -70,6 +75,4 @@ class Stock extends Model
     {
         return $this->belongsTo(Store::class, 'store_id');
     }
-
-
 }
