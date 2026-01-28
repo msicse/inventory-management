@@ -12,7 +12,7 @@
         .table td{
             vertical-align: middle !important;
         }
-        
+
         /* Statistics Cards */
         .stat-card {
             border-radius: 8px;
@@ -22,7 +22,7 @@
             transition: transform 0.3s, box-shadow 0.3s;
             animation: fadeInUp 0.5s ease-out;
         }
-        
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -33,23 +33,23 @@
                 transform: translateY(0);
             }
         }
-        
+
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        
+
         .stat-card .icon {
             font-size: 48px;
             opacity: 0.9;
         }
-        
+
         .stat-card .number {
             font-size: 32px;
             font-weight: 800;
             margin: 10px 0 5px 0;
         }
-        
+
         .stat-card .label {
             font-size: 11px;
             text-transform: uppercase;
@@ -57,26 +57,26 @@
             opacity: 0.9;
             line-height: 1.2;
         }
-        
+
         /* Row Highlighting */
         .warning-row {
             background-color: #fff3cd !important;
             transition: background-color 0.3s;
         }
-        
+
         .warning-row:hover {
             background-color: #ffe69c !important;
         }
-        
+
         .danger-row {
             background-color: #f8d7da !important;
             transition: background-color 0.3s;
         }
-        
+
         .danger-row:hover {
             background-color: #f1b0b7 !important;
         }
-        
+
         /* Filters Panel */
         .filters-panel {
             background: #f8f9fa;
@@ -84,7 +84,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        
+
         .filter-badge {
             background: #667eea;
             color: white;
@@ -94,23 +94,23 @@
             font-weight: 600;
             margin-left: 5px;
         }
-        
+
         /* DataTable Buttons */
         .dt-buttons .btn {
             margin-right: 5px !important;
             margin-bottom: 5px !important;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .stat-card {
                 margin-bottom: 15px;
             }
-            
+
             .stat-card .icon {
                 font-size: 36px;
             }
-            
+
             .stat-card .number {
                 font-size: 24px;
             }
@@ -120,6 +120,29 @@
 
 @section('content')
 <div class="container-fluid">
+     <div class="row clearfix">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="header">
+                        <h2 class="text-uppercase">
+                            <i class="material-icons" style="vertical-align: middle;">compare_arrows</i>
+                           Distributions MANAGEMENT
+                            <span class="badge "></span>
+                        </h2>
+                        <div>
+                            @can("transaction-create")
+                                <a href="{{ route('transections.create') }}" class="btn btn-primary waves-effect pull-right"
+                                    style="margin-bottom:10px;">
+                                    <i class="material-icons">add</i>
+                                    <span>Add New Distribution</span>
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     <!-- Alert Banner -->
     @if($stats['overdue_items'] > 0)
     <div class="row clearfix">
@@ -431,7 +454,7 @@
                 if ($('#status').val()) count++;
                 if ($('#date_from').val()) count++;
                 if ($('#date_to').val()) count++;
-                
+
                 if (count > 0) {
                     $('#activeFiltersCount').text(count).show();
                 } else {
@@ -461,7 +484,7 @@
             $(document).on('change', '.return-date-input', function() {
                 let transactionId = $(this).data('id');
                 let returnDate = $(this).val();
-                
+
                 if (!returnDate) return;
 
                 if (confirm('Are you sure you want to mark this item as returned?')) {
@@ -487,7 +510,7 @@
             $(document).on('click', '.mark-returned', function() {
                 let transactionId = $(this).data('id');
                 let today = new Date().toISOString().split('T')[0];
-                
+
                 if (confirm('Mark this item as returned today?')) {
                     $.ajax({
                         url: '/transections/mark-returned/' + transactionId,

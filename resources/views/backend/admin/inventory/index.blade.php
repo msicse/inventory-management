@@ -209,6 +209,30 @@
 @endpush
 @section('content')
     <div class="container-fluid">
+
+         <div class="row clearfix">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="header">
+                        <h2 class="text-uppercase">
+                            <i class="material-icons" style="vertical-align: middle;">inventory_2</i>
+                            Inventories MANAGEMENT
+                            <span class="badge "></span>
+                        </h2>
+                        <div>
+                            @can("purchase-create")
+                                <a href="{{ route('dashboard') }}" class="btn btn-primary waves-effect pull-right"
+                                    style="margin-bottom:10px;">
+                                    <i class="material-icons">dashboard</i>
+                                    <span>Dashboard</span>
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Quick Summary Alert -->
         @if($stats['pending_tags'] > 0 || $stats['warranty_expiring'] > 0 || $stats['damaged_items'] > 0)
         <div class="row clearfix">

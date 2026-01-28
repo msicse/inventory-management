@@ -19,6 +19,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\QrCodeService;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
 
 class PurchaseController extends Controller
@@ -39,16 +41,98 @@ class PurchaseController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Purchase::query();
+        // Calculate statistics
+        $stats = [
+            'total_purchases' => Purchase::count(),
+            'approved_purchases' => Purchase::where('is_stocked', 1)->count(),
+            'pending_purchases' => Purchase::where('is_stocked', 2)->count(),
+            'total_value' => Purchase::sum('total_price'),
+            'this_month_purchases' => Purchase::whereMonth('purchase_date', Carbon::now()->month)
+                ->whereYear('purchase_date', Carbon::now()->year)->count(),
+            'this_month_value' => Purchase::whereMonth('purchase_date', Carbon::now()->month)
+                ->whereYear('purchase_date', Carbon::now()->year)->sum('total_price'),
+        ];
 
-        // Filter by approved status (is_stocked)
-        if ($request->has('approved') && $request->approved !== '') {
-            $query->where('is_stocked', $request->approved);
+        $suppliers = Supplier::orderBy('company')->get();
+        $types = Producttype::orderBy('name')->get();
+
+        if ($request->ajax()) {
+            $supplier_id = $request->supplier_id;
+            $approved_status = $request->approved;
+            $date_from = $request->date_from;
+            $date_to = $request->date_to;
+            $min_price = $request->min_price;
+            $max_price = $request->max_price;
+
+            $query = Purchase::with(['supplier', 'products'])
+                ->select([
+                    'purchases.*',
+                    'suppliers.company as supplier_company',
+                    'suppliers.name as supplier_name',
+                    'suppliers.phone as supplier_phone',
+                    DB::raw('(SELECT COUNT(*) FROM purchase_products WHERE purchase_products.purchase_id = purchases.id) as product_count'),
+                    DB::raw('(SELECT COUNT(*) FROM purchase_products WHERE purchase_products.purchase_id = purchases.id AND purchase_products.is_stocked = 1) as approved_count'),
+                    DB::raw('DATEDIFF(CURDATE(), purchases.purchase_date) as days_since_purchase')
+                ])
+                ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
+                ->when($supplier_id, fn($q) => $q->where('purchases.supplier_id', $supplier_id))
+                ->when($approved_status, fn($q) => $q->where('purchases.is_stocked', $approved_status))
+                ->when($date_from, fn($q) => $q->whereDate('purchases.purchase_date', '>=', $date_from))
+                ->when($date_to, fn($q) => $q->whereDate('purchases.purchase_date', '<=', $date_to))
+                ->when($min_price, fn($q) => $q->where('purchases.total_price', '>=', $min_price))
+                ->when($max_price, fn($q) => $q->where('purchases.total_price', '<=', $max_price))
+                ->orderBy('purchases.created_at', 'desc');
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('status_badge', function ($row) {
+                    if ($row->is_stocked == 1) {
+                        return '<span class="badge" style="background: #4caf50; color: white; padding: 5px 10px; border-radius: 4px;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">check_circle</i> Approved</span>';
+                    }
+                    return '<span class="badge" style="background: #ff9800; color: white; padding: 5px 10px; border-radius: 4px;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</i> Pending</span>';
+                })
+                ->addColumn('approval_progress', function ($row) {
+                    if ($row->product_count > 0) {
+                        $percentage = ($row->approved_count / $row->product_count) * 100;
+                        $color = $percentage == 100 ? '#4caf50' : '#ff9800';
+                        return '<div style="display: flex; align-items: center; gap: 10px;">' .
+                               '<div style="flex: 1; background: #e0e0e0; border-radius: 4px; height: 20px; overflow: hidden;">' .
+                               '<div style="background: ' . $color . '; height: 100%; width: ' . $percentage . '%; transition: width 0.3s;"></div>' .
+                               '</div>' .
+                               '<span style="font-size: 11px; white-space: nowrap;">' . $row->approved_count . '/' . $row->product_count . '</span>' .
+                               '</div>';
+                    }
+                    return '<span style="color: #999;">No products</span>';
+                })
+                ->editColumn('purchase_date', function($row) {
+                    $date = Carbon::parse($row->purchase_date);
+                    return '<span title="' . $date->diffForHumans() . '">' . $date->format('d M Y') . '</span>';
+                })
+                ->editColumn('total_price', function($row) {
+                    return '<strong style="color: #2196f3;">' . number_format($row->total_price, 2) . '</strong>';
+                })
+                ->addColumn('action', function ($row) {
+                    $viewBtn = '<a href="' . route('purchases.show', $row->id) . '" class="btn btn-info btn-sm" title="View Details"><i class="material-icons">visibility</i></a>';
+
+                    $grnBtn = ' <a href="' . route('purchases.grn', $row->id) . '" target="_blank" class="btn btn-primary btn-sm" title="Print GRN"><i class="material-icons">print</i></a>';
+
+                    $editBtn = '';
+                    if (auth()->user()->can('purchase-edit')) {
+                        $editBtn = ' <a href="' . route('purchases.edit', $row->id) . '" class="btn btn-warning btn-sm" title="Edit"><i class="material-icons">edit</i></a>';
+                    }
+
+                    $approveBtn = '';
+                    if ($row->is_stocked == 2 && auth()->user()->can('purchase-addinventory')) {
+                        $approveBtn = ' <a href="' . route('purchases.show', $row->id) . '" class="btn btn-success btn-sm" title="Approve to Inventory"><i class="material-icons">check_circle</i></a>';
+                    }
+
+                    return $viewBtn . $grnBtn . $editBtn . $approveBtn;
+                })
+                ->rawColumns(['status_badge', 'approval_progress', 'purchase_date', 'total_price', 'action'])
+                ->make(true);
         }
 
-        $purchases = $query->orderBy('created_at', 'desc')->get();
-
-        return view('backend.admin.purchase.index')->with(compact('purchases'));
+        return view('backend.admin.purchase.index')->with(compact('suppliers', 'types', 'stats'));
     }
 
     /**

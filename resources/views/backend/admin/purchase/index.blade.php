@@ -5,16 +5,315 @@
 @push('css')
     <!-- JQuery DataTable Css -->
     <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}"
-        rel="stylesheet">
+    <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ asset('backend/select2/select2.min.css') }}" rel="stylesheet" />
     <style>
         .table td {
             vertical-align: middle !important;
         }
+
+        /* Statistics Cards */
+        .stat-card {
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-card .icon {
+            font-size: 48px;
+            opacity: 0.9;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 10px 0 5px 0;
+        }
+
+        .stat-card .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        /* Row Highlighting */
+        .warning-row {
+            background-color: #fff3cd !important;
+            transition: background-color 0.3s;
+        }
+
+        .warning-row:hover {
+            background-color: #ffe69c !important;
+        }
+
+        .success-row {
+            background-color: #d4edda !important;
+            transition: background-color 0.3s;
+        }
+
+        .success-row:hover {
+            background-color: #c3e6cb !important;
+        }
+
+        /* Filters Panel */
+        .filters-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filter-badge {
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* DataTable Buttons */
+        .dt-buttons .btn {
+            margin-right: 5px !important;
+            margin-bottom: 5px !important;
+        }
+
+        /* Quick Filter Buttons */
+        .quick-filters {
+            margin-bottom: 15px;
+        }
+
+        .quick-filters .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+
+            .stat-card .icon {
+                font-size: 36px;
+            }
+
+            .stat-card .number {
+                font-size: 24px;
+            }
+        }
     </style>
 @endpush
+
 @section('content')
     <div class="container-fluid">
+        <!-- Page Title & Action Button -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="header">
+                        <h2 class="text-uppercase">
+                            <i class="material-icons" style="vertical-align: middle;">shopping_cart</i>
+                            Purchases MANAGEMENT
+                            <span class="badge "></span>
+                        </h2>
+                        <div>
+                            @can("purchase-create")
+                                <a href="{{ route('purchases.create') }}" class="btn btn-primary waves-effect pull-right"
+                                    style="margin-bottom:10px;">
+                                    <i class="material-icons">add</i>
+                                    <span>Add New Purchase</span>
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        @if($stats['pending_purchases'] > 0)
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong><i class="material-icons" style="vertical-align: middle;">warning</i> Attention Required:</strong>
+                    <span class="badge" style="background: #ff9800; color: white; margin: 0 5px;">{{ $stats['pending_purchases'] }} purchases awaiting approval</span>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Statistics Cards -->
+        <div class="row clearfix">
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <i class="material-icons icon">shopping_cart</i>
+                    <div class="number">{{ $stats['total_purchases'] }}</div>
+                    <div class="label">Total Purchases</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white;">
+                    <i class="material-icons icon">check_circle</i>
+                    <div class="number">{{ $stats['approved_purchases'] }}</div>
+                    <div class="label">Approved</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white;">
+                    <i class="material-icons icon">schedule</i>
+                    <div class="number">{{ $stats['pending_purchases'] }}</div>
+                    <div class="label">Pending</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white;">
+                    <i class="material-icons icon">account_balance_wallet</i>
+                    <div class="number">{{ number_format($stats['total_value']/1000, 0) }}K</div>
+                    <div class="label">Total Value</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;">
+                    <i class="material-icons icon">calendar_today</i>
+                    <div class="number">{{ $stats['this_month_purchases'] }}</div>
+                    <div class="label">This Month</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                <div class="stat-card" style="background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white;">
+                    <i class="material-icons icon">trending_up</i>
+                    <div class="number">{{ number_format($stats['this_month_value']/1000, 0) }}K</div>
+                    <div class="label">Month Value</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Filters -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="quick-filters">
+                            <button type="button" class="btn btn-primary waves-effect quick-filter" data-filter="today">
+                                <i class="material-icons">today</i> Today
+                            </button>
+                            <button type="button" class="btn btn-info waves-effect quick-filter" data-filter="week">
+                                <i class="material-icons">date_range</i> This Week
+                            </button>
+                            <button type="button" class="btn btn-success waves-effect quick-filter" data-filter="month">
+                                <i class="material-icons">calendar_month</i> This Month
+                            </button>
+                            <button type="button" class="btn btn-warning waves-effect quick-filter" data-filter="pending">
+                                <i class="material-icons">schedule</i> Pending Only
+                            </button>
+                            <button type="button" class="btn btn-default waves-effect quick-filter" data-filter="approved">
+                                <i class="material-icons">check_circle</i> Approved Only
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Filters Panel -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>
+                            <i class="material-icons" style="vertical-align: middle;">filter_list</i>
+                            ADVANCED FILTERS
+                            <span class="filter-badge" id="activeFiltersCount" style="display: none;">0</span>
+                        </h2>
+                    </div>
+                    <div class="body filters-panel">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Supplier</label>
+                                    <select id="supplier" class="form-control">
+                                        <option value="">All Suppliers</option>
+                                        @foreach ($suppliers as $supplier)
+                                            <option value="{{ $supplier->id }}">{{ $supplier->company }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="approved" class="form-control">
+                                        <option value="">All Status</option>
+                                        <option value="1">Approved</option>
+                                        <option value="2">Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Date From</label>
+                                    <input type="date" id="date_from" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Date To</label>
+                                    <input type="date" id="date_to" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Min Price</label>
+                                    <input type="number" id="min_price" class="form-control" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Max Price</label>
+                                    <input type="number" id="max_price" class="form-control" placeholder="999999">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" id="applyFilters" class="btn btn-primary waves-effect">
+                                    <i class="material-icons">search</i> Apply Filters
+                                </button>
+                                <button type="button" id="clearFilters" class="btn btn-warning waves-effect">
+                                    <i class="material-icons">clear</i> Clear Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Exportable Table -->
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -22,136 +321,27 @@
                     <div class="header">
                         <h2>
                             All Purchases
-                            <span class="badge ">{{ $purchases->count() }}</span>
-                            @if(request('approved') == '1')
-                                <small class="text-success">(Approved Only)</small>
-                            @elseif(request('approved') == '2')
-                                <small class="text-warning">(Pending Only)</small>
-                            @endif
                         </h2>
-                        <div>
-                            @can('purchase-create')
-                                <a href="{{ route('purchases.create') }}" class="btn btn-primary waves-effect"
-                                    style="margin-bottom:10px;">
-                                    <i class="material-icons">add</i>
-                                    <span>Add New Purchases</span>
-                                </a>
-                            @endcan
-                        </div>
                     </div>
                     <div class="body">
-                        <!-- Filter Section -->
-                        <div class="row" style="margin-bottom: 20px;">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Filter by Approved Status</label>
-                                    <select name="approved" id="approved" class="form-control">
-                                        <option value="">All Purchases</option>
-                                        <option value="1" {{ request('approved') == '1' ? 'selected' : '' }}>Approved (In Inventory)</option>
-                                        <option value="2" {{ request('approved') == '2' ? 'selected' : '' }}>Pending (Not Approved)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label" style="visibility: hidden;">Actions</label>
-                                    <div>
-                                        <button type="button" id="filterBtn" class="btn btn-primary waves-effect" style="margin-right: 5px;">
-                                            <i class="material-icons">search</i> Filter
-                                        </button>
-                                        <a href="{{ route('purchases.index') }}" class="btn btn-default waves-effect">
-                                            <i class="material-icons">clear</i> Clear
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <table class="table table-bordered table-striped table-hover" id="purchasesTable">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Supplier</th>
-                                        <th>Contact person</th>
+                                        <th>Contact</th>
+                                        <th>Phone</th>
                                         <th>Invoice No.</th>
-                                        <th>Chalan No.</th>
+                                        <th>Challan No.</th>
                                         <th>Total Price</th>
-                                        <th>Date of Purchase</th>
-                                        <th>In Inventory</th>
+                                        <th>Purchase Date</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tfoot>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Supplier</th>
-                                        <th>Contact Person</th>
-                                        <th>Invoice No.</th>
-                                        <th>Chalan No.</th>
-                                        <th>Total Price</th>
-                                        <th>Date of Purchase</th>
-                                        <th>In Inventory</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </tfoot>
-                                <tbody>
-                                    @foreach($purchases as $key => $data)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>{{ $data->supplier->company }}</td>
-                                            <td>{{ $data->supplier->name }}</td>
-                                            <td>{{ $data->invoice_no }} </td>
-                                            <td>{{ $data->challan_no }} </td>
-                                            <td>{{ $data->total_price }} </td>
-                                            <td>{{ formatDate($data->purchase_date) }} </td>
-                                            <th>{{ $data->is_stocked == 2 ? "No" : "Yes" }}</th>
-
-                                            <td>
-                                                <a href="{{ route('purchases.show', $data->id) }}"
-                                                    class="btn btn-info waves-effect ">
-                                                    <i class="material-icons">visibility</i>
-                                                </a>
-
-                                                <a href="{{ route('purchases.grn', $data->id) }}" target="blank"
-                                                    title="Print GRN" class="btn btn-primary waves-effect "
-                                                    style="margin-top: 5px;">
-                                                    <i class="material-icons">print</i>
-                                                </a>
-                                                @can('purchase-edit')
-                                                    <a href="{{ route('purchases.edit', $data->id) }}"
-                                                        class="btn btn-warning waves-effect edit">
-                                                        <i class="material-icons">create</i>
-                                                    </a>
-                                                @endcan
-                                                @can('purchase-delete')
-                                                    @if($data->status == 1)
-                                                        <button type="button" class="btn btn-danger waves-effect delete"
-                                                            data-delete-id="{{$data->id}}" data-toggle="modal"
-                                                            data-target="#delete-modal">
-                                                            <i class="material-icons">person_off</i>
-                                                        </button>
-                                                    @else
-                                                        <button type="button" class="btn btn-danger waves-effect delete"
-                                                            data-delete-id="{{$data->id}}" data-toggle="modal"
-                                                            data-target="#delete-modal">
-                                                            <i class="material-icons">delete</i>
-                                                        </button>
-                                                    @endif
-                                                @endcan
-
-                                                @can('purchase-addinventory')
-                                                    @if($data->is_stocked == 2)
-                                                        <a href="{{ route('purchases.show', $data->id) }}"
-                                                            class="btn btn-info waves-effect " title="Approve to Inventory">
-                                                             <i class="material-icons">check_circle</i>
-                                                        </a>
-                                                    @endif
-                                                @endcan
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -160,35 +350,6 @@
         </div>
         <!-- #END# Exportable Table -->
     </div>
-
-
-    {{-- Delete Modal --}}
-    <div class="modal fade" id="delete-modal">
-        <div class="modal-dialog">
-            <form class="delete_form" method="post">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Update Employee Status </h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <strong>Are you sure to update the employee status ?</strong>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Update</button>
-                    </div>
-                </div>
-                <!-- /.modal-content -->
-            </form>
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
-
 @endsection
 
 @push('js')
@@ -202,40 +363,171 @@
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/vfs_fonts.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/extensions/export/buttons.print.min.js') }}"></script>
-
-
-
-
-    <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
+    <script src="{{ asset('backend/select2/select2.min.js') }}"></script>
 
     <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            let table = $('#purchasesTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('purchases.index') }}',
+                    data: function (d) {
+                        d.supplier_id = $('#supplier').val();
+                        d.approved = $('#approved').val();
+                        d.date_from = $('#date_from').val();
+                        d.date_to = $('#date_to').val();
+                        d.min_price = $('#min_price').val();
+                        d.max_price = $('#max_price').val();
+                    }
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'supplier_company', name: 'suppliers.company' },
+                    { data: 'supplier_name', name: 'suppliers.name' },
+                    { data: 'supplier_phone', name: 'suppliers.phone' },
+                    { data: 'invoice_no', name: 'purchases.invoice_no' },
+                    { data: 'challan_no', name: 'purchases.challan_no' },
+                    { data: 'total_price', name: 'purchases.total_price' },
+                    { data: 'purchase_date', name: 'purchases.purchase_date' },
+                    { data: 'status_badge', name: 'is_stocked', orderable: false },
+                    { data: 'approval_progress', name: 'approval_progress', orderable: false, searchable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    if (data.is_stocked == 1) {
+                        $(row).addClass('success-row');
+                    } else if (data.days_since_purchase > 7) {
+                        $(row).addClass('warning-row');
+                    }
+                },
+                dom: 'Blfrtip',
+                responsive: true,
+                buttons: [
+                    {
+                        extend: 'copy',
+                        text: 'Copy',
+                        className: 'btn-sm',
+                        exportOptions: {
+                            modifier: { page: 'all' },
+                            columns: [0,1,2,4,5,6,7]
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        text: 'CSV',
+                        className: 'btn-sm',
+                        exportOptions: {
+                            modifier: { page: 'all' },
+                            columns: [0,1,2,4,5,6,7]
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Excel',
+                        className: 'btn-sm',
+                        exportOptions: {
+                            modifier: { page: 'all' },
+                            columns: [0,1,2,4,5,6,7]
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: 'PDF',
+                        className: 'btn-sm',
+                        orientation: 'landscape',
+                        exportOptions: {
+                            modifier: { page: 'all' },
+                            columns: [0,1,2,4,5,6,7]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        className: 'btn-sm',
+                        exportOptions: {
+                            modifier: { page: 'all' },
+                            columns: [0,1,2,4,5,6,7]
+                        }
+                    }
+                ],
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+            });
 
-        $(".delete").click(function () {
-            var data_id = $(this).data('delete-id');
-            var url = location.origin + '/admin/employees/status/' + data_id;
-            $('.delete_form').attr('action', url);
-        });
+            // Initialize Select2
+            $('#supplier').select2({ placeholder: 'Select Supplier', allowClear: true });
+            $('#approved').select2({ placeholder: 'Select Status', allowClear: true });
 
-        // Filter functionality
-        $("#filterBtn").click(function() {
-            var approved = $("#approved").val();
-            var url = "{{ route('purchases.index') }}";
+            // Update active filters count
+            function updateActiveFilters() {
+                let count = 0;
+                if ($('#supplier').val()) count++;
+                if ($('#approved').val()) count++;
+                if ($('#date_from').val()) count++;
+                if ($('#date_to').val()) count++;
+                if ($('#min_price').val()) count++;
+                if ($('#max_price').val()) count++;
 
-            if (approved !== '') {
-                url += '?approved=' + approved;
+                if (count > 0) {
+                    $('#activeFiltersCount').text(count).show();
+                } else {
+                    $('#activeFiltersCount').hide();
+                }
             }
 
-            window.location.href = url;
-        });
+            // Apply Filters
+            $('#applyFilters').on('click', function() {
+                updateActiveFilters();
+                table.ajax.reload();
+            });
 
-        // Handle Enter key on filter dropdown
-        $("#approved").on('keypress', function(e) {
-            if (e.which === 13) { // Enter key
-                $("#filterBtn").click();
-            }
-        });
+            // Clear Filters
+            $('#clearFilters').on('click', function() {
+                $('#supplier').val('').trigger('change');
+                $('#approved').val('').trigger('change');
+                $('#date_from').val('');
+                $('#date_to').val('');
+                $('#min_price').val('');
+                $('#max_price').val('');
+                updateActiveFilters();
+                table.ajax.reload();
+            });
 
+            // Quick Filters
+            $('.quick-filter').on('click', function() {
+                let filter = $(this).data('filter');
+                let today = new Date();
+
+                // Clear all filters first
+                $('#supplier').val('').trigger('change');
+                $('#approved').val('').trigger('change');
+                $('#date_from').val('');
+                $('#date_to').val('');
+                $('#min_price').val('');
+                $('#max_price').val('');
+
+                if (filter === 'today') {
+                    let dateStr = today.toISOString().split('T')[0];
+                    $('#date_from').val(dateStr);
+                    $('#date_to').val(dateStr);
+                } else if (filter === 'week') {
+                    let weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    $('#date_from').val(weekAgo.toISOString().split('T')[0]);
+                    $('#date_to').val(today.toISOString().split('T')[0]);
+                } else if (filter === 'month') {
+                    let firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                    $('#date_from').val(firstDay.toISOString().split('T')[0]);
+                    $('#date_to').val(today.toISOString().split('T')[0]);
+                } else if (filter === 'pending') {
+                    $('#approved').val('2').trigger('change');
+                } else if (filter === 'approved') {
+                    $('#approved').val('1').trigger('change');
+                }
+
+                updateActiveFilters();
+                table.ajax.reload();
+            });
+        });
     </script>
-
-
 @endpush
