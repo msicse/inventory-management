@@ -49,6 +49,33 @@
         .body {
             min-height: 110px;
         }
+
+        .hover-zoom-effect:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .info-box-3 {
+            transition: all 0.3s ease;
+        }
+
+        .info-box-3 .content {
+            padding-right: 10px;
+            overflow: hidden;
+        }
+
+        .info-box-3 .content .number {
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .info-box-3 .content .text {
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
     </style>
 @endpush
 @section('content')
@@ -180,18 +207,111 @@
 
                     </div>
 
-                    <!-- Summary Statistics Panel -->
-                    <div class="row" style="margin-top: 15px;">
-                        <div class="col-md-12">
-                            <div class="alert alert-info" style="margin-bottom: 10px;">
-                                <strong><i class="material-icons" style="vertical-align: middle;">assessment</i> Report Summary:</strong>
-                                <span id="totalItems">0</span> total items |
-                                <span id="assignedItems">0</span> assigned |
-                                <span id="availableItems">0</span> in storage |
-                                <span id="goodCondition">0</span> good |
-                                <span id="damagedItems">0</span> damaged/obsolete
+                    <!-- Modern Dashboard Summary Panel -->
+                    <div class="row" style="margin-top: 20px;">
+                        <!-- Statistics Cards -->
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <div class="info-box-3 bg-cyan hover-zoom-effect">
+                                <div class="icon">
+                                    <i class="material-icons">inventory_2</i>
+                                </div>
+                                <div class="content">
+                                    <div class="text">TOTAL ITEMS</div>
+                                    <div class="number" id="totalItems" style="font-size: 28px; font-weight: bold;">0</div>
+                                </div>
                             </div>
                         </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <div class="info-box-3 bg-green hover-zoom-effect">
+                                <div class="icon">
+                                    <i class="material-icons">person</i>
+                                </div>
+                                <div class="content">
+                                    <div class="text">ASSIGNED</div>
+                                    <div class="number" id="assignedItems" style="font-size: 28px; font-weight: bold;">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <div class="info-box-3 bg-orange hover-zoom-effect">
+                                <div class="icon">
+                                    <i class="material-icons">store</i>
+                                </div>
+                                <div class="content">
+                                    <div class="text">IN STORAGE</div>
+                                    <div class="number" id="availableItems" style="font-size: 28px; font-weight: bold;">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <div class="info-box-3 bg-light-blue hover-zoom-effect">
+                                <div class="icon">
+                                    <i class="material-icons">attach_money</i>
+                                </div>
+                                <div class="content" style="padding-right: 15px;">
+                                    <div class="text">TOTAL VALUE</div>
+                                    <div class="number" id="totalValue" style="font-size: 18px; font-weight: bold; word-break: break-word; line-height: 1.1;">$0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card">
+                                <div class="header bg-cyan">
+                                    <h2 style="color: white; font-size: 16px;">
+                                        <i class="material-icons" style="vertical-align: middle;">pie_chart</i>
+                                        CONDITION STATUS
+                                    </h2>
+                                </div>
+                                <div class="body" style="height: 250px;">
+                                    <canvas id="conditionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card">
+                                <div class="header bg-green">
+                                    <h2 style="color: white; font-size: 16px;">
+                                        <i class="material-icons" style="vertical-align: middle;">donut_small</i>
+                                        ASSIGNMENT STATUS
+                                    </h2>
+                                </div>
+                                <div class="body" style="height: 250px;">
+                                    <canvas id="assignmentChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 col-sm-12">
+                            <div class="card">
+                                <div class="header bg-orange">
+                                    <h2 style="color: white; font-size: 16px;">
+                                        <i class="material-icons" style="vertical-align: middle;">warning</i>
+                                        WARRANTY STATUS
+                                    </h2>
+                                </div>
+                                <div class="body" style="height: 250px;">
+                                    <canvas id="warrantyChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Analytics Row -->
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="header bg-indigo">
+                                    <h2 style="color: white; font-size: 16px;">
+                                        <i class="material-icons" style="vertical-align: middle;">bar_chart</i>
+                                        TOP 10 DEPARTMENTS BY ASSETS
+                                    </h2>
+                                </div>
+                                <div class="body" style="height: 300px;">
+                                    <canvas id="departmentChart"></canvas>
+                                </div>
                     </div>
 
                 </div>
@@ -247,6 +367,9 @@
 @endsection
 
 @push('js')
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     <!-- Jquery DataTable Plugin Js -->
     <script src="{{ asset('backend/plugins/jquery-datatable/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js') }}"></script>
@@ -553,7 +676,7 @@
                 table.ajax.reload();
             });
 
-            // Update summary statistics after table draws
+// Update summary statistics and charts after table draws
             table.on('draw', function() {
                 $.ajax({
                     url: '{{ route('reports.inventory.search') }}',
@@ -567,44 +690,192 @@
                         department: $('#department').val(),
                         start_date: $('#startDateFilter').val(),
                         end_date: $('#endDateFilter').val(),
+                        asset_status: $('#asset_status').val(),
+                        assignment_status: $('#assignment_status').val(),
+                        warranty_status: $('#warranty_status').val(),
                         length: -1 // Get all records for statistics
                     },
                     success: function(response) {
                         if (response.data) {
-                            var total = response.data.length;
-                            var assigned = 0;
-                            var available = 0;
-                            var good = 0;
-                            var damaged = 0;
-
-                            response.data.forEach(function(item) {
-                                // Count assigned vs available
-                                if (item.is_assigned == 1) {
-                                    assigned++;
-                                } else {
-                                    available++;
-                                }
-
-                                // Count by condition
-                                if (item.asset_condition && item.asset_condition.toLowerCase() === 'good') {
-                                    good++;
-                                } else if (item.asset_condition &&
-                                          (item.asset_condition.toLowerCase() === 'damaged' ||
-                                           item.asset_condition.toLowerCase() === 'obsolete')) {
-                                    damaged++;
-                                }
-                            });
-
-                            // Update the display
-                            $('#totalItems').text(total);
-                            $('#assignedItems').text(assigned);
-                            $('#availableItems').text(available);
-                            $('#goodCondition').text(good);
-                            $('#damagedItems').text(damaged);
+                            updateDashboard(response.data);
                         }
                     }
                 });
             });
+
+            // Dashboard update function with charts
+            let conditionChart, assignmentChart, warrantyChart, departmentChart;
+
+            function updateDashboard(data) {
+                var total = data.length;
+                var assigned = 0;
+                var available = 0;
+                var good = 0;
+                var damaged = 0;
+                var obsolete = 0;
+                var totalValue = 0;
+                var warrantyActive = 0;
+                var warrantyExpiring = 0;
+                var warrantyExpired = 0;
+                var departmentCount = {};
+                
+                data.forEach(function(item) {
+                    // Count assigned vs available
+                    if (item.is_assigned == 1) {
+                        assigned++;
+                    } else {
+                        available++;
+                    }
+                    
+                    // Count by condition
+                    if (item.asset_condition) {
+                        var cond = item.asset_condition.toLowerCase();
+                        if (cond === 'good') good++;
+                        else if (cond === 'damaged') damaged++;
+                        else if (cond === 'obsolete') obsolete++;
+                    }
+
+                    // Calculate total value
+                    if (item.purchase_price) {
+                        totalValue += parseFloat(item.purchase_price);
+                    }
+
+                    // Warranty status
+                    if (item.warranty_remaining) {
+                        var days = parseInt(item.warranty_remaining);
+                        if (days <= 0) warrantyExpired++;
+                        else if (days <= 30) warrantyExpiring++;
+                        else warrantyActive++;
+                    }
+
+                    // Department count
+                    if (item.department_name && item.is_assigned == 1) {
+                        var dept = item.department_name;
+                        departmentCount[dept] = (departmentCount[dept] || 0) + 1;
+                    }
+                });
+                
+                // Update statistics cards
+                $('#totalItems').text(total.toLocaleString());
+                $('#assignedItems').text(assigned.toLocaleString());
+                $('#availableItems').text(available.toLocaleString());
+                $('#totalValue').text('$' + totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                // Condition Chart (Doughnut)
+                var conditionCtx = document.getElementById('conditionChart').getContext('2d');
+                if (conditionChart) conditionChart.destroy();
+                conditionChart = new Chart(conditionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Good', 'Damaged', 'Obsolete'],
+                        datasets: [{
+                            data: [good, damaged, obsolete],
+                            backgroundColor: ['#27ae60', '#e74c3c', '#e67e22'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+
+                // Assignment Chart (Pie)
+                var assignmentCtx = document.getElementById('assignmentChart').getContext('2d');
+                if (assignmentChart) assignmentChart.destroy();
+                assignmentChart = new Chart(assignmentCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Assigned', 'Available'],
+                        datasets: [{
+                            data: [assigned, available],
+                            backgroundColor: ['#00bcd4', '#ff9800'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+
+                // Warranty Chart (Doughnut)
+                var warrantyCtx = document.getElementById('warrantyChart').getContext('2d');
+                if (warrantyChart) warrantyChart.destroy();
+                warrantyChart = new Chart(warrantyCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active', 'Expiring (≤30d)', 'Expired'],
+                        datasets: [{
+                            data: [warrantyActive, warrantyExpiring, warrantyExpired],
+                            backgroundColor: ['#4caf50', '#ffc107', '#f44336'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+
+                // Department Chart (Horizontal Bar) - Top 10
+                var sortedDepts = Object.entries(departmentCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                var deptLabels = sortedDepts.map(d => d[0]);
+                var deptValues = sortedDepts.map(d => d[1]);
+
+                var departmentCtx = document.getElementById('departmentChart').getContext('2d');
+                if (departmentChart) departmentChart.destroy();
+                departmentChart = new Chart(departmentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: deptLabels,
+                        datasets: [{
+                            label: 'Assets Assigned',
+                            data: deptValues,
+                            backgroundColor: '#3f51b5',
+                            borderColor: '#303f9f',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
 
             $('#product_id').select2({
                 width: '100%',
