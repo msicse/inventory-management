@@ -56,7 +56,17 @@ class ReportController extends Controller
 
         $stocks = Producttype::all();
 
-        return view('backend.report.stocks')->with(compact('stocks'));
+        // Calculate overall statistics
+        $totalItems = Stock::count();
+        $totalAssigned = Stock::where('is_assigned', 1)->count();
+        $totalAvailable = Stock::where('is_assigned', 2)->count();
+        $totalValue = Stock::join('purchase_products', function($join) {
+                $join->on('purchase_products.purchase_id', '=', 'stocks.purchase_id')
+                     ->on('purchase_products.product_id', '=', 'stocks.product_id');
+            })
+            ->sum('purchase_products.unit_price');
+
+        return view('backend.report.stocks')->with(compact('stocks', 'totalItems', 'totalAssigned', 'totalAvailable', 'totalValue'));
     }
 
     function stockDetails(Request $request, $id)
