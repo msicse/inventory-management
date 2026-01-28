@@ -208,6 +208,9 @@ Route::group(['middleware' => ['auth']], function () {
     //Print return Form
     Route::get('transections/return/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'return'])->name('transections.return');
 
+    // Mark transaction as returned
+    Route::post('transections/mark-returned/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'markReturned'])->name('transections.mark.returned');
+
     Route::get('xyz', [App\Http\Controllers\ReportController::class, 'index'])->name('xyz.index');
     Route::match(array('GET', 'POST'), 'settings/password', [App\Http\Controllers\SettingController::class, 'password'])->name('settings.password');
     Route::match(array('GET', 'POST'), 'settings/profile', [App\Http\Controllers\SettingController::class, 'profile'])->name('settings.profile');
