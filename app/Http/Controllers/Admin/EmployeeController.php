@@ -13,6 +13,8 @@ use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeController extends Controller
 {
@@ -30,10 +32,119 @@ class EmployeeController extends Controller
          $this->middleware('permission:employee-delete', ['only' => ['destroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        // Calculate statistics
+        $stats = [
+            'total_employees' => Employee::count(),
+            'active_employees' => Employee::where('status', 1)->count(),
+            'inactive_employees' => Employee::where('status', 2)->count(),
+            'with_assignments' => Employee::whereHas('transections', function($q) {
+                $q->whereNull('return_date');
+            })->count(),
+            'total_departments' => Department::count(),
+            'active_distributions' => Transection::whereNull('return_date')
+                ->whereHas('employee')->count(),
+        ];
+
+        $departments = Department::orderBy('name')->get();
+
+        if ($request->ajax()) {
+            $department_id = $request->department_id;
+            $status = $request->status;
+            $assignment_status = $request->assignment_status;
+            $search = $request->search['value'] ?? '';
+
+            $query = Employee::with(['department'])
+                ->select([
+                    'employees.*',
+                    'departments.name as department_name',
+                    DB::raw('(SELECT COUNT(*) FROM transections WHERE transections.employee_id = employees.id AND transections.return_date IS NULL) as active_assignments_count'),
+                    DB::raw('(SELECT COUNT(*) FROM transections WHERE transections.employee_id = employees.id) as total_assignments_count'),
+                ])
+                ->leftJoin('departments', 'employees.department_id', '=', 'departments.id')
+                ->when($department_id, fn($q) => $q->where('employees.department_id', $department_id))
+                ->when($status, fn($q) => $q->where('employees.status', $status))
+                ->when($assignment_status, function ($q) use ($assignment_status) {
+                    if ($assignment_status == 'with_assets') {
+                        $q->whereHas('transections', function($query) {
+                            $query->whereNull('return_date');
+                        });
+                    } elseif ($assignment_status == 'no_assets') {
+                        $q->whereDoesntHave('transections', function($query) {
+                            $query->whereNull('return_date');
+                        });
+                    }
+                })
+                ->orderBy('employees.name');
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('status_badge', function ($row) {
+                    if ($row->status == 1) {
+                        return '<span class="badge badge-success" style="background-color: #4CAF50; padding: 5px 10px; border-radius: 12px; font-size: 11px;">
+                            <i class="material-icons" style="font-size: 12px; vertical-align: middle;">check_circle</i> Active
+                        </span>';
+                    } else {
+                        return '<span class="badge badge-danger" style="background-color: #F44336; padding: 5px 10px; border-radius: 12px; font-size: 11px;">
+                            <i class="material-icons" style="font-size: 12px; vertical-align: middle;">cancel</i> Inactive
+                        </span>';
+                    }
+                })
+                ->addColumn('assignments_info', function ($row) {
+                    $active = $row->active_assignments_count;
+                    $total = $row->total_assignments_count;
+
+                    if ($active > 0) {
+                        return '<span class="badge badge-primary" style="background-color: #2196F3; padding: 5px 10px; border-radius: 12px;">
+                            ' . $active . ' Active
+                        </span> <span class="text-muted" style="font-size: 11px;">(' . $total . ' total)</span>';
+                    } else {
+                        return '<span class="text-muted" style="font-size: 11px;">No active assignments (' . $total . ' total)</span>';
+                    }
+                })
+                ->addColumn('employee_info', function ($row) {
+                    return '<div style="line-height: 1.6;">
+                        <strong>' . $row->name . '</strong><br>
+                        <small class="text-muted">ID: ' . $row->emply_id . '</small>
+                    </div>';
+                })
+                ->addColumn('contact_info', function ($row) {
+                    $html = '<div style="line-height: 1.6; font-size: 12px;">';
+                    if ($row->phone) {
+                        $html .= '<i class="material-icons" style="font-size: 14px; vertical-align: middle;">phone</i> ' . $row->phone . '<br>';
+                    }
+                    if ($row->email) {
+                        $html .= '<i class="material-icons" style="font-size: 14px; vertical-align: middle;">email</i> ' . $row->email;
+                    }
+                    $html .= '</div>';
+                    return $html;
+                })
+                ->addColumn('action', function ($row) {
+                    $viewBtn = '<a href="' . route('employees.show', $row->id) . '" class="btn btn-info btn-sm" title="View Details"><i class="material-icons">visibility</i></a> ';
+                    $editBtn = '<a href="' . route('management.employees.edit', $row->id) . '" class="btn btn-primary btn-sm" title="Edit"><i class="material-icons">edit</i></a> ';
+
+                    $statusBtn = '';
+                    if ($row->status == 1) {
+                        $statusBtn = '<button class="btn btn-warning btn-sm" title="Deactivate" onclick="updateStatus(' . $row->id . ')"><i class="material-icons">block</i></button>';
+                    } else {
+                        $statusBtn = '<button class="btn btn-success btn-sm" title="Activate" onclick="updateStatus(' . $row->id . ')"><i class="material-icons">check_circle</i></button>';
+                    }
+
+                    return $viewBtn . $editBtn . $statusBtn;
+                })
+                ->filterColumn('employee_info', function($query, $keyword) {
+                    $query->whereRaw("CONCAT(COALESCE(employees.name,''), ' ', COALESCE(employees.emply_id,'')) like ?", ["%{$keyword}%"]);
+                })
+                ->filterColumn('contact_info', function($query, $keyword) {
+                    $query->whereRaw("CONCAT(COALESCE(employees.phone,''), ' ', COALESCE(employees.email,'')) like ?", ["%{$keyword}%"]);
+                })
+                ->rawColumns(['status_badge', 'assignments_info', 'employee_info', 'contact_info', 'action'])
+                ->make(true);
+        }
+
         $employees = Employee::orderBy('name', "asc")->get();
-        return view('backend.admin.employee.index')->with(compact('employees'));
+        return view('backend.admin.employee.index', compact('employees', 'stats', 'departments'));
     }
 
     /**
