@@ -247,7 +247,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <div class="card">
                                 <div class="header bg-light-green">
                                     <h2><i class="material-icons">description</i> Standard QR Codes (A4)</h2>
@@ -262,7 +262,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-6">
                             <div class="card">
@@ -282,7 +282,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="header bg-orange">
@@ -299,9 +299,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="col-md-12">
                             <div class="alert alert-info" role="alert">
                                 <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">info</i>
@@ -312,7 +312,7 @@
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
