@@ -36,7 +36,17 @@ class InventoryController extends Controller
     }
     public function index(Request $request)
     {
-        // $inventories = Stock::all();
+        // Statistics for dashboard cards
+        $stats = [
+            'total_items' => Stock::count(),
+            'assigned' => Stock::where('is_assigned', 1)->count(),
+            'available' => Stock::where('is_assigned', 2)->count(),
+            'pending_tags' => Stock::whereNull('asset_tag')->orWhere('asset_tag', '')->count(),
+            'warranty_expiring' => Stock::whereNotNull('expired_date')
+                ->whereRaw('DATEDIFF(expired_date, CURDATE()) BETWEEN 0 AND 30')->count(),
+            'damaged_items' => Stock::where('asset_condition', 'damaged')->count(),
+        ];
+
         $types = Producttype::all();
         $statuses = AssetStatus::all();
         $stores = Store::all();
@@ -48,6 +58,8 @@ class InventoryController extends Controller
         $condition = $request->condition;
         $store = $request->store;
         $supplier = $request->supplier;
+        $department = $request->department;
+        $assignment_status = $request->assignment_status;
         //{ data: 'assigned_to', name: 'employees.name' }, this is my datatable column, it showing if assigned show employeee name else show store name,  i have join query , i want to enable search from both table
         // return $query->get()
         if ($request->ajax()) {
@@ -61,13 +73,17 @@ class InventoryController extends Controller
                 'stocks.asset_condition',
                 'stocks.quantity',
                 'stocks.purchase_date',
+                'stocks.expired_date',
                 'products.title as title',
                 'stores.name as store_name',
                 'employees.name as employee_name',
                 'employees.emply_id as emply_id',
                 'employees.id as employee_id',
+                'employees.department_id',
+                'departments.name as department_name',
                 'suppliers.company as supplier_company',
                 'transections.employee_id',
+                DB::raw('DATEDIFF(stocks.expired_date, CURDATE()) as days_to_expire'),
                 DB::raw('CASE
                         WHEN stocks.is_assigned = 1 AND transections.return_date IS NULL THEN employees.id
                     END as assigned_id'),
@@ -84,13 +100,16 @@ class InventoryController extends Controller
                 ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
                 ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
                 ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id')
+                ->leftJoin('departments', 'employees.department_id', '=', 'departments.id')
                 ->when($type, fn($q) => $q->where('stocks.producttype_id', $type))
                 ->when($store, fn($q) => $q->where(function ($q2) use ($store) {
                     $q2->where('stocks.store_id', $store)
                         ->where('stocks.is_assigned', 2);
                 }))
                 ->when($supplier, fn($q) => $q->where('purchases.supplier_id', $supplier))
-                ->when($condition, fn($q) => $q->where('stocks.asset_condition', $condition));
+                ->when($condition, fn($q) => $q->where('stocks.asset_condition', $condition))
+                ->when($department, fn($q) => $q->where('employees.department_id', $department))
+                ->when($assignment_status, fn($q) => $q->where('stocks.is_assigned', $assignment_status));
 
 
             // if ($type) {
@@ -165,7 +184,7 @@ class InventoryController extends Controller
                 ->make(true);
         }
 
-        return view('backend.admin.inventory.index')->with(compact('suppliers', 'types', 'statuses', 'stores', 'employees','departments'));
+        return view('backend.admin.inventory.index')->with(compact('suppliers', 'types', 'statuses', 'stores', 'employees', 'departments', 'stats'));
     }
 
 
