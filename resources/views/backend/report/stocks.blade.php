@@ -250,7 +250,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                                 <thead>
@@ -273,7 +273,7 @@
                                             $assigned = $data->stocks->where('is_assigned', 1)->count();
                                             $available = $data->stocks->where('is_assigned', 2)->count();
                                             $utilization = $total > 0 ? ($assigned / $total) * 100 : 0;
-                                            
+
                                             // Determine stock health
                                             if ($total == 0) {
                                                 $healthClass = 'stock-critical';
@@ -301,11 +301,11 @@
                                             <td style="text-align: center;"><span class="badge bg-orange">{{ $available }}</span></td>
                                             <td style="width: 180px;">
                                                 <div class="progress">
-                                                    <div class="progress-bar progress-bar-{{ $progressColor }}" 
-                                                         role="progressbar" 
+                                                    <div class="progress-bar progress-bar-{{ $progressColor }}"
+                                                         role="progressbar"
                                                          style="width: {{ max(min($utilization, 100), ($utilization > 0 ? 5 : 0)) }}%; min-width: {{ $utilization > 0 ? '40px' : '0' }};"
-                                                         aria-valuenow="{{ $utilization }}" 
-                                                         aria-valuemin="0" 
+                                                         aria-valuenow="{{ $utilization }}"
+                                                         aria-valuemin="0"
                                                          aria-valuemax="100">
                                                         {{ number_format($utilization, 1) }}%
                                                     </div>
@@ -316,11 +316,11 @@
                                                     @php
                                                         $stockPercent = $total > 0 ? ($available / $total) * 100 : 0;
                                                     @endphp
-                                                    <div class="progress-bar progress-bar-{{ $progressColor }}" 
-                                                         role="progressbar" 
+                                                    <div class="progress-bar progress-bar-{{ $progressColor }}"
+                                                         role="progressbar"
                                                          style="width: {{ max(min($stockPercent, 100), ($stockPercent > 0 ? 8 : 0)) }}%; min-width: {{ $available > 0 ? '50px' : '0' }};"
-                                                         aria-valuenow="{{ $available }}" 
-                                                         aria-valuemin="0" 
+                                                         aria-valuenow="{{ $available }}"
+                                                         aria-valuemin="0"
                                                          aria-valuemax="{{ $total }}">
                                                         {{ $available }}/{{ $total }}
                                                     </div>
@@ -330,8 +330,8 @@
                                                 <span class="stock-badge {{ $healthClass }}">{{ $healthText }}</span>
                                             </td>
                                             <td style="text-align: center;">
-                                                <a href="{{ route('reports.inventory') }}?type={{ $data->id }}" 
-                                                   class="btn btn-info btn-sm waves-effect" 
+                                                <a href="{{ route('reports.inventory') }}?type={{ $data->id }}"
+                                                   class="btn btn-info btn-sm waves-effect"
                                                    title="View Detailed Inventory">
                                                     <i class="material-icons" style="font-size: 18px;">visibility</i>
                                                 </a>
@@ -351,7 +351,7 @@
 @push('js')
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
+
     <!-- Jquery DataTable Plugin Js -->
     <script src="{{ asset('backend/plugins/jquery-datatable/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js') }}"></script>
@@ -446,7 +446,7 @@
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: { 
+                            labels: {
                                 font: { size: 12 },
                                 padding: 10
                             }

@@ -369,7 +369,7 @@
 @push('js')
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
+
     <!-- Jquery DataTable Plugin Js -->
     <script src="{{ asset('backend/plugins/jquery-datatable/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js') }}"></script>
@@ -718,7 +718,7 @@
                 var warrantyExpiring = 0;
                 var warrantyExpired = 0;
                 var departmentCount = {};
-                
+
                 data.forEach(function(item) {
                     // Count assigned vs available
                     if (item.is_assigned == 1) {
@@ -726,7 +726,7 @@
                     } else {
                         available++;
                     }
-                    
+
                     // Count by condition
                     if (item.asset_condition) {
                         var cond = item.asset_condition.toLowerCase();
@@ -754,7 +754,7 @@
                         departmentCount[dept] = (departmentCount[dept] || 0) + 1;
                     }
                 });
-                
+
                 // Update statistics cards
                 $('#totalItems').text(total.toLocaleString());
                 $('#assignedItems').text(assigned.toLocaleString());

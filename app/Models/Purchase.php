@@ -9,12 +9,21 @@ class Purchase extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'purchase_date' => 'datetime',
+    ];
+
     /**
      * Get the user that owns the Purchase
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function products()
+    {
+        return $this->hasMany(PurchaseProduct::class, 'purchase_id');
+    }
+
+    public function purchaseProducts()
     {
         return $this->hasMany(PurchaseProduct::class, 'purchase_id');
     }
