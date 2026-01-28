@@ -4,6 +4,7 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
+            
             <h2>Role Management</h2>
         </div>
         <div class="pull-right">
@@ -15,7 +16,7 @@
 </div>
 
 @session('success')
-    <div class="alert alert-success" role="alert"> 
+    <div class="alert alert-success" role="alert">
         {{ $value }}
     </div>
 @endsession

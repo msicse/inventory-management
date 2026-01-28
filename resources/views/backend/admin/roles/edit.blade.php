@@ -11,6 +11,31 @@
         .margin-bt-0 {
             margin-bottom: 0 !important;
         }
+        .permission-module {
+            background: #f7f9fb;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e6eef6;
+        }
+        .permission-module h6 {
+            font-size: 12px;
+            margin: 0 0 6px 0;
+            color: #33475b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .select-all-global {
+            display: inline-block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: #fff;
+            background: #667eea;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
     </style>
 @endpush
 @section('content')
@@ -43,23 +68,43 @@
                                 </div>
                                 <div class="col-lg-8 col-md-9 col-sm-12 col-xs-12">
                                     <h5>Permissions</h5>
+                                    <div style="text-align: right; margin-bottom:8px;">
+                                        <div id="select-all-global-btn" class="select-all-global" onclick="toggleAllPermissions(this)">
+                                            <i class="material-icons" style="font-size:16px; vertical-align:middle;">check_box</i>
+                                            &nbsp;Select All Permissions
+                                        </div>
+                                    </div>
+                                    @php
+                                        $grouped = $permission->groupBy(function($item) {
+                                            return explode('-', $item->name)[0] ?? 'other';
+                                        });
+                                    @endphp
                                     <div class="row">
-                                        @foreach ($permission as $value)
-                                            <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 form-check margin-bt-0">
-                                                <input class="form-check-input " type="checkbox"
-                                                    name="permission[{{ $value->id }}]" value="{{ $value->id }}"
-                                                    id="permission[{{ $value->id }}]" {{ in_array($value->id, $rolePermissions) ? 'checked' : ''}}>
-                                                <label class="form-check-label form-label margin-right"
-                                                    for="permission[{{ $value->id }}]">
-                                                    <strong>{{ $value->name }}</strong>
-                                                </label>
+                                        @foreach ($grouped as $module => $perms)
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                                <div class="permission-module">
+                                                    <h6>
+                                                        <span>{{ ucfirst($module) }}</span>
+                                                        <a class="module-toggle" data-module="{{ $module }}" style="cursor:pointer; color:#2673f5; font-size:13px;" onclick="toggleModulePermissions('{{ $module }}', this)">Select</a>
+                                                    </h6>
+                                                    <div class="row">
+                                                        @foreach ($perms as $value)
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 form-check margin-bt-0">
+                                                                <input class="form-check-input permission-checkbox" data-module="{{ $module }}" type="checkbox"
+                                                                    name="permission[{{ $value->id }}]" value="{{ $value->id }}"
+                                                                    id="permission[{{ $value->id }}]" {{ in_array($value->id, $rolePermissions) ? 'checked' : ''}}>
+                                                                <label class="form-check-label form-label margin-right" for="permission[{{ $value->id }}]">
+                                                                    <strong>{{ $value->name }}</strong>
+                                                                </label>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
 
-
-
-
+                                </div>
                                 </div>
                             </div>
                         </form>
@@ -186,6 +231,46 @@
     <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 
     <script>
+        function toggleAllPermissions(element) {
+            const checkboxes = document.querySelectorAll('.permission-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
+            updateToggleLabels();
+        }
+
+        function toggleModulePermissions(module, el) {
+            const selector = `.permission-checkbox[data-module="${module}"]`;
+            const checkboxes = document.querySelectorAll(selector);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+            updateToggleLabels();
+        }
+
+        function updateToggleLabels() {
+            document.querySelectorAll('.module-toggle').forEach(el => {
+                const module = el.dataset.module;
+                const selector = `.permission-checkbox[data-module="${module}"]`;
+                const checkboxes = document.querySelectorAll(selector);
+                const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+                el.innerText = allChecked ? 'Deselect' : 'Select';
+            });
+
+            const all = document.querySelectorAll('.permission-checkbox');
+            const allChecked = all.length > 0 && Array.from(all).every(cb => cb.checked);
+            const globalBtn = document.getElementById('select-all-global-btn');
+            if (globalBtn) {
+                if (allChecked) {
+                    globalBtn.innerHTML = '<i class="material-icons" style="font-size:16px; vertical-align:middle;">check_box</i> Deselect All Permissions';
+                } else {
+                    globalBtn.innerHTML = '<i class="material-icons" style="font-size:16px; vertical-align:middle;">check_box_outline_blank</i> Select All Permissions';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateToggleLabels();
+        });
+
         $(".edit").click(function(event) {
             var id = $(this).data('id');
             var update_url = location.origin + "/roles/" + id;

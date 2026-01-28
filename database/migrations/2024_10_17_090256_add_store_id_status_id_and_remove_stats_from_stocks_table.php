@@ -23,9 +23,11 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('stocks', function (Blueprint $table) {
-            $table->dropColumn('product_status');
+            $table->dropForeign(['status_id']);
+            $table->dropForeign(['store_id']);
             $table->dropColumn('status_id');
             $table->dropColumn('store_id');
+            $table->string('product_status')->nullable()->after('product_id');
         });
     }
 };

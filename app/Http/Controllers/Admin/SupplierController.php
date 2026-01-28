@@ -12,6 +12,14 @@ use Brian2694\Toastr\Facades\Toastr;
 
 class SupplierController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:suppliers-list|suppliers-create|suppliers-edit|suppliers-delete', ['only' => ['index']]);
+        $this->middleware('permission:suppliers-create', ['only' => ['store']]);
+        $this->middleware('permission:suppliers-edit', ['only' => ['update']]);
+        $this->middleware('permission:suppliers-delete', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
          $suppliers = Supplier::all();

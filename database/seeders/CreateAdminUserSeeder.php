@@ -17,10 +17,10 @@ class CreateAdminUserSeeder extends Seeder
     {
         //Super Admin
         $superUser = User::create([
-            'name' => 'Super Admin', 
-            'username' => 'superadmin', 
-            'employee_id' => 100001, 
-            'is_admin' => 1, 
+            'name' => 'Super Admin',
+            'username' => 'superadmin',
+            'employee_id' => 100001,
+            'is_admin' => 1,
             'email' => 'superadmin@gmail.com',
             'password' => bcrypt('123456')
         ]);
@@ -28,13 +28,13 @@ class CreateAdminUserSeeder extends Seeder
 
         $roleSuper = Role::create(['name' => 'super-admin']);
         $superUser->assignRole([$roleSuper->id]);
-        
+
 
         // Admin
         $user = User::create([
             'name' => 'Admin User',
             'username' => 'admin',
-            'employee_id' => '1002', 
+            'employee_id' => '1002',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('123456')
         ]);

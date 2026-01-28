@@ -12,6 +12,14 @@ use Brian2694\Toastr\Facades\Toastr;
 
 class StatusController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:status-list|status-create|status-edit|status-delete', ['only' => ['index']]);
+        $this->middleware('permission:status-create', ['only' => ['store']]);
+        $this->middleware('permission:status-edit', ['only' => ['update']]);
+        $this->middleware('permission:status-delete', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
         $statuses = AssetStatus::all();

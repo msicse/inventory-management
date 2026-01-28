@@ -12,6 +12,14 @@ use Brian2694\Toastr\Facades\Toastr;
 
 class StoreController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:store-list|store-create|store-edit|store-delete', ['only' => ['index']]);
+        $this->middleware('permission:store-create', ['only' => ['store']]);
+        $this->middleware('permission:store-edit', ['only' => ['update']]);
+        $this->middleware('permission:store-delete', ['only' => ['destroy']]);
+    }
+
     public function index()
     {
         $stores = Store::all();
