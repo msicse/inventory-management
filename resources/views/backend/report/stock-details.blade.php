@@ -122,6 +122,19 @@
                             </div>
                         </div>
                         <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="department" id="department" class="form-control show-tick"
+                                    data-live-search="true">
+                                    <option value="">All Department</option>
+                                    @foreach ($departments as $dept)
+                                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <input type="date" id="startDateFilter" class="form-control" placeholder="Start Date">
                             </div>
@@ -135,20 +148,20 @@
                         </div>
 
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-md-3">
-                            <div class="info-box bg-cyan hover-expand-effect">
-                                <div class="icon">
-                                    <i class="material-icons">laptop</i>
-                                </div>
-                                <div class="content">
-                                    <div class="text">Assigned Laptop</div>
-                                    <div class="number count-to" data-from="0" data-to="111" data-speed="1000"
-                                        data-fresh-interval="20"></div>
-                                </div>
+
+                    <!-- Summary Statistics Panel -->
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" style="margin-bottom: 10px;">
+                                <strong><i class="material-icons" style="vertical-align: middle;">assessment</i> Report Summary:</strong>
+                                <span id="totalItems">0</span> total items |
+                                <span id="assignedItems">0</span> assigned |
+                                <span id="availableItems">0</span> in storage |
+                                <span id="goodCondition">0</span> good |
+                                <span id="damagedItems">0</span> damaged/obsolete
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
 
                 </div>
             </div>
@@ -181,6 +194,7 @@
                                     <th>Supplier</th>
                                     <th>Condition</th>
                                     <th>User/Location</th>
+                                    <th>Department</th>
                                     <th>Invoice</th>
                                 </tr>
                             </thead>
@@ -243,9 +257,19 @@
                         d.product_id = $('#store').val();
                         d.supplier = $('#supplier').val();
                         d.store = $('#store').val();
+                        d.department = $('#department').val();
                         d.start_date = $('#startDateFilter').val();
                         d.end_date = $('#endDateFilter').val();
-
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable Error:', error);
+                        if (xhr.status === 422) {
+                            alert('Validation Error: ' + JSON.stringify(xhr.responseJSON.messages));
+                        } else if (xhr.status === 500) {
+                            alert('Server Error: Unable to load inventory data. Please try again.');
+                        } else {
+                            alert('Error loading data: ' + thrown);
+                        }
                     }
                 },
                 columns: [
@@ -266,10 +290,40 @@
                             return '';
                         }
                      },
-                    { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false },
+                    { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false,
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                if (data <= 0) {
+                                    return '<span style="color: red; font-weight: bold;">Expired</span>';
+                                } else if (data <= 30) {
+                                    return '<span style="color: orange; font-weight: bold;">' + data + ' days</span>';
+                                } else if (data <= 90) {
+                                    return '<span style="color: #f39c12;">' + data + ' days</span>';
+                                } else {
+                                    return '<span style="color: green;">' + data + ' days</span>';
+                                }
+                            }
+                            return data;
+                        }
+                    },
                     { data: 'supplier_company', name: 'suppliers.company' },
-                    { data: 'asset_condition', name: 'asset_condition' },
+                    { data: 'asset_condition', name: 'asset_condition',
+                        render: function(data, type, row) {
+                            if (type === 'display' && data) {
+                                var condition = data.toLowerCase();
+                                if (condition === 'good') {
+                                    return '<span class="label bg-green">' + data + '</span>';
+                                } else if (condition === 'damaged') {
+                                    return '<span class="label bg-red">' + data + '</span>';
+                                } else if (condition === 'obsolete') {
+                                    return '<span class="label bg-orange">' + data + '</span>';
+                                }
+                            }
+                            return data || 'N/A';
+                        }
+                    },
                     { data: 'assigned_to', name: 'employees.name' },
+                    { data: 'department_name', name: 'departments.name', defaultContent: '<span style="color: #999;">N/A</span>' },
                     { data: 'purchase_invoice', name: 'purchases.invoice_no' },
 
 
@@ -279,53 +333,159 @@
                 buttons: [
                     {
                         extend: 'copy',
+                        text: 'Copy',
                         exportOptions: {
-                            modifier: { page: 'all' } // Exports all pages
+                            modifier: { page: 'all' }
                         }
                     },
                     {
                         extend: 'csv',
+                        text: 'CSV',
                         exportOptions: {
                             modifier: { page: 'all' }
+                        },
+                        action: function (e, dt, button, config) {
+                            var count = dt.rows({search: 'applied'}).count();
+                            if (count > 10000) {
+                                if (!confirm('You are about to export ' + count + ' rows. This may take a while. Continue?')) {
+                                    return;
+                                }
+                            }
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
                         }
                     },
                     {
                         extend: 'excel',
+                        text: 'Excel',
                         exportOptions: {
                             modifier: { page: 'all' }
+                        },
+                        action: function (e, dt, button, config) {
+                            var count = dt.rows({search: 'applied'}).count();
+                            if (count > 10000) {
+                                if (!confirm('You are about to export ' + count + ' rows. This may take a while. Continue?')) {
+                                    return;
+                                }
+                            }
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                         }
                     },
                     {
                         extend: 'pdf',
+                        text: 'PDF',
                         orientation: 'landscape',
                         exportOptions: {
                             modifier: { page: 'all' }
                         },
+                        action: function (e, dt, button, config) {
+                            var count = dt.rows({search: 'applied'}).count();
+                            if (count > 5000) {
+                                if (!confirm('You are about to export ' + count + ' rows to PDF. This may take a while. Continue?')) {
+                                    return;
+                                }
+                            }
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                        },
                         customize: function (doc) {
-                            doc.defaultStyle.fontSize = 10;
-                            doc.styles.tableHeader.fontSize = 11;
+                            doc.defaultStyle.fontSize = 9;
+                            doc.styles.tableHeader.fontSize = 10;
+                            doc.styles.tableHeader.bold = true;
                             doc.styles.tableBodyEven.alignment = 'center';
                             doc.styles.tableBodyOdd.alignment = 'center';
                             doc.styles.tableHeader.alignment = 'center';
+                            doc.pageMargins = [10, 10, 10, 10];
 
-                            doc.content[1].layout = {
-                                tableWidth: '100%',
-                            };
+                            // Add title
+                            doc.content.splice(0, 0, {
+                                text: 'Detailed Inventory Report',
+                                style: 'header',
+                                alignment: 'center',
+                                margin: [0, 0, 0, 10]
+                            });
+
+                            // Add generation date
+                            doc.content.splice(1, 0, {
+                                text: 'Generated on: ' + new Date().toLocaleDateString(),
+                                alignment: 'center',
+                                margin: [0, 0, 0, 10],
+                                fontSize: 9
+                            });
                         }
                     },
                     {
                         extend: 'print',
+                        text: 'Print',
                         exportOptions: {
                             modifier: { page: 'all' }
+                        },
+                        customize: function (win) {
+                            $(win.document.body).prepend(
+                                '<h2 style="text-align:center;">Detailed Inventory Report</h2>' +
+                                '<p style="text-align:center;">Generated on: ' + new Date().toLocaleDateString() + '</p>'
+                            );
+                            $(win.document.body).find('table').addClass('display').css('font-size', '10pt');
                         }
                     }
                 ],
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
             });
 
             // Custom Filters Trigger Table Reload
-            $('#type, #model, #condition, #store, #supplier, #startDateFilter, #endDateFilter').on('change', function () {
+            $('#type, #model, #condition, #store, #supplier, #department, #startDateFilter, #endDateFilter').on('change', function () {
                 table.ajax.reload();
+            });
+
+            // Update summary statistics after table draws
+            table.on('draw', function() {
+                $.ajax({
+                    url: '{{ route('reports.inventory.search') }}',
+                    type: 'GET',
+                    data: {
+                        product_type: $('#type').val(),
+                        product_model: $('#model').val(),
+                        condition: $('#condition').val(),
+                        supplier: $('#supplier').val(),
+                        store: $('#store').val(),
+                        department: $('#department').val(),
+                        start_date: $('#startDateFilter').val(),
+                        end_date: $('#endDateFilter').val(),
+                        length: -1 // Get all records for statistics
+                    },
+                    success: function(response) {
+                        if (response.data) {
+                            var total = response.data.length;
+                            var assigned = 0;
+                            var available = 0;
+                            var good = 0;
+                            var damaged = 0;
+
+                            response.data.forEach(function(item) {
+                                // Count assigned vs available
+                                if (item.is_assigned == 1) {
+                                    assigned++;
+                                } else {
+                                    available++;
+                                }
+
+                                // Count by condition
+                                if (item.asset_condition && item.asset_condition.toLowerCase() === 'good') {
+                                    good++;
+                                } else if (item.asset_condition &&
+                                          (item.asset_condition.toLowerCase() === 'damaged' ||
+                                           item.asset_condition.toLowerCase() === 'obsolete')) {
+                                    damaged++;
+                                }
+                            });
+
+                            // Update the display
+                            $('#totalItems').text(total);
+                            $('#assignedItems').text(assigned);
+                            $('#availableItems').text(available);
+                            $('#goodCondition').text(good);
+                            $('#damagedItems').text(damaged);
+                        }
+                    }
+                });
             });
 
             $('#product_id').select2({
@@ -337,6 +497,7 @@
             $('#status').select2();
             $('#store').select2();
             $('#supplier').select2();
+            $('#department').select2();
             $('#condition').select2();
             $('#model').select2();
 
