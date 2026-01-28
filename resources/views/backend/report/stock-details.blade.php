@@ -146,6 +146,37 @@
                             </div>
 
                         </div>
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="asset_status" id="asset_status" class="form-control show-tick"
+                                    data-live-search="true">
+                                    <option value="">All Asset Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="retired">Retired</option>
+                                    <option value="under repair">Under Repair</option>
+                                    <option value="disposed">Disposed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="assignment_status" id="assignment_status" class="form-control show-tick">
+                                    <option value="">All Items</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="available">Available</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group form-float">
+                                <select name="warranty_status" id="warranty_status" class="form-control show-tick">
+                                    <option value="">All Warranty</option>
+                                    <option value="active">Active</option>
+                                    <option value="expiring">Expiring Soon (≤30 days)</option>
+                                    <option value="expired">Expired</option>
+                                </select>
+                            </div>
+                        </div>
 
                     </div>
 
@@ -188,13 +219,17 @@
                                     <th>Brand</th>
                                     <th>Model</th>
                                     <th>Asset Tag</th>
-                                    <th>Serial </th>
-                                    <th>Purchase Date</th>
-                                    <th title="Warranty Remaining(days)">Warr.</th>
+                                    <th>Serial</th>
+                                    <th title="Purchase Date">Purchase Date</th>
+                                    <th title="Purchase Price">Price</th>
+                                    <th title="Warranty Remaining(days)">Warr. Days</th>
+                                    <th title="Warranty Expiry Date">Warr. Expiry</th>
                                     <th>Supplier</th>
                                     <th>Condition</th>
+                                    <th title="Asset Status">Status</th>
                                     <th>User/Location</th>
                                     <th>Department</th>
+                                    <th title="Assignment Date">Assigned</th>
                                     <th>Invoice</th>
                                 </tr>
                             </thead>
@@ -260,6 +295,9 @@
                         d.department = $('#department').val();
                         d.start_date = $('#startDateFilter').val();
                         d.end_date = $('#endDateFilter').val();
+                        d.asset_status = $('#asset_status').val();
+                        d.assignment_status = $('#assignment_status').val();
+                        d.warranty_status = $('#warranty_status').val();
                     },
                     error: function(xhr, error, thrown) {
                         console.error('DataTable Error:', error);
@@ -285,25 +323,54 @@
                         render: function(data, type, row) {
                             if (data) {
                                 let date = new Date(data);
-                                return date.toLocaleDateString('en-GB');
+                                return '<span style="white-space: nowrap;">' + date.toLocaleDateString('en-GB') + '</span>';
                             }
-                            return '';
+                            return '<span style="color: #999;">-</span>';
                         }
                      },
+                    {
+                        data: 'purchase_price',
+                        name: 'purchase_products.unit_price',
+                        title: 'Purchase Price',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                if (data && data > 0) {
+                                    return '<span style="font-weight: 600; color: #2c3e50;">$' + parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</span>';
+                                }
+                                return '<span style="color: #999;">N/A</span>';
+                            }
+                            return data;
+                        }
+                    },
                     { data: 'warranty_remaining', name: 'warranty_remaining', searchable: false,
                         render: function(data, type, row) {
                             if (type === 'display') {
                                 if (data <= 0) {
-                                    return '<span style="color: red; font-weight: bold;">Expired</span>';
+                                    return '<span style="color: #e74c3c; font-weight: bold;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">error</i> Expired</span>';
                                 } else if (data <= 30) {
-                                    return '<span style="color: orange; font-weight: bold;">' + data + ' days</span>';
+                                    return '<span style="color: #e67e22; font-weight: bold;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">warning</i> ' + data + '</span>';
                                 } else if (data <= 90) {
-                                    return '<span style="color: #f39c12;">' + data + ' days</span>';
+                                    return '<span style="color: #f39c12;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</i> ' + data + '</span>';
                                 } else {
-                                    return '<span style="color: green;">' + data + ' days</span>';
+                                    return '<span style="color: #27ae60;"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">check_circle</i> ' + data + '</span>';
                                 }
                             }
                             return data;
+                        }
+                    },
+                    {
+                        data: 'expired_date',
+                        name: 'stocks.expired_date',
+                        title: 'Warranty Expiry',
+                        render: function(data, type, row) {
+                            if (data) {
+                                let date = new Date(data);
+                                let today = new Date();
+                                let isExpired = date < today;
+                                let color = isExpired ? '#e74c3c' : '#27ae60';
+                                return '<span style="color: ' + color + '; white-space: nowrap;">' + date.toLocaleDateString('en-GB') + '</span>';
+                            }
+                            return '<span style="color: #999;">-</span>';
                         }
                     },
                     { data: 'supplier_company', name: 'suppliers.company' },
@@ -312,18 +379,69 @@
                             if (type === 'display' && data) {
                                 var condition = data.toLowerCase();
                                 if (condition === 'good') {
-                                    return '<span class="label bg-green">' + data + '</span>';
+                                    return '<span class="label bg-green"><i class="material-icons" style="font-size: 12px; vertical-align: middle;">check_circle</i> ' + data + '</span>';
                                 } else if (condition === 'damaged') {
-                                    return '<span class="label bg-red">' + data + '</span>';
+                                    return '<span class="label bg-red"><i class="material-icons" style="font-size: 12px; vertical-align: middle;">cancel</i> ' + data + '</span>';
                                 } else if (condition === 'obsolete') {
-                                    return '<span class="label bg-orange">' + data + '</span>';
+                                    return '<span class="label bg-orange"><i class="material-icons" style="font-size: 12px; vertical-align: middle;">block</i> ' + data + '</span>';
                                 }
                             }
-                            return data || 'N/A';
+                            return data || '<span style="color: #999;">N/A</span>';
+                        }
+                    },
+                    {
+                        data: 'asset_status',
+                        name: 'asset_statuses.name',
+                        title: 'Status',
+                        render: function(data, type, row) {
+                            if (type === 'display' && data) {
+                                var status = data.toLowerCase();
+                                var badge = 'bg-blue';
+                                var icon = 'info';
+
+                                if (status.includes('active') || status.includes('in use')) {
+                                    badge = 'bg-green';
+                                    icon = 'check_circle';
+                                } else if (status.includes('repair') || status.includes('maintenance')) {
+                                    badge = 'bg-orange';
+                                    icon = 'build';
+                                } else if (status.includes('retired') || status.includes('disposed')) {
+                                    badge = 'bg-red';
+                                    icon = 'delete';
+                                } else if (status.includes('spare') || status.includes('storage')) {
+                                    badge = 'bg-cyan';
+                                    icon = 'inventory';
+                                }
+
+                                return '<span class="label ' + badge + '"><i class="material-icons" style="font-size: 12px; vertical-align: middle;">' + icon + '</i> ' + data + '</span>';
+                            }
+                            return '<span style="color: #999;">N/A</span>';
                         }
                     },
                     { data: 'assigned_to', name: 'employees.name' },
                     { data: 'department_name', name: 'departments.name', defaultContent: '<span style="color: #999;">N/A</span>' },
+                    {
+                        data: 'assignment_date',
+                        name: 'latest_trans.issued_date',
+                        title: 'Assignment Date',
+                        render: function(data, type, row) {
+                            if (data && row.is_assigned == 1) {
+                                let date = new Date(data);
+                                let today = new Date();
+                                let diffTime = Math.abs(today - date);
+                                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                let color = '#3498db';
+                                if (diffDays > 365) color = '#e74c3c';
+                                else if (diffDays > 180) color = '#e67e22';
+
+                                return '<span style="color: ' + color + '; white-space: nowrap;" title="' + diffDays + ' days ago">' +
+                                       '<i class="material-icons" style="font-size: 14px; vertical-align: middle;">event</i> ' +
+                                       date.toLocaleDateString('en-GB') + '</span>';
+                            }
+                            return '<span style="color: #999;">Not Assigned</span>';
+                        }
+                    },
                     { data: 'purchase_invoice', name: 'purchases.invoice_no' },
 
 
@@ -431,7 +549,7 @@
             });
 
             // Custom Filters Trigger Table Reload
-            $('#type, #model, #condition, #store, #supplier, #department, #startDateFilter, #endDateFilter').on('change', function () {
+            $('#type, #model, #condition, #store, #supplier, #department, #startDateFilter, #endDateFilter, #asset_status, #assignment_status, #warranty_status').on('change', function () {
                 table.ajax.reload();
             });
 
@@ -500,6 +618,9 @@
             $('#department').select2();
             $('#condition').select2();
             $('#model').select2();
+            $('#asset_status').select2();
+            $('#assignment_status').select2();
+            $('#warranty_status').select2();
 
             $('.datepicker').bootstrapMaterialDatePicker({
                 format: 'YYYY-MM-DD',

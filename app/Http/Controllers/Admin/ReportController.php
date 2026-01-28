@@ -146,6 +146,9 @@ class ReportController extends Controller
                 'supplier' => 'nullable|integer|exists:suppliers,id',
                 'department' => 'nullable|integer|exists:departments,id',
                 'condition' => 'nullable|string|in:good,obsolete,damaged',
+                'asset_status' => 'nullable|string',
+                'assignment_status' => 'nullable|string|in:assigned,available',
+                'warranty_status' => 'nullable|string|in:active,expiring,expired',
                 'start_date' => 'nullable|date',
                 'end_date' => 'nullable|date|after_or_equal:start_date',
             ]);
@@ -156,6 +159,9 @@ class ReportController extends Controller
             $store = $request->store;
             $supplier = $request->supplier;
             $department = $request->department;
+            $asset_status = $request->asset_status;
+            $assignment_status = $request->assignment_status;
+            $warranty_status = $request->warranty_status;
 
             // Optimized subquery to get the latest transaction for each stock
             $latestTransactions = DB::table('transections')
@@ -178,7 +184,11 @@ class ReportController extends Controller
                 'stocks.is_assigned',
                 'latest_trans.return_date',
                 'employees.name as employee_name',
+                'employees.emply_id as employee_id',
                 'departments.name as department_name',
+                'latest_trans.issued_date as assignment_date',
+                'purchase_products.unit_price as purchase_price',
+                'asset_statuses.name as asset_status',
                 DB::raw('GREATEST(DATEDIFF(stocks.expired_date, CURDATE()), 0) as warranty_remaining'),
                 DB::raw('CASE
                             WHEN stocks.is_assigned = 1 AND latest_trans.return_date IS NULL THEN employees.name
@@ -188,6 +198,10 @@ class ReportController extends Controller
             ->join('products', 'stocks.product_id', '=', 'products.id')
             ->join('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
             ->join('purchases', 'stocks.purchase_id', '=', 'purchases.id')
+            ->leftJoin('purchase_products', function($join) {
+                $join->on('purchase_products.purchase_id', '=', 'stocks.purchase_id')
+                     ->on('purchase_products.product_id', '=', 'stocks.product_id');
+            })
             ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
             ->join('stores', 'stocks.store_id', '=', 'stores.id')
             ->leftJoinSub($latestTransactions, 'latest_trans_map', function($join) {
@@ -195,7 +209,8 @@ class ReportController extends Controller
             })
             ->leftJoin('transections as latest_trans', 'latest_trans.id', '=', 'latest_trans_map.latest_transaction_id')
             ->leftJoin('employees', 'latest_trans.employee_id', '=', 'employees.id')
-            ->leftJoin('departments', 'employees.department_id', '=', 'departments.id');
+            ->leftJoin('departments', 'employees.department_id', '=', 'departments.id')
+            ->leftJoin('asset_statuses', 'stocks.status_id', '=', 'asset_statuses.id');
 
             // Apply filters
             if ($type) {
@@ -223,6 +238,36 @@ class ReportController extends Controller
                 $query->where('departments.id', $department);
             }
 
+            // Asset Status Filter
+            if ($asset_status) {
+                $query->whereRaw('LOWER(asset_statuses.name) LIKE ?', ['%' . strtolower($asset_status) . '%']);
+            }
+
+            // Assignment Status Filter
+            if ($assignment_status) {
+                if ($assignment_status === 'assigned') {
+                    $query->where('stocks.is_assigned', 1)
+                          ->whereNull('latest_trans.return_date');
+                } elseif ($assignment_status === 'available') {
+                    $query->where(function($q) {
+                        $q->where('stocks.is_assigned', 0)
+                          ->orWhere('stocks.is_assigned', 2)
+                          ->orWhereNotNull('latest_trans.return_date');
+                    });
+                }
+            }
+
+            // Warranty Status Filter
+            if ($warranty_status) {
+                if ($warranty_status === 'expired') {
+                    $query->whereRaw('stocks.expired_date < CURDATE()');
+                } elseif ($warranty_status === 'expiring') {
+                    $query->whereRaw('DATEDIFF(stocks.expired_date, CURDATE()) BETWEEN 0 AND 30');
+                } elseif ($warranty_status === 'active') {
+                    $query->whereRaw('stocks.expired_date > CURDATE()');
+                }
+            }
+
             // Date range filter
             if ($request->filled('start_date') && $request->filled('end_date')) {
                 $query->whereBetween('purchases.purchase_date', [
@@ -248,7 +293,11 @@ class ReportController extends Controller
                 'stocks.is_assigned',
                 'latest_trans.return_date',
                 'employees.name',
-                'departments.name'
+                'employees.emply_id',
+                'departments.name',
+                'latest_trans.issued_date',
+                'purchase_products.unit_price',
+                'asset_statuses.name'
             );
 
             // Add ordering for better user experience
