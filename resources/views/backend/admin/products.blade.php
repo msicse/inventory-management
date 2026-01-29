@@ -42,6 +42,7 @@
                                     <th>Serial</th>
                                     <th>License</th>
                                     <th>Taggable</th>
+                                    <th>Consumable</th>
                                     <th>Description</th>
                                     <th>Action</th>
                                 </tr>
@@ -57,6 +58,7 @@
                                     <th>Serial</th>
                                     <th>License</th>
                                     <th>Taggable</th>
+                                    <th>Consumable</th>
                                     <th>Description</th>
                                     <th>Action</th>
 
@@ -76,6 +78,7 @@
                                     <td>{{ $data->is_serial == 1 ? 'Yes' : 'No' }}</td>
                                     <td>{{ $data->is_license == 1 ? 'Yes' : 'No' }}</td>
                                     <td>{{ $data->is_taggable == 1 ? 'Yes' : 'No' }}</td>
+                                    <td>{{ $data->is_consumable == 1 ? 'Yes' : 'No' }}</td>
                                     <td>{{ $data->description }}</td>
                                     <td>
                                         @can('product-edit')
@@ -90,8 +93,6 @@
                                             <i class="material-icons">delete</i>
                                         </button>
                                         @endcan
-
-
                                     </td>
                                 </tr>
                                 @endforeach
@@ -146,8 +147,8 @@
                         <label class="form-label">Unit</label>
                         <input type="text" name="unit" class="form-control" required>
                     </div>
-                    <div class="row" style="padding: 15px 0;">
-                        <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="license" value="1" id="license">
                                 <label class="form-check-label text-bold" for="license">
@@ -155,7 +156,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="serial" value="1" id="serialed">
                                 <label class="form-check-label form-label" for="serialed">
@@ -163,7 +164,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="taggable" value="1" id="taggable">
                                 <label class="form-check-label form-label" for="taggable">
@@ -171,8 +172,18 @@
                                 </label>
                             </div>
                         </div>
-                    </div>
 
+                        <div class="row" style="padding: 5px 0 15px 0;">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_consumable" value="1" id="consumable">
+                                    <label class="form-check-label form-label" for="consumable">
+                                        <strong>Consumable Product</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="form-group form-float">
                         <label class="form-label">Description</label>
@@ -232,7 +243,7 @@
                     </div>
 
                     <div class="row" style="padding: 15px 0;">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="license" value="1" id="editLicenced">
                                 <label class="form-check-label text-bold" for="editLicenced">
@@ -241,7 +252,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="serial" value="1" id="editSerialed">
                                 <label class="form-check-label form-label" for="editSerialed">
@@ -250,12 +261,23 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="taggable" value="1" id="editTaggable">
                                 <label class="form-check-label form-label" for="editTaggable">
                                     <strong>Taggable Product</strong>
                                 </label>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding: 5px 0 15px 0;">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_consumable" value="1" id="editConsumable">
+                                    <label class="form-check-label form-label" for="editConsumable">
+                                        <strong>Consumable Product</strong>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -340,23 +362,10 @@
             $('#unit').val(data['unit']);
             $("#description").text(data['description']);
 
-            if(data['is_serial'] == 1) {
-                $('#editSerialed').attr('checked', true);
-            }else {
-                $('#editSerialed').attr('checked', false);
-            }
-
-            if(data['is_license'] == 1){
-                $('#editLicenced').attr('checked', true);
-            }else {
-                $('#editLicenced').attr('checked', false);
-            }
-
-            if(data['is_taggable'] == 1){
-                $('#editTaggable').attr('checked', true);
-            }else {
-                $('#editTaggable').attr('checked', false);
-            }
+            $('#editSerialed').prop('checked', data['is_serial'] == 1);
+            $('#editLicenced').prop('checked', data['is_license'] == 1);
+            $('#editTaggable').prop('checked', data['is_taggable'] == 1);
+            $('#editConsumable').prop('checked', data['is_consumable'] == 1);
             $('#type option[value='+data['producttype_id']+']').attr('selected','selected');
 
 

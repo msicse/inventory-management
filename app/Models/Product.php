@@ -28,12 +28,6 @@ class Product extends Model
      *
      * @var array
      */
-    protected $casts = [
-        'is_serial' => 'boolean',
-        'is_license' => 'boolean',
-        'is_taggable' => 'boolean',
-        'is_consumable' => 'boolean',
-    ];
 
     public function type(){
         return $this->belongsTo('App\Models\Producttype','producttype_id');

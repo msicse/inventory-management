@@ -53,6 +53,7 @@ class ProductController extends Controller
         $product->is_license = $request->license ?? 2;
         $product->is_serial = $request->serial ?? 2;
         $product->is_taggable = $request->taggable ?? 2;
+        $product->is_consumable = $request->is_consumable ?? 2;
         $product->description = $request->description;
         // $product->description       = $request->title." ". $request->brand." ". $request->model." ".$request->description;
         $product->slug = Str::slug($title);
@@ -66,6 +67,8 @@ class ProductController extends Controller
                 'title' => $product->title,
                 'is_serial' => $product->is_serial,
                 'is_license' => $product->is_license,
+                'is_taggable' => $product->is_taggable,
+                'is_consumable' => $product->is_consumable,
             ], 201);
         }
 
@@ -112,6 +115,7 @@ class ProductController extends Controller
             $product->is_license = $request->license ?? 2;
             $product->is_serial = $request->serial ?? 2;
             $product->is_taggable = $request->taggable ?? 2;
+            $product->is_consumable = $request->has('is_consumable') ? 1 : 0;
             $product->description = $request->description;
             $product->save();
 
