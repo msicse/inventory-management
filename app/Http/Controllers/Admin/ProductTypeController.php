@@ -35,6 +35,10 @@ class ProductTypeController extends Controller
         $type->save();
         UserLogHelper::log('create', 'Created a new Product Type : '. $type->id );
         Toastr::success(' Succesfully Saved ', 'Success');
+        // if request is AJAX return JSON for frontend modals
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($type);
+        }
         return redirect()->back();
     }
 

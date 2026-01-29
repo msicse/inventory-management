@@ -145,7 +145,8 @@ class PurchaseController extends Controller
         $products = Product::all();
         $suppliers = Supplier::all();
         $types = Producttype::all();
-        return view('backend.admin.purchase.create')->with(compact('suppliers', 'products', 'types'));
+        // Use the redesigned create view
+        return view('backend.admin.purchase.create_redesign')->with(compact('suppliers', 'products', 'types'));
     }
 
     public function product($id)
@@ -172,14 +173,22 @@ class PurchaseController extends Controller
         $this->validate(
             $request,
             array(
-                'product' => 'required|integer',
+                // accept product_id array from dynamic rows
+                'product_id' => 'required|array',
+                'product_id.*' => 'integer',
                 'invoice_no' => 'required',
                 'supplier' => 'required|integer',
-                'unit_price' => 'required',
-                // 'quantity'          => 'required|integer',
+                // dynamic arrays for per-row values
+                'unit_price' => 'required|array',
+                'unit_price.*' => 'numeric',
+                'quantity' => 'required|array',
+                'quantity.*' => 'integer|min:1',
+                'total' => 'required|array',
+                'total.*' => 'numeric',
                 'date_of_purchase' => 'required',
-                // 'serials'           => 'required_if:serial,1',
-                'month' => 'required_if:license,1',
+                // warranty values come from the form as `warranty[]`
+                'warranty' => 'nullable|array',
+                'warranty.*' => 'nullable|integer|min:0',
 
             )
         );
@@ -191,6 +200,10 @@ class PurchaseController extends Controller
         $purchase->invoice_no = $request->invoice_no;
         $purchase->challan_no = $request->challan_no;
         $purchase->purchase_date = $request->date_of_purchase;
+        // store received/challan date if provided
+        if ($request->has('received_date')) {
+            $purchase->received_date = $request->received_date;
+        }
         $purchase->is_stocked = 2;
         $purchase->save();
 
@@ -208,7 +221,13 @@ class PurchaseController extends Controller
             $current_product = Product::find($input['product_id'][$i]);
 
             if ($current_product->is_license == 1) {
-                $warranty = (int) $input['month'][$i];
+                // the frontend sends warranty values as `warranty[]`; fall back to 'month' if older forms used it
+                $warranty = 0;
+                if (isset($input['warranty'][$i])) {
+                    $warranty = (int) $input['warranty'][$i];
+                } elseif (isset($input['month'][$i])) {
+                    $warranty = (int) $input['month'][$i];
+                }
                 $expirationDate = $purchase_date->copy()->addDays($warranty);
                 $expired_date = $expirationDate->isoFormat('YYYY-MM-DD');
             } else {
@@ -220,10 +239,14 @@ class PurchaseController extends Controller
 
                 $serial_new = 'serials-' . $input['product_id'][$i];
 
-                if (!empty($input[$serial_new])) {
-                    $product_serial = json_encode($input[$serial_new]);
-                } else {
-                    $product_serial = $input[$serial_new];
+                // normalize serials field safely (may be array from multiple inputs)
+                $product_serial = null;
+                $vals = $input[$serial_new] ?? null;
+                if (is_array($vals)) {
+                    $product_serial = json_encode($vals);
+                } elseif ($vals !== null && $vals !== '') {
+                    // single value -> store as single-element JSON array for consistency
+                    $product_serial = json_encode([$vals]);
                 }
             } else {
                 $product_serial = null;
@@ -240,6 +263,10 @@ class PurchaseController extends Controller
             $purchase_items->serials = $product_serial;
             $purchase_items->warranty = $warranty;
             $purchase_items->purchase_date = $request->date_of_purchase;
+            // copy received date to each purchase product row (if present)
+            if ($request->has('received_date')) {
+                $purchase_items->received_date = $request->received_date;
+            }
             $purchase_items->expired_date = $expired_date;
             $purchase_items->is_stocked = 2;
             $purchase_items->save();
@@ -485,12 +512,13 @@ class PurchaseController extends Controller
                 'invoice_no' => 'required',
                 'supplier' => 'required|integer',
                 'unit_price' => 'required|array',
-                'unit_price.*' => 'required|numeric',
+                'unit_price.*' => 'numeric',
                 'quantity' => 'required|array',
-                'quantity.*' => 'required|integer',
+                'quantity.*' => 'integer|min:1',
                 'date_of_purchase' => 'required',
-                'month' => 'required|array',
-                'month.*' => 'required_if:license,1',
+                // warranty uses days (warranty[])
+                'warranty' => 'nullable|array',
+                'warranty.*' => 'nullable|integer|min:0',
             )
         );
 
@@ -527,10 +555,10 @@ class PurchaseController extends Controller
             $warranty = null;
             $expired_date = null;
             if ($current_product->is_license == 1) {
-                $warranty = (int) ($input['month'][$i] ?? 0);
+                $warranty = (int) ($input['warranty'][$i] ?? 0);
                 if ($warranty > 0) {
                     $purchase_date = Carbon::create($request->date_of_purchase);
-                    $expired_date = $purchase_date->copy()->addMonths($warranty)->format('Y-m-d');
+                    $expired_date = $purchase_date->copy()->addDays($warranty)->format('Y-m-d');
                 }
             }
 
@@ -538,8 +566,11 @@ class PurchaseController extends Controller
             $product_serial = null;
             if ($current_product->is_serial == 1) {
                 $serial_field = 'serials-' . $product_id;
-                if (!empty($input[$serial_field])) {
-                    $product_serial = json_encode($input[$serial_field]);
+                $vals = $input[$serial_field] ?? null;
+                if (is_array($vals)) {
+                    $product_serial = json_encode($vals);
+                } elseif ($vals !== null && $vals !== '') {
+                    $product_serial = json_encode([$vals]);
                 }
             }
 

@@ -60,6 +60,15 @@ class ProductController extends Controller
 
         UserLogHelper::log('create', 'Created a new Product : '. $product->id );
 
+        if ($request->ajax()) {
+            return response()->json([
+                'id' => $product->id,
+                'title' => $product->title,
+                'is_serial' => $product->is_serial,
+                'is_license' => $product->is_license,
+            ], 201);
+        }
+
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
     }

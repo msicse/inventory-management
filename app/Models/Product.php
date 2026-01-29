@@ -19,7 +19,20 @@ class Product extends Model
         'is_serial',
         'is_license',
         'is_taggable',
+        'is_consumable',
         'description'
+    ];
+
+    /**
+     * Casts
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_serial' => 'boolean',
+        'is_license' => 'boolean',
+        'is_taggable' => 'boolean',
+        'is_consumable' => 'boolean',
     ];
 
     public function type(){

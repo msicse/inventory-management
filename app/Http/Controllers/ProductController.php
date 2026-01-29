@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
     
 class ProductController extends Controller
 { 
@@ -52,15 +53,35 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
+        $validated = $request->validate([
+            'brand' => 'required|string|max:191',
+            'model' => 'required|string|max:191',
+            'type' => 'required|integer',
+            'unit' => 'required|string|max:50',
+            'description' => 'required|string'
         ]);
-    
-        Product::create($request->all());
-    
-        return redirect()->route('products.index')
-                        ->with('success','Product created successfully.');
+
+        $data = [
+            'producttype_id' => $request->input('type'),
+            'title' => trim($request->input('brand') . ' ' . $request->input('model')),
+            'brand' => $request->input('brand'),
+            'slug' => Str::slug($request->input('brand') . ' ' . $request->input('model')),
+            'model' => $request->input('model'),
+            'unit' => $request->input('unit'),
+            'is_serial' => $request->has('serial') ? 1 : 0,
+            'is_license' => $request->has('license') ? 1 : 0,
+            'is_taggable' => $request->has('taggable') ? 1 : 0,
+            'is_consumable' => $request->has('is_consumable') ? 1 : 0,
+            'description' => $request->input('description')
+        ];
+
+        $product = Product::create($data);
+
+        if ($request->ajax()) {
+            return response()->json($product);
+        }
+
+        return redirect()->route('products.index')->with('success','Product created successfully.');
     }
     
     /**
@@ -94,15 +115,35 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
-         request()->validate([
-            'name' => 'required',
-            'detail' => 'required',
+        $validated = $request->validate([
+            'brand' => 'required|string|max:191',
+            'model' => 'required|string|max:191',
+            'type' => 'required|integer',
+            'unit' => 'required|string|max:50',
+            'description' => 'required|string'
         ]);
-    
-        $product->update($request->all());
-    
-        return redirect()->route('products.index')
-                        ->with('success','Product updated successfully');
+
+        $data = [
+            'producttype_id' => $request->input('type'),
+            'title' => trim($request->input('brand') . ' ' . $request->input('model')),
+            'brand' => $request->input('brand'),
+            'slug' => Str::slug($request->input('brand') . ' ' . $request->input('model')),
+            'model' => $request->input('model'),
+            'unit' => $request->input('unit'),
+            'is_serial' => $request->has('serial') ? 1 : 0,
+            'is_license' => $request->has('license') ? 1 : 0,
+            'is_taggable' => $request->has('taggable') ? 1 : 0,
+            'is_consumable' => $request->has('is_consumable') ? 1 : 0,
+            'description' => $request->input('description')
+        ];
+
+        $product->update($data);
+
+        if ($request->ajax()) {
+            return response()->json($product);
+        }
+
+        return redirect()->route('products.index')->with('success','Product updated successfully');
     }
     
     /**

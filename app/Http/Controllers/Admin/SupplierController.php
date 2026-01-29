@@ -46,6 +46,15 @@ class SupplierController extends Controller
         $supplier->save();
         UserLogHelper::log('create', 'Created a new Supplier : '. $supplier->company );
 
+        // If AJAX request, return JSON for inline creation
+        if ($request->ajax()) {
+            return response()->json([
+                'id' => $supplier->id,
+                'company' => $supplier->company,
+                'name' => $supplier->name,
+            ], 201);
+        }
+
         Toastr::success(' Succesfully Saved ', 'Success');
         return redirect()->back();
     }
