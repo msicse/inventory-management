@@ -94,7 +94,13 @@
                         </a>
                     </div>
                     <div class="body">
-                        <div id="alerts"></div>
+                        <div id="alerts">
+                            @if ($errors->any())
+                                @foreach ($errors->all() as $err)
+                                    <div class="alert alert-danger alert-dismissible" style="margin-bottom:8px">{{ $err }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+                                @endforeach
+                            @endif
+                        </div>
                         <form action="{{ route('purchases.store') }}" method="post" enctype="multipart/form-data"
                             id="purchase_form_redesign">
                             @csrf
@@ -110,7 +116,7 @@
                                                     required>
                                                     <option value="">Select Supplier</option>
                                                     @foreach ($suppliers as $data)
-                                                        <option value="{{ $data->id }}">{{ $data->company }}</option>
+                                                        <option value="{{ $data->id }}" {{ old('supplier') == $data->id ? 'selected' : '' }}>{{ $data->company }}</option>
                                                     @endforeach
                                                 </select>
                                                 <button type="button" class="btn btn-outline-secondary"
@@ -126,7 +132,7 @@
                                                     <label for="invoice_no">Invoice No <span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" name="invoice_no" id="invoice_no"
-                                                        class="form-control form-control-sm" required>
+                                                        class="form-control form-control-sm" required value="{{ old('invoice_no') }}">
                                                     <div class="field-error" id="error-invoice_no">Invoice no is
                                                         required</div>
                                                 </div>
@@ -134,7 +140,7 @@
                                             <div class="col-md-6">
                                                 <label for="challan_no">Challan No</label>
                                                 <input type="text" name="challan_no" id="challan_no"
-                                                    class="form-control form-control-sm">
+                                                    class="form-control form-control-sm" value="{{ old('challan_no') }}">
                                             </div>
 
                                         </div>
@@ -144,7 +150,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="date" name="date_of_purchase" id="date_of_purchase"
                                                     class="datepicker form-control form-control-sm"
-                                                    placeholder="YYYY-MM-DD" required>
+                                                    placeholder="YYYY-MM-DD" required value="{{ old('date_of_purchase') }}">
                                                 <div class="field-error" id="error-date_of_purchase">Date of purchase is
                                                     invalid</div>
                                             </div>
@@ -153,7 +159,7 @@
                                                 <label for="received_date">Challan / Received Date</label>
                                                 <input type="date" name="received_date" id="received_date"
                                                     class="datepicker form-control form-control-sm"
-                                                    placeholder="YYYY-MM-DD">
+                                                    placeholder="YYYY-MM-DD" value="{{ old('received_date') }}">
                                                 <div class="field-error" id="error-received_date">Received date is invalid
                                                 </div>
                                             </div>
@@ -487,6 +493,7 @@
             let rows = document.querySelectorAll('#ptablebody_redesign tr');
 
             let ok = supplier && invoice && date && rows.length > 0;
+            let hasError = false;
 
             if (ok) {
                 rows.forEach(function (r) {
@@ -498,8 +505,37 @@
                 });
             }
 
+            // perform per-row live serial-count validation
+            rows.forEach(function (r) {
+                const isSerial = r.getAttribute('data-is_serial') === '1';
+                const qtyInput = r.querySelector('input[name="quantity[]"]');
+                const qty = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+                const tags = getRowTags(r);
+                const serialCount = tags ? tags.length : 0;
+                let rowErr = r.querySelector('.row-serial-error');
+                if (!rowErr) {
+                    rowErr = document.createElement('div');
+                    rowErr.className = 'row-serial-error text-danger small';
+                    const td = r.querySelector('td:nth-child(7)');
+                    if (td) td.appendChild(rowErr); else r.appendChild(rowErr);
+                }
+
+                if (isSerial) {
+                    if (serialCount !== qty) {
+                        rowErr.textContent = 'Serial count must match quantity';
+                        rowErr.style.display = 'block';
+                        hasError = true;
+                    } else {
+                        rowErr.textContent = '';
+                        rowErr.style.display = 'none';
+                    }
+                } else {
+                    if (rowErr) { rowErr.textContent = ''; rowErr.style.display = 'none'; }
+                }
+            });
+
             const submitBtn = document.getElementById('form_submit_redesign');
-            if (submitBtn) submitBtn.disabled = !ok;
+            if (submitBtn) submitBtn.disabled = (!ok) || hasError;
         }
 
         function showAlert(message, type = 'danger', timeout = 5000, undoCallback = null) {
@@ -863,6 +899,8 @@
             function getRowTags(row) {
                 return Array.from((row.querySelectorAll('.row-bulk-tags .row-tag') || [])).map(t => t.dataset.value);
             }
+            // expose helper globally to ensure handlers bound in different scopes can call it
+            window.getRowTags = getRowTags;
 
             function getAllSerials() {
                 let arr = [];
@@ -1259,6 +1297,9 @@
                                 <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
                             `;
 
+                // annotate row with product id and serial flag before inserting
+                row.setAttribute('data-product-id', selected);
+                row.setAttribute('data-is_serial', isSerial ? '1' : '0');
                 document.getElementById('ptablebody_redesign').appendChild(row);
                 updateLineCount();
                 updateSubmitState();
@@ -1278,7 +1319,7 @@
                 document.querySelectorAll('.row-serial-error').forEach(el => el.style.display = 'none');
 
                 // validate numeric fields per row (price, qty, warranty)
-                document.querySelectorAll('#ptablebody_redesign tr').forEach(function (r) {
+                    document.querySelectorAll('#ptablebody_redesign tr').forEach(function (r) {
                     const priceEl = r.querySelector('.unit_price');
                     const qtyEl = r.querySelector('.quantity');
                     const warrantyEl = r.querySelector('.warranty');
@@ -1291,9 +1332,10 @@
                         valid = false;
                         if (errEl) { errEl.textContent = 'Unit price must be a number >= 0'; errEl.style.display = 'block'; }
                     }
+                    // enforce quantity >= 1 for each row
                     if (isNaN(qty) || qty < 1) {
                         valid = false;
-                        if (errEl) { errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') + 'Quantity must be >= 1'; errEl.style.display = 'block'; }
+                        if (errEl) { errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') + 'Quantity must be at least 1'; errEl.style.display = 'block'; }
                     }
                     if (warrantyEl) {
                         let w = warrantyEl.value === '' ? null : parseInt(warrantyEl.value);

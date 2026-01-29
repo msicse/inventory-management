@@ -324,7 +324,7 @@
                     ${productTitle}
                 </td>
                 <td style="width: 15%">
-                    <input class="form-control" onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]">
+                    <input class="price form-control" onchange="calculate_single_entry_sum(${id})" type="number" id="single_price_${id}" name="unit_price[]" value="0" min="0" step="0.01" required>
                 </td>
                 <td style="width: 10%">
                     <input class="form-control" id="single_quantity_${id}" onchange="calculate_single_entry_sum(${id})" type="number" name="quantity[]" min="1" required>

@@ -193,6 +193,82 @@ class PurchaseController extends Controller
             )
         );
 
+        // Additional server-side checks: require serials for serial-enabled products
+        $input = $request->all();
+
+        // Build cleaned rows: ignore empty product_id entries (user may have left some dynamic slots blank)
+        $rows = [];
+        if (!empty($input['product_id']) && is_array($input['product_id'])) {
+            foreach ($input['product_id'] as $i => $pid) {
+                if ($pid === null || $pid === '' ) continue;
+                $rows[] = [
+                    'product_id' => (int)$pid,
+                    'unit_price' => isset($input['unit_price'][$i]) ? $input['unit_price'][$i] : null,
+                    'quantity' => isset($input['quantity'][$i]) ? (int)$input['quantity'][$i] : null,
+                    'total' => isset($input['total'][$i]) ? $input['total'][$i] : null,
+                    'warranty' => $input['warranty'][$i] ?? ($input['month'][$i] ?? null),
+                    'index' => $i,
+                ];
+            }
+        }
+
+        if (empty($rows)) {
+            return redirect()->back()->withInput()->withErrors(['At least one product row must be added.']);
+        }
+
+        // Per-row server-side validation
+        $extraErrors = [];
+        foreach ($rows as $ridx => $row) {
+            $i = $row['index'];
+            $product = Product::find($row['product_id']);
+            if (!$product) {
+                $extraErrors[] = "Invalid product selected at row " . ($ridx+1);
+                continue;
+            }
+
+            $qty = $row['quantity'] ?? 0;
+            if ($qty < 1) {
+                $extraErrors[] = "Quantity for product '" . $product->title . "' must be at least 1.";
+            }
+
+            // unit_price must be numeric and >=0
+            if (!isset($row['unit_price']) || $row['unit_price'] === '' || !is_numeric($row['unit_price']) || $row['unit_price'] < 0) {
+                $extraErrors[] = "Unit price for product '" . $product->title . "' is required and must be >= 0.";
+            }
+
+            // If product requires serials, ensure serial inputs exist and count matches quantity
+            if ((int)$product->is_serial === 1) {
+                $serialKey = 'serials-' . $product->id;
+                $vals = $input[$serialKey] ?? null;
+                // normalize to array and filter out empty values
+                if (!is_array($vals)) {
+                    if ($vals === null || trim((string)$vals) === '') {
+                        $valsArr = [];
+                    } else {
+                        $valsArr = [ (string)$vals ];
+                    }
+                } else {
+                    $valsArr = $vals;
+                }
+                $filtered = array_values(array_filter((array)$valsArr, function($v){ return $v !== null && trim((string)$v) !== ''; }));
+                if (count($filtered) !== $qty) {
+                    $extraErrors[] = "Serials for product '" . $product->title . "' must be provided and match quantity ({$qty}).";
+                }
+            }
+
+            // If product is license/warranty-enabled, ensure warranty value is present and non-negative
+            if ((int)$product->is_license === 1) {
+                $w = $row['warranty'];
+                if ($w === null || $w === '' || !is_numeric($w) || (int)$w < 0) {
+                    $extraErrors[] = "Warranty for product '" . $product->title . "' is required and must be 0 or greater.";
+                }
+            }
+        }
+
+        if (!empty($extraErrors)) {
+            return redirect()->back()->withInput()->withErrors($extraErrors);
+        }
+
 
         $purchase = new Purchase();
         $purchase->supplier_id = $request->supplier;
@@ -216,18 +292,12 @@ class PurchaseController extends Controller
 
         $purchase_date = Carbon::create($request->date_of_purchase);
 
-        for ($i = 0; $i < count($input['product_id']); $i++) {
-
-            $current_product = Product::find($input['product_id'][$i]);
+        // Use cleaned $rows built above to persist purchase items
+        foreach ($rows as $row) {
+            $current_product = Product::find($row['product_id']);
 
             if ($current_product->is_license == 1) {
-                // the frontend sends warranty values as `warranty[]`; fall back to 'month' if older forms used it
-                $warranty = 0;
-                if (isset($input['warranty'][$i])) {
-                    $warranty = (int) $input['warranty'][$i];
-                } elseif (isset($input['month'][$i])) {
-                    $warranty = (int) $input['month'][$i];
-                }
+                $warranty = isset($row['warranty']) ? (int)$row['warranty'] : 0;
                 $expirationDate = $purchase_date->copy()->addDays($warranty);
                 $expired_date = $expirationDate->isoFormat('YYYY-MM-DD');
             } else {
@@ -236,41 +306,43 @@ class PurchaseController extends Controller
             }
 
             if ($current_product->is_serial == 1) {
-
-                $serial_new = 'serials-' . $input['product_id'][$i];
+                $serial_new = 'serials-' . $current_product->id;
 
                 // normalize serials field safely (may be array from multiple inputs)
                 $product_serial = null;
                 $vals = $input[$serial_new] ?? null;
-                if (is_array($vals)) {
-                    $product_serial = json_encode($vals);
-                } elseif ($vals !== null && $vals !== '') {
-                    // single value -> store as single-element JSON array for consistency
-                    $product_serial = json_encode([$vals]);
+                if (!is_array($vals)) {
+                    $valsArr = ($vals === null || trim((string)$vals) === '') ? [] : [ (string)$vals ];
+                } else {
+                    $valsArr = $vals;
+                }
+                $filtered = array_values(array_filter((array)$valsArr, function($v){ return $v !== null && trim((string)$v) !== ''; }));
+                if (!empty($filtered)) {
+                    $product_serial = json_encode($filtered);
+                } else {
+                    $product_serial = null;
                 }
             } else {
                 $product_serial = null;
             }
 
             $purchase_items = new PurchaseProduct();
-
             $purchase_items->purchase_id = $purchase->id;
             $purchase_items->supplier_id = $purchase->supplier_id;
-            $purchase_items->product_id = $input['product_id'][$i];
-            $purchase_items->quantity = $input['quantity'][$i];
-            $purchase_items->unit_price = $input['unit_price'][$i];
-            $purchase_items->total_price = $input['total'][$i];
+            $purchase_items->product_id = $row['product_id'];
+            $purchase_items->quantity = $row['quantity'];
+            $purchase_items->unit_price = $row['unit_price'];
+            $purchase_items->total_price = $row['total'];
             $purchase_items->serials = $product_serial;
             $purchase_items->warranty = $warranty;
             $purchase_items->purchase_date = $request->date_of_purchase;
-            // copy received date to each purchase product row (if present)
             if ($request->has('received_date')) {
                 $purchase_items->received_date = $request->received_date;
             }
             $purchase_items->expired_date = $expired_date;
             $purchase_items->is_stocked = 2;
             $purchase_items->save();
-        } //End For Loop
+        }
 
 
     session()->flash('toast.success', 'Succesfully Saved');
@@ -512,7 +584,7 @@ class PurchaseController extends Controller
                 'invoice_no' => 'required',
                 'supplier' => 'required|integer',
                 'unit_price' => 'required|array',
-                'unit_price.*' => 'numeric',
+                'unit_price.*' => 'numeric|min:0',
                 'quantity' => 'required|array',
                 'quantity.*' => 'integer|min:1',
                 'date_of_purchase' => 'required',
