@@ -24,4 +24,12 @@ class Employee extends Model
     {
         return $this->hasMany(Transection::class, 'employee_id');
     }
+
+    /**
+     * Get the user account linked to this employee.
+     */
+    public function user()
+    {
+        return $this->hasOne(User::class, 'employee_id', 'emply_id');
+    }
 }

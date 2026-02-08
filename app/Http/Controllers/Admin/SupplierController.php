@@ -90,8 +90,8 @@ class SupplierController extends Controller
             $supplier->address      = $request->address;
             $supplier->description  = $request->description;
             $supplier->save();
-            UserLogHelper::log('update', 'Created a new Supplier : '. $supplier->company );
-            Toastr::success(' Succesfully Updated ', 'Success');
+            UserLogHelper::log('update', 'Updated Supplier : '. $supplier->company );
+            Toastr::success(' Successfully Updated ', 'Success');
         }
 
 

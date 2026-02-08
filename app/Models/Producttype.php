@@ -17,11 +17,11 @@ class Producttype extends Model
 
     public function products()
     {
-        return $this->hasMany('App\Models\Product');
+        return $this->hasMany(Product::class, 'producttype_id');
     }
     public function stocks()
     {
-        return $this->hasMany('App\Models\Stock');
+        return $this->hasMany(Stock::class, 'producttype_id');
     }
 
 

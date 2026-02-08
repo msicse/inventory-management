@@ -20,6 +20,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ReportController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:report-list|report-view', ['only' => ['index', 'show', 'getReport', 'transections', 'stocks', 'stockDetails', 'inventory', 'inventorySearch']]);
+        $this->middleware('permission:users-log|user-log-view', ['only' => ['userLogs', 'userLogsSearch']]);
+    }
+
     public function index(Request $request)
     {
         $employees = Employee::orderBy('emply_id', 'asc')->get();

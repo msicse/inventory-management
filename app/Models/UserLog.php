@@ -16,4 +16,12 @@ class UserLog extends Model
         'user_agent',
         'details',
     ];
+
+    /**
+     * Get the user that owns the log entry.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

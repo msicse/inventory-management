@@ -9,14 +9,26 @@ class Purchase extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'supplier_id',
+        'total_price',
+        'invoice_no',
+        'reference_invoice',
+        'challan_no',
+        'purchase_date',
+        'received_date',
+        'is_stocked',
+    ];
+
     protected $casts = [
         'purchase_date' => 'datetime',
+        'received_date' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the Purchase
+     * Get the purchase products for this purchase.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function products()
     {

@@ -24,13 +24,19 @@ class Product extends Model
     ];
 
     /**
-     * Casts
+     * The attributes that should be cast.
      *
      * @var array
      */
+    protected $casts = [
+        'is_serial' => 'boolean',
+        'is_license' => 'boolean',
+        'is_taggable' => 'boolean',
+        'is_consumable' => 'boolean',
+    ];
 
     public function type(){
-        return $this->belongsTo('App\Models\Producttype','producttype_id');
+        return $this->belongsTo(Producttype::class, 'producttype_id');
     }
 
 }

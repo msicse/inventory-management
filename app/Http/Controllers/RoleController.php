@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Helpers\UserLogHelper;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Permission;
@@ -79,7 +80,9 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($permissionsID);
 
-        Toastr::success('Succesfully Created ', 'Success');
+        UserLogHelper::log('create', 'Created a new Role : '. $role->name );
+
+        Toastr::success('Successfully Created ', 'Success');
 
         return redirect()->route('roles.index');
     }
@@ -149,7 +152,9 @@ class RoleController extends Controller
 
         $role->syncPermissions($permissionsID);
 
-        Toastr::success('Succesfully Updated', 'Success');
+        UserLogHelper::log('update', 'Updated Role : '. $role->name );
+
+        Toastr::success('Successfully Updated', 'Success');
 
         return redirect()->route('roles.index');
     }
@@ -168,9 +173,10 @@ class RoleController extends Controller
             return redirect()->back();
         }
 
+        UserLogHelper::log('delete', 'Deleted Role : '. $role->name );
         $role->revokePermissionTo($role->getAllPermissions());
         $role->delete();
-        Toastr::success('Succesfully Deleted', 'Success');
+        Toastr::success('Successfully Deleted', 'Success');
         return redirect()->route('roles.index');
     }
 }

@@ -10,7 +10,12 @@ class AssetStatus extends Model
 {
     use HasFactory;
 
-    function stocks()
+    protected $fillable = [
+        'name',
+        'slug',
+    ];
+
+    public function stocks()
     {
         return $this->hasMany(Stock::class, "status_id");
     }

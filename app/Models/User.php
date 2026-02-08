@@ -25,7 +25,8 @@ class User extends Authenticatable
         'username',
         'email',
         'employee_id',
-        'password'
+        'password',
+        'must_change_password',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -64,4 +66,11 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class, "emply_id", "employee_id");
     }
 
+    /**
+     * Get all user logs for this user.
+     */
+    public function userLogs()
+    {
+        return $this->hasMany(UserLog::class);
+    }
 }

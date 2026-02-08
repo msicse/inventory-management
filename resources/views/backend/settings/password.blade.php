@@ -7,9 +7,9 @@
     <div class="block-header">
         <a href="{{ route('dashboard') }}" class="btn btn-primary waves-effect pull-right" style="margin-bottom:10px;" >
             <i class="material-icons">keyboard_return</i>
-            <span>Return</span> 
+            <span>Return</span>
         </a>
-       
+
     </div>
 
     <div class="row clearfix">
@@ -21,6 +21,12 @@
                     </h2>
                 </div>
                 <div class="body">
+                    @if(Auth::user()->must_change_password)
+                        <div class="alert alert-warning">
+                            <strong><i class="material-icons" style="vertical-align:middle;">warning</i> Password Change Required!</strong>
+                            You are using a default password. Please set a new password to continue.
+                        </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-6 col-md-offset-3">
                             <form action="{{ route('settings.password') }}" method="POST">
@@ -43,17 +49,17 @@
                                         <input type="password" class="form-control" name="confirm_password" required>
                                     </div>
                                 </div>
-                                
+
                                 <div class="text-center">
-                                    
+
                                     <input type="submit" class="btn btn-success btn-lg custom-btn" value="Update Password">
                                 </div>
-        
+
                             </form>
                         </div>
                     </div>
-                    
-                    
+
+
                 </div>
             </div>
         </div>

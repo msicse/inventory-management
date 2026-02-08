@@ -20,10 +20,9 @@ class PurchaseProduct extends Model
         'warranty',
         'purchase_date',
         'expired_date',
+        'received_date',
         'is_stocked',
     ];
-
-
 
     public function product()
     {
@@ -33,5 +32,10 @@ class PurchaseProduct extends Model
     public function purchase()
     {
         return $this->belongsTo(Purchase::class, 'purchase_id');
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 }

@@ -92,6 +92,7 @@ class PermissionTableSeeder extends Seeder
 
             // Report Management
             'report-list',
+            'report-view',
             'report-employee',
             'report-product',
             'report-distribution',
@@ -110,6 +111,7 @@ class PermissionTableSeeder extends Seeder
 
             // System & Logs
             'users-log',
+            'user-log-view',
             'system-settings',
 
             // Management
@@ -118,10 +120,15 @@ class PermissionTableSeeder extends Seeder
             // Onboarding
             'onboarding-list',
             'onboarding-create',
+
+            // Employee Self-Service
+            'self-view-profile',
+            'self-view-assets',
+            'self-view-transactions',
          ];
 
          foreach ($permissions as $permission) {
-              Permission::create(['name' => $permission]);
+              Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
          }
     }
 }

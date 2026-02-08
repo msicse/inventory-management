@@ -9,7 +9,13 @@ class Store extends Model
 {
     use HasFactory;
 
-    function stocks()
+    protected $fillable = [
+        'name',
+        'slug',
+        'address',
+    ];
+
+    public function stocks()
     {
         return $this->hasMany(Stock::class, "store_id");
     }

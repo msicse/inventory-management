@@ -8,6 +8,7 @@ use App\Imports\ProductImport;
 use App\Imports\PurchaseProductImport;
 use App\Imports\StockAllImport;
 use App\Imports\TransectionImport;
+use App\Helpers\UserLogHelper;
 use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -55,7 +56,7 @@ class ImportController extends Controller
 
             if ($request->import_table == 'inventory') {
                 Excel::import(new StockAllImport, $request->file('csv_file'));
-
+                $status = true;
             }
 
             if ($request->import_table == 'transection') {
@@ -76,6 +77,7 @@ class ImportController extends Controller
                 Toastr::error('Invalid Import', 'Error');
                 return redirect()->back();
             } else {
+                UserLogHelper::log('import', 'Imported CSV file for table: ' . $request->import_table);
                 Toastr::success('File imported successfully', 'Success');
             }
         } catch (\Exception $e) {

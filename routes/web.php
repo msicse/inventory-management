@@ -13,10 +13,7 @@ Route::get('/', function () {
     return view('login-home');
 });
 
-Route::get("/info", function(){
-	return phpinfo();
-
-});
+// phpinfo route removed for security
 
 Route::get('/login', function () {
     return view('login-home');
@@ -30,7 +27,7 @@ Route::post("/logout", [LoginController::class, "logout"])->name("logout");
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'password.change']], function () {
 
     Route::get("/dashboard", [DashboardController::class, "index"])->name("dashboard");
     Route::resource('roles', RoleController::class);
@@ -38,7 +35,6 @@ Route::group(['middleware' => ['auth']], function () {
     //ProductType Route
     Route::get('product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'index'])->name('product-types.index');
     Route::post('product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'store'])->name('product-types.store');
-    Route::delete('product-types/{id}', [App\Http\Controllers\Admin\ProductTypeController::class, 'destroy'])->name('product-types.destroy');
     Route::get('product-types/{id}', [App\Http\Controllers\Admin\ProductTypeController::class, 'edit'])->name('product-types.edit');
     Route::put('product-types/{id}', [App\Http\Controllers\Admin\ProductTypeController::class, 'update'])->name('product-types.update');
     Route::delete('product-types/{id}', [App\Http\Controllers\Admin\ProductTypeController::class, 'destroy'])->name('product-types.destroy');

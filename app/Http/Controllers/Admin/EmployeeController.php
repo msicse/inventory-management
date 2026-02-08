@@ -331,7 +331,7 @@ class EmployeeController extends Controller
         }
 
         $employee->save();
-        UserLogHelper::log('disable', 'Disabled Employee: '. $employee->name ." Employee ID: ". $employee->employee_id);
+        UserLogHelper::log('disable', 'Updated Employee Status: '. $employee->name ." Employee ID: ". $employee->emply_id);
         Toastr::success(' Status Updated ', 'Success');
         return redirect()->back();
     }

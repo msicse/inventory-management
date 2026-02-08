@@ -31,9 +31,11 @@ class LoginController extends Controller
 
    public function logout(Request $request)
     {
-
-        UserLogHelper::log('logout', 'Successfully Logout');
+        $userName = Auth::user() ? Auth::user()->name : 'Unknown';
+        UserLogHelper::log('logout', 'Successfully Logout - User: ' . $userName);
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect('/');
     }
 }

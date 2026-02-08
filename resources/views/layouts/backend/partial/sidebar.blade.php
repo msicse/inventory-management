@@ -176,15 +176,15 @@
                 </a>
             </li>
             @endcan
-            {{-- @can("onboarding-list")
+            @can("onboarding-list")
             <li class="{{ Request::is('onboarding*') ? 'active' : '' }}">
                 <a href="{{ route('onboardings') }}">
                     <i class="material-icons">published_with_changes</i>
                     <span>Onboarding Acknowledgement</span>
                 </a>
             </li>
-            @endcan --}}
-            {{-- @can("management-list")
+            @endcan
+            @can("management-all")
             <li class="{{ Request::is('management*') ? 'active' : '' }}">
                 <a href="javascript:void(0);" class="menu-toggle">
                     <i class="material-icons">widgets</i>
@@ -204,7 +204,7 @@
 
                 </ul>
             </li>
-            @endcan --}}
+            @endcan
             @can('imports-list')
             <li class="{{ Request::is('imports*') ? 'active' : '' }}">
                 <a href="{{ route('imports.index') }}">
@@ -229,6 +229,7 @@
                     <span>Transections</span>
                 </a>
             </li> --}}
+            @can('report-list')
             <li class="{{ Request::is('reports/stocks*') ? 'active' : '' }}">
                 <a href="{{ route('reports.stocks') }}">
                     <i class="material-icons">published_with_changes</i>
@@ -241,6 +242,7 @@
                     <span>Detailed Inventory</span>
                 </a>
             </li>
+            @endcan
             @can('users-log')
             <li class="{{ Request::is('reports/user-logs*') ? 'active' : '' }}">
                 <a href="{{ route('reports.userlog') }}">

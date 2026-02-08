@@ -10,7 +10,7 @@ class Transection extends Model
     use HasFactory;
 
     protected $fillable = [
-        'stock_id', 'employee_id', 'issued_date', 'quantity'
+        'stock_id', 'employee_id', 'issued_date', 'return_date', 'quantity', 'comment'
     ];
 
     public function employee()

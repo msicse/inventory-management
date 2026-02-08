@@ -131,7 +131,7 @@
                             <span class="badge "></span>
                         </h2>
                         <div>
-                            @can("transaction-create")
+                            @can("distribution-create")
                                 <a href="{{ route('transections.create') }}" class="btn btn-primary waves-effect pull-right"
                                     style="margin-bottom:10px;">
                                     <i class="material-icons">add</i>

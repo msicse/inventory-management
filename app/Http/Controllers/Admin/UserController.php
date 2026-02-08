@@ -82,7 +82,7 @@ class UserController extends Controller
 
         UserLogHelper::log('create', 'Created a New User : '. $user->email );
 
-        Toastr::success('User Succesfully Created ', 'Success');
+        Toastr::success('User Successfully Created ', 'Success');
         return redirect()->route('users.index');
     }
 
@@ -152,7 +152,7 @@ class UserController extends Controller
 
         UserLogHelper::log('update', 'Updated User : '. $user->id );
 
-        Toastr::success('User Succesfully Updated ', 'Success');
+        Toastr::success('User Successfully Updated ', 'Success');
         return redirect()->route('users.index');
     }
 
@@ -162,7 +162,15 @@ class UserController extends Controller
 
         $user = User::find($id);
 
+        if (!$user) {
+            Toastr::error('User not found', 'Error');
+            return redirect()->back();
+        }
+
         $roles = $user->getRoleNames();
+
+        // Log before deleting
+        UserLogHelper::log('delete', 'Deleted User : '. $user->email . ' (ID: ' . $user->id . ')');
 
         if (Auth::user()->hasRole('super-admin')) {
             foreach( $roles as $role ){
@@ -182,8 +190,7 @@ class UserController extends Controller
             }
         }
 
-        UserLogHelper::log('update', 'Updated User : '. $user->id );
-        Toastr::success('User Succesfully Deleted ', 'Success');
+        Toastr::success('User Successfully Deleted ', 'Success');
         return redirect()->back();
     }
 }
