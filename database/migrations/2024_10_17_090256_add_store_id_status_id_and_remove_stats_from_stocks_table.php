@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::table('stocks', function (Blueprint $table) {
             $table->dropColumn('product_status');
-            $table->foreignId('status_id')->constrained('asset_statuses')->after('product_id');
-            $table->foreignId('store_id')->constrained('stores')->after('product_id');
+            $table->foreignId('status_id')->after('product_id')->constrained('asset_statuses');
+            $table->foreignId('store_id')->after('product_id')->constrained('stores');
         });
     }
 

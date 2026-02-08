@@ -23,9 +23,6 @@ class CreatePurchasesTable extends Migration
             $table->string('purchase_date');
             $table->tinyInteger('is_stocked');
             $table->timestamps();
-
-            
-            $table->foreign('supplier_id')->references('id')->on('suppliers');
         });
     }
 
