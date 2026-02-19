@@ -407,10 +407,14 @@
                             Inventories
                         </h2>
                         <div class="pull-right">
-                            <button type="button" id="bulk-combo-btn" class="btn btn-primary waves-effect" style="display:none;" onclick="printSelectedComboLabels()">
+                            <button type="button" id="bulk-qr-label-btn" class="btn btn-success waves-effect" style="display:none;" onclick="printSelectedQrLabels()">
                                 <i class="material-icons">qr_code_2</i>
-                                <span>Print Selected Combo Labels</span>
+                                <span>Print Selected QR Labels</span>
                             </button>
+                            {{-- <button type="button" id="bulk-combo-btn" class="btn btn-primary waves-effect" style="display:none;" onclick="printSelectedComboLabels()">
+                                <i class="material-icons">view_module</i>
+                                <span>Print Selected Combo Labels</span>
+                            </button> --}}
                         </div>
                     </div>
                     <div class="body">
@@ -838,42 +842,84 @@
             });
         });
 
-        // Checkbox functionality
+        // Checkbox functionality - persist selections across pages
+        let selectedStockIds = new Set();
+
         $(document).ready(function() {
-            // Select All checkbox
+
+            // Restore checkboxes after each DataTable draw (page change, sort, filter)
+            $('#stockTable').on('draw.dt', function() {
+                $('.stock-checkbox').each(function() {
+                    let id = $(this).val();
+                    $(this).prop('checked', selectedStockIds.has(id));
+                });
+                updateSelectAllState();
+                updateBulkBtn();
+            });
+
+            // Select All checkbox - only affects current page
             $('#select-all').on('change', function() {
                 let isChecked = $(this).is(':checked');
-                $('.stock-checkbox').prop('checked', isChecked);
-                toggleBulkBarcodeBtn();
+                $('.stock-checkbox').each(function() {
+                    $(this).prop('checked', isChecked);
+                    let id = $(this).val();
+                    if (isChecked) {
+                        selectedStockIds.add(id);
+                    } else {
+                        selectedStockIds.delete(id);
+                    }
+                });
+                updateBulkBtn();
             });
 
             // Individual checkbox change
             $(document).on('change', '.stock-checkbox', function() {
-                let totalCheckboxes = $('.stock-checkbox').length;
-                let checkedCheckboxes = $('.stock-checkbox:checked').length;
-
-                $('#select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
-                toggleBulkBarcodeBtn();
+                let id = $(this).val();
+                if ($(this).is(':checked')) {
+                    selectedStockIds.add(id);
+                } else {
+                    selectedStockIds.delete(id);
+                }
+                updateSelectAllState();
+                updateBulkBtn();
             });
 
-            function toggleBulkBarcodeBtn() {
-                let checkedBoxes = $('.stock-checkbox:checked').length;
-                if (checkedBoxes > 0) {
-                    $('#bulk-combo-btn').show();
+            function updateSelectAllState() {
+                let totalCheckboxes = $('.stock-checkbox').length;
+                let checkedCheckboxes = $('.stock-checkbox:checked').length;
+                $('#select-all').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+            }
+
+            function updateBulkBtn() {
+                if (selectedStockIds.size > 0) {
+                    $('#bulk-qr-label-btn').show().find('span').text('Print Selected QR Labels (' + selectedStockIds.size + ')');
+                    $('#bulk-combo-btn').show().find('span').text('Print Selected Combo Labels (' + selectedStockIds.size + ')');
                 } else {
+                    $('#bulk-qr-label-btn').hide();
                     $('#bulk-combo-btn').hide();
                 }
             }
         });
 
-    // Print selected combo labels function
+        // Print selected QR labels function (1.4" x 1.4" labels)
+        function printSelectedQrLabels() {
+            if (selectedStockIds.size === 0) { alert('Please select at least one item.'); return; }
+            let form = $('<form>', { method: 'POST', action: '{{ route("stock.print.multiple.qrcode.labels") }}', target: '_blank' });
+            form.append($('<input>', { type: 'hidden', name: '_token', value: '{{ csrf_token() }}' }));
+            selectedStockIds.forEach(function(id) {
+                form.append($('<input>', { type: 'hidden', name: 'stock_ids[]', value: id }));
+            });
+            $('body').append(form); form.submit(); form.remove();
+        }
+
+        // Print selected combo labels function
         function printSelectedComboLabels() {
-            let selectedIds = [];
-            $('.stock-checkbox:checked').each(function() { selectedIds.push($(this).val()); });
-            if (selectedIds.length === 0) { alert('Please select at least one item.'); return; }
+            if (selectedStockIds.size === 0) { alert('Please select at least one item.'); return; }
             let form = $('<form>', { method: 'POST', action: '{{ route("stock.print.multiple.combo") }}', target: '_blank' });
             form.append($('<input>', { type: 'hidden', name: '_token', value: '{{ csrf_token() }}' }));
-            $.each(selectedIds, function(i,v){ form.append($('<input>', { type:'hidden', name:'stock_ids[]', value:v })); });
+            selectedStockIds.forEach(function(id) {
+                form.append($('<input>', { type: 'hidden', name: 'stock_ids[]', value: id }));
+            });
             $('body').append(form); form.submit(); form.remove();
         }
     </script>

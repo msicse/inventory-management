@@ -458,7 +458,7 @@
                         render: function(data, type, row) {
                             if (type === 'display') {
                                 if (data && data > 0) {
-                                    return '<span style="font-weight: 600; color: #2c3e50;">$' + parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</span>';
+                                    return '<span style="font-weight: 600; color: #2c3e50;">&#2547' + parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</span>';
                                 }
                                 return '<span style="color: #999;">N/A</span>';
                             }

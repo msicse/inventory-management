@@ -98,7 +98,10 @@ class InventoryController extends Controller
                 ->leftJoin('producttypes', 'stocks.producttype_id', '=', 'producttypes.id')
                 ->leftJoin('purchases', 'stocks.purchase_id', '=', 'purchases.id')
                 ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
-                ->leftJoin('transections', 'transections.stock_id', '=', 'stocks.id')
+                ->leftJoin('transections', function ($join) {
+                    $join->on('transections.stock_id', '=', 'stocks.id')
+                        ->whereNull('transections.return_date');
+                })
                 ->leftJoin('employees', 'transections.employee_id', '=', 'employees.id')
                 ->leftJoin('departments', 'employees.department_id', '=', 'departments.id')
                 ->when($type, fn($q) => $q->where('stocks.producttype_id', $type))
@@ -157,10 +160,11 @@ class InventoryController extends Controller
                          <i class="material-icons">update</i>
                      </button>' : "";
 
-                    // Only single combo button (QR + Barcode) if asset_tag exists
+                    // QR label and QR + Barcode combo buttons if asset_tag exists
                     $barcodeBtn = '';
                     if (!empty($row->asset_tag)) {
-                        $barcodeBtn = '<a href="' . route('stock.print.qr.barcode.combo', $row->stock_id) . '" class="btn btn-warning btn-sm" title="Print QR + Barcode Combo" target="_blank"><i class="material-icons">view_module</i></a>';
+                        $barcodeBtn = '<a href="' . route('stock.print.qrcode', $row->stock_id) . '" class="btn btn-success btn-sm" title="Print QR Label" target="_blank"><i class="material-icons">qr_code_2</i></a> ';
+                        // $barcodeBtn .= '<a href="' . route('stock.print.qr.barcode.combo', $row->stock_id) . '" class="btn btn-warning btn-sm" title="Print QR + Barcode Combo" target="_blank"><i class="material-icons">view_module</i></a>';
                     }
 
                     if ($row->is_assigned == 1) {

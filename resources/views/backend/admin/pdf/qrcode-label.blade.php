@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>QR Code Label</title>
     <style>
         @page {
-            size: 1.4in 1.4in;
-            margin: 0.05in;
+            size: 1.45in 1.45in;
+            margin: 0;
         }
 
         * {
@@ -15,9 +16,13 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
+        html,
+        body {
+            width: 100.8pt;
+            height: 100.8pt;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
             background: white;
         }
@@ -25,7 +30,6 @@
         .label {
             width: 100%;
             height: 100%;
-            border: 1px solid black;
             padding: 0.02in;
             text-align: center;
             background: white;
@@ -105,6 +109,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="label">
         <div class="qrcode-section">
@@ -121,4 +126,5 @@
         <div class="asset-tag">{{ $assetTag }}</div>
     </div>
 </body>
+
 </html>

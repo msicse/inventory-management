@@ -29,10 +29,10 @@ class Product extends Model
      * @var array
      */
     protected $casts = [
-        'is_serial' => 'boolean',
-        'is_license' => 'boolean',
-        'is_taggable' => 'boolean',
-        'is_consumable' => 'boolean',
+        'is_serial' => 'integer',
+        'is_license' => 'integer',
+        'is_taggable' => 'integer',
+        'is_consumable' => 'integer',
     ];
 
     public function type(){

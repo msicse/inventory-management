@@ -170,7 +170,7 @@ class QrCodeController extends Controller
 
             // Custom paper size: 1.4" width x 1.4" height (100.8pt x 100.8pt) - Square format
             $pdf = Pdf::loadView('backend.admin.pdf.qrcode-label', $data)
-                      ->setPaper([0, 0, 100.8, 100.8], 'portrait')
+                      ->setPaper([0, 0, 120, 120], 'portrait')
                       ->setOptions([
                           'isHtml5ParserEnabled' => true,
                           'isRemoteEnabled' => false,

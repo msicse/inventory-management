@@ -997,8 +997,8 @@
                     success: function (res) {
                         let text = res.title || ('Product ' + res.id);
                         let opt = new Option(text, res.id, true, true);
-                        $(opt).attr('data-is_serial', res.is_serial ? 1 : 2);
-                        $(opt).attr('data-is_warranty', res.is_license ? 1 : 2);
+                        $(opt).attr('data-is_serial', res.is_serial == 1 ? 1 : 2);
+                        $(opt).attr('data-is_warranty', res.is_license == 1 ? 1 : 2);
                         $('#product').append(opt).trigger('change');
                         $('#addProductModal').modal('hide');
                         showAlert('Product added', 'success');
