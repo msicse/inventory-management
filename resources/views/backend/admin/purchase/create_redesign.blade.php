@@ -548,8 +548,6 @@
 
 @push('js')
     <script src="{{ asset('backend/plugins/momentjs/moment.js') }}"></script>
-    <script
-        src="{{ asset('backend/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}"></script>
     <script src="{{ asset('backend/select2/select2.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 

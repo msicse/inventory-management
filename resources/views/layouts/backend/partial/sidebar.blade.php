@@ -81,7 +81,7 @@
             @can("store-list")
             <li class="{{ Request::is('stores*') ? 'active' : '' }}">
                 <a href="{{ route('stores.index') }}">
-                    <i class="material-icons">corporate_fare</i>
+                    <i class="material-icons">store</i>
                     <span>Stores</span>
                 </a>
             </li>
@@ -89,7 +89,7 @@
             @can("status-list")
             <li class="{{ Request::is('statuses*') ? 'active' : '' }}">
                 <a href="{{ route('statuses.index') }}">
-                    <i class="material-icons">corporate_fare</i>
+                    <i class="material-icons">flag</i>
                     <span>Status</span>
                 </a>
             </li>
@@ -97,7 +97,7 @@
             @can("suppliers-list")
             <li class="{{ Request::is('suppliers*') ? 'active' : '' }}">
                 <a href="{{ route('suppliers.index') }}">
-                    <i class="material-icons">nordic_walking</i>
+                    <i class="material-icons">local_shipping</i>
                     <span>Suppliers</span>
                 </a>
             </li>
@@ -139,7 +139,7 @@
             @can("department-list")
             <li class="{{ Request::is('departments*') ? 'active' : '' }}">
                 <a href="{{ route('departments.index') }}">
-                    <i class="material-icons">corporate_fare</i>
+                    <i class="material-icons">account_tree</i>
                     <span>Departments</span>
                 </a>
             </li>
@@ -147,7 +147,7 @@
             @can("employee-list")
             <li class="{{ request()->is('employees*') ? 'active' : '' }}">
                 <a href="{{ route('employees.index') }}">
-                    <i class="material-icons">wc</i>
+                    <i class="material-icons">badge</i>
                     <span>Employees</span>
                 </a>
             </li>
@@ -155,7 +155,7 @@
             @can("inventory-list")
             <li class="{{ Request::is('inventories*') ? 'active' : '' }}">
                 <a href="{{ route('inventories.index') }}">
-                    <i class="material-icons">store_mall_directory</i>
+                    <i class="material-icons">inventory</i>
                     <span>Inventories</span>
                 </a>
             </li>
@@ -163,7 +163,7 @@
             @can("inventory-update-tag")
             <li class="{{ Request::is('pending-tag-updates') ? 'active' : '' }}">
                 <a href="{{ route('inventories.pending') }}">
-                    <i class="material-icons">store_mall_directory</i>
+                    <i class="material-icons">local_offer</i>
                     <span>Pending Tag Update </span> <span class="badge  text-white  {{ pending_tag() > 0 ? 'bg-orange' : '' }} ">{{ pending_tag() }}</span>
                 </a>
             </li>
@@ -171,7 +171,7 @@
             @can("distribution-list")
             <li class="{{ Request::is('transections*') ? 'active' : '' }}">
                 <a href="{{ route('transections.index') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">swap_horiz</i>
                     <span>Product Distribution</span>
                 </a>
             </li>
@@ -179,7 +179,7 @@
             @can("onboarding-list")
             <li class="{{ Request::is('onboarding*') ? 'active' : '' }}">
                 <a href="{{ route('onboardings') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">how_to_reg</i>
                     <span>Onboarding Acknowledgement</span>
                 </a>
             </li>
@@ -208,7 +208,7 @@
             @can('imports-list')
             <li class="{{ Request::is('imports*') ? 'active' : '' }}">
                 <a href="{{ route('imports.index') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">cloud_upload</i>
                     <span>Imports</span>
                 </a>
             </li>
@@ -232,13 +232,13 @@
             @can('report-list')
             <li class="{{ Request::is('reports/stocks*') ? 'active' : '' }}">
                 <a href="{{ route('reports.stocks') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">bar_chart</i>
                     <span>Stocks</span>
                 </a>
             </li>
             <li class="{{ Request::is('reports/detailed-inventory*') ? 'active' : '' }}">
                 <a href="{{ route('reports.inventory') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">list_alt</i>
                     <span>Detailed Inventory</span>
                 </a>
             </li>
@@ -246,7 +246,7 @@
             @can('users-log')
             <li class="{{ Request::is('reports/user-logs*') ? 'active' : '' }}">
                 <a href="{{ route('reports.userlog') }}">
-                    <i class="material-icons">published_with_changes</i>
+                    <i class="material-icons">history</i>
                     <span>User Logs</span>
                 </a>
             </li>
