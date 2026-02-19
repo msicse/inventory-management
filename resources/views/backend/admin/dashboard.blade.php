@@ -275,7 +275,7 @@
     <!-- Quick Stats Row -->
     <div class="row clearfix" style="margin-bottom: 15px;">
 
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-green hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">wc</i>
@@ -283,12 +283,12 @@
                 <div class="content">
                     <div class="text">Active Employees</div>
                     <div class="number count-to" data-from="0" data-to="{{ $employees->count() }}" data-speed="15"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $employees->count() }}</div>
                 </div>
             </div>
             <a href="{{ route('employees.index') }}" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-teal hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">laptop</i>
@@ -296,12 +296,12 @@
                 <div class="content">
                     <div class="text">Total Laptops</div>
                     <div class="number count-to" data-from="0" data-to="{{ $total_laptop }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $total_laptop }}</div>
                 </div>
             </div>
             <a href="{{ route('reports.inventory') }}?type=1" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-orange hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">phone_android</i>
@@ -309,12 +309,12 @@
                 <div class="content">
                     <div class="text">Total Mobiles</div>
                     <div class="number count-to" data-from="0" data-to="{{ $total_mobile }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $total_mobile }}</div>
                 </div>
             </div>
             <a href="{{ route('reports.inventory') }}?type=19" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-blue hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">devices</i>
@@ -322,12 +322,12 @@
                 <div class="content">
                     <div class="text">Total Products</div>
                     <div class="number count-to" data-from="0" data-to="{{ $total }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $total }}</div>
                 </div>
             </div>
             <a href="{{ route('reports.inventory') }}" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-red hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">update</i>
@@ -335,24 +335,12 @@
                 <div class="content">
                     <div class="text">Pending Tag Update</div>
                     <div class="number count-to" data-from="0" data-to="{{ pending_tag() }}" data-speed="15"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ pending_tag() }}</div>
                 </div>
             </div>
             <a href="{{ route('inventories.pending') }}" class="stat-link">View Details →</a>
         </div>
-        {{-- <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-green hover-expand-effect">
-                <div class="icon">
-                    <i class="material-icons">add_shopping_cart</i>
-                </div>
-                <div class="content">
-                    <div class="text">Purchase <small>In this Month</small> </div>
-                    <div class="number count-to" data-from="0" data-to="{{ $purchase }}" data-speed="15"
-                        data-fresh-interval="20"></div>
-                </div>
-            </div>
-        </div> --}}
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-cyan hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">laptop</i>
@@ -360,12 +348,12 @@
                 <div class="content">
                     <div class="text">Assigned Laptop</div>
                     <div class="number count-to" data-from="0" data-to="{{ $assigned_laptop }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $assigned_laptop }}</div>
                 </div>
             </div>
             <a href="{{ route('transections.index') }}" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-deep-orange hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">phone_android</i>
@@ -373,12 +361,12 @@
                 <div class="content">
                     <div class="text">Assigned Mobiles</div>
                     <div class="number count-to" data-from="0" data-to="{{ $assigned_mobile }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $assigned_mobile }}</div>
                 </div>
             </div>
             <a href="{{ route('transections.index') }}" class="stat-link">View Details →</a>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-light-blue hover-expand-effect dashboard-stat-card">
                 <div class="icon">
                     <i class="material-icons">devices</i>
@@ -386,16 +374,26 @@
                 <div class="content">
                     <div class="text">Assigned Products</div>
                     <div class="number count-to" data-from="0" data-to="{{ $total_assigned }}" data-speed="1000"
-                        data-fresh-interval="20"></div>
+                        data-fresh-interval="20">{{ $total_assigned }}</div>
                 </div>
             </div>
             <a href="{{ route('transections.index') }}" class="stat-link">View Details →</a>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+            <div class="info-box bg-purple hover-expand-effect dashboard-stat-card">
+                <div class="icon"><i class="material-icons">inventory</i></div>
+                <div class="content">
+                    <div class="text">Available Stock</div>
+                    <div class="number count-to" data-from="0" data-to="{{ $total_available }}" data-speed="1000" data-fresh-interval="20">{{ $total_available }}</div>
+                </div>
+            </div>
+            <a href="{{ route('reports.inventory') }}?assignment_status=available" class="stat-link">View Available →</a>
         </div>
     </div>
 
     <!-- Additional Statistics Row -->
     <div class="row clearfix" style="margin-top: 10px; margin-bottom: 15px;">
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="card dashboard-stat-card">
                 <div class="body text-center" style="padding: 30px 20px;">
                     @php
@@ -410,35 +408,26 @@
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="info-box bg-purple hover-expand-effect dashboard-stat-card">
-                <div class="icon"><i class="material-icons">inventory</i></div>
-                <div class="content">
-                    <div class="text">Available Stock</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $total_available }}" data-speed="1000" data-fresh-interval="20"></div>
-                </div>
-            </div>
-            <a href="{{ route('reports.inventory') }}?assignment_status=available" class="stat-link">View Available →</a>
-        </div>
 
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-deep-purple hover-expand-effect dashboard-stat-card">
                 <div class="icon"><i class="material-icons">warning</i></div>
                 <div class="content">
                     <div class="text">Warranty Expiring</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $warrantyExpiring }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="number count-to" data-from="0" data-to="{{ $warrantyExpiring }}" data-speed="1000" data-fresh-interval="20">{{ $warrantyExpiring }}</div>
                     <small>Within 30 days</small>
                 </div>
             </div>
             <a href="{{ route('reports.inventory') }}?warranty_status=expiring" class="stat-link">View Details →</a>
         </div>
 
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="info-box bg-pink hover-expand-effect dashboard-stat-card">
                 <div class="icon"><i class="material-icons">shopping_cart</i></div>
                 <div class="content">
                     <div class="text">This Month Purchases</div>
-                    <div class="number count-to" data-from="0" data-to="{{ $purchase }}" data-speed="1000" data-fresh-interval="20"></div>
+                    <div class="number count-to" data-from="0" data-to="{{ $purchase }}" data-speed="1000" data-fresh-interval="20">{{ $purchase }}</div>
                 </div>
             </div>
             <a href="{{ route('purchases.index') }}" class="stat-link">View Purchases →</a>
@@ -683,6 +672,9 @@
 
     <script>
         $(document).ready(function() {
+            // Initialize CountTo plugin for stat numbers
+            $('.count-to').countTo();
+
             // Purchase Trend Chart
             var trendCtx = document.getElementById('purchaseTrendChart').getContext('2d');
             var trendData = @json($monthlyTrend);
