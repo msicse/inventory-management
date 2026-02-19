@@ -77,6 +77,127 @@
         .modal-header .close {
             margin-left: auto;
         }
+
+        /* === Add Product Button (Bootstrap 3.3.6 compatible) === */
+        #add_product_btn {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            background-color: #1565c0;
+            background-image: -webkit-linear-gradient(315deg, #1e88e5 0%, #1565c0 100%);
+            background-image: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            border: none;
+            color: #fff;
+            -webkit-box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35);
+            box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35);
+            -webkit-transition: all 0.25s ease;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        #add_product_btn:hover,
+        #add_product_btn:focus {
+            -webkit-box-shadow: 0 4px 12px rgba(21, 101, 192, 0.45);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.45);
+            background-color: #0d47a1;
+            background-image: -webkit-linear-gradient(315deg, #1565c0 0%, #0d47a1 100%);
+            background-image: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            color: #fff;
+        }
+        #add_product_btn:active {
+            -webkit-box-shadow: 0 2px 6px rgba(21, 101, 192, 0.3);
+            box-shadow: 0 2px 6px rgba(21, 101, 192, 0.3);
+        }
+        #add_product_btn > i.material-icons {
+            font-size: 15px !important;
+            vertical-align: middle !important;
+            line-height: 1 !important;
+            margin-right: 6px !important;
+            position: relative !important;
+            top: -1px !important;
+        }
+        /* Pulse animation on idle to draw attention */
+        @-webkit-keyframes subtlePulse {
+            0%, 100% { -webkit-box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35); box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35); }
+            50% { -webkit-box-shadow: 0 3px 16px rgba(21, 101, 192, 0.55); box-shadow: 0 3px 16px rgba(21, 101, 192, 0.55); }
+        }
+        @keyframes subtlePulse {
+            0%, 100% { -webkit-box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35); box-shadow: 0 3px 8px rgba(21, 101, 192, 0.35); }
+            50% { -webkit-box-shadow: 0 3px 16px rgba(21, 101, 192, 0.55); box-shadow: 0 3px 16px rgba(21, 101, 192, 0.55); }
+        }
+        #add_product_btn.pulse-hint {
+            -webkit-animation: subtlePulse 2s ease-in-out infinite;
+            animation: subtlePulse 2s ease-in-out infinite;
+        }
+        /* Add-product button area */
+        .add-product-action {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #dee2e6;
+            text-align: right;
+        }
+        .add-product-action .hint-text {
+            color: #999;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        /* Secondary action buttons — teal accent (BS3 compatible) */
+        .btn-add-modal {
+            display: inline-block !important;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 3px;
+            white-space: nowrap;
+            color: #fff !important;
+            border: none !important;
+            background-color: #17a2b8 !important;
+            -webkit-box-shadow: 0 1px 3px rgba(23, 162, 184, 0.3);
+            box-shadow: 0 1px 3px rgba(23, 162, 184, 0.3);
+            -webkit-transition: background-color 0.2s;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        .btn-add-modal:hover,
+        .btn-add-modal:focus {
+            color: #fff !important;
+            background-color: #117a8b !important;
+            -webkit-box-shadow: 0 2px 6px rgba(17, 122, 139, 0.4);
+            box-shadow: 0 2px 6px rgba(17, 122, 139, 0.4);
+        }
+        .btn-add-modal:active {
+            background-color: #0e6674 !important;
+        }
+        .btn.btn-add-modal > i.material-icons {
+            font-size: 14px !important;
+            vertical-align: middle !important;
+            line-height: 1 !important;
+            position: relative !important;
+            top: -1px !important;
+            margin-right: 3px !important;
+        }
+        /* Fix long select text overflow in table-cell layout */
+        .select-btn-wrap {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .select-btn-wrap > select {
+            display: table-cell;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .select-btn-wrap > .btn-cell {
+            display: table-cell;
+            width: 70px;
+            white-space: nowrap;
+            vertical-align: middle;
+            padding-left: 8px;
+        }
     </style>
 @endpush
 
@@ -86,7 +207,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="header">
-                        <h2>Add Purchase (Redesigned)</h2>
+                        <h2>Add Purchase </h2>
                         <a href="{{ route('purchases.index') }}" class="btn btn-primary waves-effect pull-right"
                             style="margin-bottom:10px;">
                             <i class="material-icons">keyboard_return</i>
@@ -111,16 +232,16 @@
                                         <h5>Purchase Info</h5>
                                         <div class="form-group">
                                             <label for="supplier">Supplier <span class="text-danger">*</span></label>
-                                            <div style="display:flex; gap:8px; align-items:center">
-                                                <select name="supplier" id="supplier" class="form-control" style="flex:1"
+                                            <div class="select-btn-wrap">
+                                                <select name="supplier" id="supplier" class="form-control"
                                                     required>
                                                     <option value="">Select Supplier</option>
                                                     @foreach ($suppliers as $data)
                                                         <option value="{{ $data->id }}" {{ old('supplier') == $data->id ? 'selected' : '' }}>{{ $data->company }}</option>
                                                     @endforeach
                                                 </select>
-                                                <button type="button" class="btn btn-outline-secondary"
-                                                    id="openAddSupplier">Add</button>
+                                                <span class="btn-cell"><button type="button" class="btn btn-sm btn-add-modal"
+                                                    id="openAddSupplier"><i class="material-icons">add</i> New</button></span>
                                             </div>
                                             <div class="field-error" id="error-supplier">Please select a supplier</div>
                                         </div>
@@ -178,35 +299,37 @@
                                         <div class="row">
                                             <div class="form-group col-md-6">
                                                 <label for="product_type">Product Type</label>
-                                                <div style="display:flex; gap:8px; align-items:center">
-                                                    <select name="product_type" id="product_type" class="form-control" style="flex:1">
+                                                <div class="select-btn-wrap">
+                                                    <select name="product_type" id="product_type" class="form-control">
                                                         <option value="">Select Product Type</option>
                                                         @foreach ($types as $data)
                                                             <option value="{{ $data->id }}">{{ $data->name }}</option>
                                                         @endforeach
                                                     </select>
-                                                    <button type="button" class="btn btn-outline-secondary" id="openAddProductType">Add</button>
+                                                    <span class="btn-cell"><button type="button" class="btn btn-sm btn-add-modal" id="openAddProductType"><i class="material-icons">add</i> New</button></span>
                                                 </div>
                                             </div>
 
                                             <div class="form-group col-md-6">
                                                 <label for="product">Product</label>
-                                                <div style="display:flex; gap:8px; align-items:center">
-                                                    <select id="product" class="form-control" style="flex:1">
+                                                <div class="select-btn-wrap">
+                                                    <select id="product" class="form-control">
                                                         <option value="">Select Product</option>
                                                     </select>
-                                                    <button type="button" class="btn btn-outline-secondary"
-                                                        id="openAddProduct">Add</button>
+                                                    <span class="btn-cell"><button type="button" class="btn btn-sm btn-add-modal"
+                                                        id="openAddProduct"><i class="material-icons">add</i> New</button></span>
                                                 </div>
                                                 <div class="field-error" id="error-product" style="display:none"></div>
                                             </div>
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-md-12 text-right">
-                                                <button type="button" id="add_product_btn"
-                                                    class="btn btn-sm btn-primary">Add product</button>
-                                            </div>
+                                        <div class="add-product-action">
+                                            <span class="hint-text">Select type & product, then</span>
+                                            <button type="button" id="add_product_btn"
+                                                class="btn btn-primary btn-md pulse-hint">
+                                                <i class="material-icons">add_circle</i>
+                                                Add Product to List
+                                            </button>
                                         </div>
 
                                     </div>
@@ -1247,6 +1370,9 @@
             // removed redundant textarea-focus handler (we now focus the tag input)
 
             document.getElementById('add_product_btn').addEventListener('click', function () {
+                // Stop the pulse animation after first use
+                this.classList.remove('pulse-hint');
+
                 let productSelect = document.getElementById('product');
                 let selected = productSelect.value;
                 if (!selected) { showAlert('Please select a product to add', 'danger', 4000); return; }

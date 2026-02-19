@@ -1,0 +1,2507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOP_INVENTORY_MANAGEMENT_SYSTEM.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="standard-operating-procedure-sop">Standard Operating Procedure (SOP)</h1>
+<h2 id="inventory-management-system">Inventory Management System</h2>
+<table>
+<thead>
+<tr>
+<th>Document Info</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Document Title</strong></td>
+<td>SOP — Inventory Management System</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>1.0</td>
+</tr>
+<tr>
+<td><strong>Date</strong></td>
+<td>February 19, 2026</td>
+</tr>
+<tr>
+<td><strong>Platform</strong></td>
+<td>Web-Based (Laravel 11.x)</td>
+</tr>
+<tr>
+<td><strong>URL</strong></td>
+<td><em>(Deployed application URL)</em></td>
+</tr>
+<tr>
+<td><strong>Prepared By</strong></td>
+<td>System Administrator</td>
+</tr>
+<tr>
+<td><strong>Approved By</strong></td>
+<td><em>(Management)</em></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-purpose">Purpose</a></li>
+<li><a href="#2-scope">Scope</a></li>
+<li><a href="#3-system-overview">System Overview</a></li>
+<li><a href="#4-technology-stack">Technology Stack</a></li>
+<li><a href="#5-user-roles--access-levels">User Roles &amp; Access Levels</a></li>
+<li><a href="#6-system-installation--setup">System Installation &amp; Setup</a></li>
+<li><a href="#7-login--authentication">Login &amp; Authentication</a></li>
+<li><a href="#8-dashboard">Dashboard</a></li>
+<li><a href="#9-master-data-management">Master Data Management</a>
+<ul>
+<li>9.1 <a href="#91-product-types">Product Types</a></li>
+<li>9.2 <a href="#92-products">Products</a></li>
+<li>9.3 <a href="#93-stores--locations">Stores / Locations</a></li>
+<li>9.4 <a href="#94-asset-statuses">Asset Statuses</a></li>
+<li>9.5 <a href="#95-suppliers">Suppliers</a></li>
+<li>9.6 <a href="#96-departments">Departments</a></li>
+</ul>
+</li>
+<li><a href="#10-employee-management">Employee Management</a></li>
+<li><a href="#11-purchase-management">Purchase Management</a></li>
+<li><a href="#12-inventory--stock-management">Inventory / Stock Management</a></li>
+<li><a href="#13-distribution--transaction-management">Distribution / Transaction Management</a></li>
+<li><a href="#14-requisition-management">Requisition Management</a></li>
+<li><a href="#15-qr-code--barcode-management">QR Code &amp; Barcode Management</a></li>
+<li><a href="#16-reports">Reports</a></li>
+<li><a href="#17-user-management">User Management</a></li>
+<li><a href="#18-role--permission-management">Role &amp; Permission Management</a></li>
+<li><a href="#19-employee-management-management-module">Employee Management (Management Module)</a></li>
+<li><a href="#20-onboarding-module">Onboarding Module</a></li>
+<li><a href="#21-data-import">Data Import</a></li>
+<li><a href="#22-settings">Settings</a></li>
+<li><a href="#23-audit--user-activity-logs">Audit / User Activity Logs</a></li>
+<li><a href="#24-key-business-workflows">Key Business Workflows</a></li>
+<li><a href="#25-troubleshooting--faq">Troubleshooting &amp; FAQ</a></li>
+<li><a href="#26-appendix--permission-reference">Appendix — Permission Reference</a></li>
+</ol>
+<hr>
+<h2 id="1-purpose">1. Purpose</h2>
+<p>This document provides a complete Standard Operating Procedure (SOP) for the <strong>Inventory Management System</strong>. It serves as the authoritative guide for all users — administrators, managers, and employees — to understand and operate every feature of the system, from initial setup through day-to-day operations, reporting, and auditing.</p>
+<hr>
+<h2 id="2-scope">2. Scope</h2>
+<p>This SOP covers:</p>
+<ul>
+<li>System installation, configuration, and initial setup</li>
+<li>User authentication and role-based access control (RBAC)</li>
+<li>All master data modules (product types, products, stores, statuses, suppliers, departments)</li>
+<li>Employee lifecycle management</li>
+<li>Purchase order creation and processing</li>
+<li>Inventory/stock management and asset tagging</li>
+<li>Asset distribution (issue/return) to employees</li>
+<li>QR code and barcode generation and printing</li>
+<li>Requisition management</li>
+<li>Reporting and analytics</li>
+<li>Data import/export</li>
+<li>Onboarding/offboarding workflows</li>
+<li>System settings and user activity logs</li>
+<li>Troubleshooting and common operations</li>
+</ul>
+<hr>
+<h2 id="3-system-overview">3. System Overview</h2>
+<p>The Inventory Management System is a web-based application designed to manage the complete lifecycle of organizational assets — from procurement to distribution to retirement. It provides:</p>
+<ul>
+<li><strong>Centralized asset tracking</strong> with unique asset tags, serial numbers, and service tags</li>
+<li><strong>Purchase management</strong> with multi-product purchase orders, supplier tracking, and GRN generation</li>
+<li><strong>Automated inventory creation</strong> from approved purchases</li>
+<li><strong>Employee assignment tracking</strong> with acknowledgement receipts</li>
+<li><strong>QR code and barcode</strong> label generation for physical asset identification</li>
+<li><strong>Comprehensive reporting</strong> across employees, stocks, transactions, and inventory</li>
+<li><strong>Role-based access control</strong> with 52 granular permissions</li>
+<li><strong>Complete audit trail</strong> via user activity logs</li>
+</ul>
+<hr>
+<h2 id="4-technology-stack">4. Technology Stack</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backend Framework</strong></td>
+<td>Laravel 11.x (PHP 8.2+)</td>
+</tr>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>Blade Templates, Bootstrap (Laravel UI), Vite</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>MySQL / MariaDB</td>
+</tr>
+<tr>
+<td><strong>DataTables</strong></td>
+<td>Yajra Laravel DataTables (server-side)</td>
+</tr>
+<tr>
+<td><strong>PDF Generation</strong></td>
+<td>Barryvdh DomPDF</td>
+</tr>
+<tr>
+<td><strong>Excel Import</strong></td>
+<td>Maatwebsite Excel v3.1</td>
+</tr>
+<tr>
+<td><strong>Barcode</strong></td>
+<td>Milon Barcode (Code128)</td>
+</tr>
+<tr>
+<td><strong>QR Code</strong></td>
+<td>SimpleSoftwareIO Simple QR Code v4.2</td>
+</tr>
+<tr>
+<td><strong>Image Processing</strong></td>
+<td>Intervention Image v3.7 (GD driver)</td>
+</tr>
+<tr>
+<td><strong>RBAC</strong></td>
+<td>Spatie Laravel Permission v6.9</td>
+</tr>
+<tr>
+<td><strong>Activity Logging</strong></td>
+<td>Spatie Laravel Activity Log v4.8</td>
+</tr>
+<tr>
+<td><strong>Notifications</strong></td>
+<td>Brian2694 Laravel Toastr</td>
+</tr>
+<tr>
+<td><strong>Web Server</strong></td>
+<td>Apache (WAMP) / Nginx</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-user-roles--access-levels">5. User Roles &amp; Access Levels</h2>
+<p>The system ships with three predefined roles. Additional custom roles can be created.</p>
+<h3 id="51-super-admin">5.1 Super Admin</h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default Email</strong></td>
+<td><code>superadmin@gmail.com</code></td>
+</tr>
+<tr>
+<td><strong>Default Password</strong></td>
+<td><code>123456</code></td>
+</tr>
+<tr>
+<td><strong>Username</strong></td>
+<td><code>superadmin</code></td>
+</tr>
+<tr>
+<td><strong>Access</strong></td>
+<td>Full access to all 52 permissions</td>
+</tr>
+<tr>
+<td><strong>Special Privileges</strong></td>
+<td>Can manage all users including other admins; cannot be deleted or modified by non-super-admins</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-admin">5.2 Admin</h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default Email</strong></td>
+<td><code>admin@gmail.com</code></td>
+</tr>
+<tr>
+<td><strong>Default Password</strong></td>
+<td><code>123456</code></td>
+</tr>
+<tr>
+<td><strong>Username</strong></td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><strong>Access</strong></td>
+<td>Full access to all 52 permissions</td>
+</tr>
+<tr>
+<td><strong>Restrictions</strong></td>
+<td>Cannot assign/modify the super-admin role; cannot see super-admin user in user lists</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-employee-self-service">5.3 Employee (Self-Service)</h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Access</strong></td>
+<td>Limited to 3 self-service permissions</td>
+</tr>
+<tr>
+<td><strong>Permissions</strong></td>
+<td><code>self-view-profile</code>, <code>self-view-assets</code>, <code>self-view-transactions</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-custom-roles">5.4 Custom Roles</h3>
+<p>Administrators can create custom roles with any combination of the 52 available permissions (see <a href="#26-appendix--permission-reference">Appendix</a>).</p>
+<blockquote>
+<p><strong>IMPORTANT:</strong> Change default passwords immediately after first login.</p>
+</blockquote>
+<hr>
+<h2 id="6-system-installation--setup">6. System Installation &amp; Setup</h2>
+<h3 id="61-prerequisites">6.1 Prerequisites</h3>
+<ul>
+<li>PHP 8.2 or higher</li>
+<li>Composer</li>
+<li>Node.js &amp; NPM</li>
+<li>MySQL / MariaDB database</li>
+<li>Apache or Nginx web server</li>
+<li>PHP Extensions: GD, mbstring, xml, zip, curl, bcmath</li>
+</ul>
+<h3 id="62-installation-steps">6.2 Installation Steps</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># 1. Clone the repository</span>
+git <span class="hljs-built_in">clone</span> &lt;repository-url&gt; inventory-management
+<span class="hljs-built_in">cd</span> inventory-management
+
+<span class="hljs-comment"># 2. Install PHP dependencies</span>
+composer install
+
+<span class="hljs-comment"># 3. Install Node.js dependencies</span>
+npm install
+
+<span class="hljs-comment"># 4. Environment configuration</span>
+cp .env.example .env
+php artisan key:generate
+</div></code></pre>
+<h3 id="63-database-configuration">6.3 Database Configuration</h3>
+<p>Edit the <code>.env</code> file:</p>
+<pre class="hljs"><code><div>DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=inventory_management
+DB_USERNAME=root
+DB_PASSWORD=your_password
+</div></code></pre>
+<h3 id="64-database-migration--seeding">6.4 Database Migration &amp; Seeding</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Run all migrations</span>
+php artisan migrate
+
+<span class="hljs-comment"># Seed initial data (permissions, roles, admin users)</span>
+php artisan db:seed
+</div></code></pre>
+<p>This will execute:</p>
+<ol>
+<li><strong>PermissionTableSeeder</strong> — Creates 52 permissions</li>
+<li><strong>CreateAdminUserSeeder</strong> — Creates Super Admin, Admin, and Employee role</li>
+</ol>
+<h3 id="65-build-frontend-assets">6.5 Build Frontend Assets</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Development</span>
+npm run dev
+
+<span class="hljs-comment"># Production</span>
+npm run build
+</div></code></pre>
+<h3 id="66-storage--permissions">6.6 Storage &amp; Permissions</h3>
+<pre class="hljs"><code><div>php artisan storage:link
+</div></code></pre>
+<p>Ensure the following directories are writable:</p>
+<ul>
+<li><code>storage/</code></li>
+<li><code>bootstrap/cache/</code></li>
+<li><code>public/images/employee/</code></li>
+<li><code>storage/qrcodes/</code></li>
+</ul>
+<hr>
+<h2 id="7-login--authentication">7. Login &amp; Authentication</h2>
+<h3 id="71-accessing-the-system">7.1 Accessing the System</h3>
+<ol>
+<li>Open a web browser and navigate to the application URL</li>
+<li>The login page is displayed at the root URL (<code>/</code>) or <code>/login</code></li>
+</ol>
+<h3 id="72-login-procedure">7.2 Login Procedure</h3>
+<ol>
+<li>Enter your <strong>Email Address</strong></li>
+<li>Enter your <strong>Password</strong> (minimum 6 characters)</li>
+<li>Click <strong>Login</strong></li>
+<li>On successful authentication, you are redirected to the <strong>Dashboard</strong></li>
+<li>On failure, an error message is displayed: <em>&quot;The provided credentials do not match our records.&quot;</em></li>
+</ol>
+<h3 id="73-first-login--forced-password-change">7.3 First Login — Forced Password Change</h3>
+<ul>
+<li>If the <code>must_change_password</code> flag is set on your account, you will be <strong>automatically redirected</strong> to the password change page</li>
+<li>You <strong>cannot access any other page</strong> until the password is changed</li>
+<li>After changing the password, the flag is cleared and you can navigate normally</li>
+</ul>
+<h3 id="74-logout">7.4 Logout</h3>
+<ol>
+<li>Click the <strong>Logout</strong> button/link</li>
+<li>Your session is invalidated and CSRF token is regenerated</li>
+<li>You are redirected to the login page</li>
+</ol>
+<blockquote>
+<p><strong>Audit:</strong> All login and logout actions are recorded in the User Activity Log.</p>
+</blockquote>
+<hr>
+<h2 id="8-dashboard">8. Dashboard</h2>
+<p><strong>Route:</strong> <code>/dashboard</code><br>
+<strong>Permission:</strong> Authenticated users only</p>
+<p>The dashboard provides a real-time overview of the inventory system:</p>
+<h3 id="81-key-metrics-displayed">8.1 Key Metrics Displayed</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Total Employees</strong></td>
+<td>Count of active employees (status = 1)</td>
+</tr>
+<tr>
+<td><strong>Purchases This Month</strong></td>
+<td>Number of purchases in the current month</td>
+</tr>
+<tr>
+<td><strong>Total Stock Items</strong></td>
+<td>Total number of stock records</td>
+</tr>
+<tr>
+<td><strong>Total Laptops</strong></td>
+<td>Stock items of type &quot;Laptop&quot;</td>
+</tr>
+<tr>
+<td><strong>Total Mobiles</strong></td>
+<td>Stock items of type &quot;Mobile&quot;</td>
+</tr>
+<tr>
+<td><strong>Assigned Laptops</strong></td>
+<td>Laptops currently assigned to employees</td>
+</tr>
+<tr>
+<td><strong>Assigned Mobiles</strong></td>
+<td>Mobiles currently assigned to employees</td>
+</tr>
+<tr>
+<td><strong>Total Assigned</strong></td>
+<td>All stock items currently assigned</td>
+</tr>
+<tr>
+<td><strong>Total Available</strong></td>
+<td>All stock items available for distribution</td>
+</tr>
+<tr>
+<td><strong>Utilization Rate</strong></td>
+<td>Percentage of stock currently assigned</td>
+</tr>
+<tr>
+<td><strong>Warranty Expiring (30 days)</strong></td>
+<td>Items with warranty expiring within 30 days</td>
+</tr>
+<tr>
+<td><strong>Warranty Expired</strong></td>
+<td>Items with expired warranty</td>
+</tr>
+<tr>
+<td><strong>Low Stock Categories</strong></td>
+<td>Product types with &lt; 5 available items</td>
+</tr>
+<tr>
+<td><strong>Out of Stock</strong></td>
+<td>Product types with 0 available items</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-additional-dashboard-elements">8.2 Additional Dashboard Elements</h3>
+<ul>
+<li><strong>Top 5 Product Categories</strong> — by total stock count</li>
+<li><strong>Monthly Purchase Trend</strong> — last 6 months chart</li>
+<li><strong>Recent Purchases</strong> — last 5 purchases with supplier info</li>
+</ul>
+<hr>
+<h2 id="9-master-data-management">9. Master Data Management</h2>
+<p>Master data forms the foundation of the inventory system. These must be configured before processing purchases or distributions.</p>
+<blockquote>
+<p><strong>Recommended setup order:</strong> Departments → Product Types → Products → Stores → Asset Statuses → Suppliers</p>
+</blockquote>
+<hr>
+<h3 id="91-product-types">9.1 Product Types</h3>
+<p><strong>Route:</strong> <code>/product-types</code><br>
+<strong>Permissions Required:</strong> <code>product-type-list</code>, <code>product-type-create</code>, <code>product-type-edit</code>, <code>product-type-delete</code></p>
+<p>Product types are categories of assets (e.g., Laptop, Monitor, Mouse, Software License).</p>
+<h4 id="911-view-product-types">9.1.1 View Product Types</h4>
+<ol>
+<li>Navigate to <strong>Product Types</strong> from the sidebar</li>
+<li>All product types are listed in reverse chronological order</li>
+</ol>
+<h4 id="912-create-product-type">9.1.2 Create Product Type</h4>
+<ol>
+<li>Click the <strong>Add</strong> button</li>
+<li>Fill in:
+<ul>
+<li><strong>Name</strong> <em>(required, unique, max 255 characters)</em></li>
+</ul>
+</li>
+<li>The system auto-generates a URL slug from the name</li>
+<li>Click <strong>Save</strong></li>
+<li>Success notification is displayed</li>
+</ol>
+<h4 id="913-edit-product-type">9.1.3 Edit Product Type</h4>
+<ol>
+<li>Click the <strong>Edit</strong> icon on the desired row</li>
+<li>Modify the name</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h4 id="914-delete-product-type">9.1.4 Delete Product Type</h4>
+<ol>
+<li>Click the <strong>Delete</strong> icon on the desired row</li>
+<li>Confirm the deletion</li>
+<li>The product type is permanently removed</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> Deletion will fail if any products are associated with the product type.</p>
+</blockquote>
+<hr>
+<h3 id="92-products">9.2 Products</h3>
+<p><strong>Route:</strong> <code>/products</code><br>
+<strong>Permissions Required:</strong> <code>product-list</code>, <code>product-create</code>, <code>product-edit</code>, <code>product-delete</code></p>
+<p>Products are specific items within product types (e.g., &quot;Dell Latitude 5540&quot; under &quot;Laptop&quot;).</p>
+<h4 id="921-view-products">9.2.1 View Products</h4>
+<ol>
+<li>Navigate to <strong>Products</strong> from the sidebar</li>
+<li>Products are listed with their type, brand, model, and flags</li>
+</ol>
+<h4 id="922-create-product">9.2.2 Create Product</h4>
+<ol>
+<li>Click the <strong>Add</strong> button</li>
+<li>Fill in:
+<ul>
+<li><strong>Product Type</strong> <em>(required, dropdown)</em></li>
+<li><strong>Brand</strong> <em>(required)</em></li>
+<li><strong>Model</strong> <em>(required)</em></li>
+<li><strong>Unit</strong> <em>(required, e.g., pcs, license)</em></li>
+<li><strong>Requires Serial Number</strong> <em>(checkbox)</em> — If checked, serial numbers must be entered during purchase</li>
+<li><strong>Requires License/Warranty</strong> <em>(checkbox)</em> — If checked, warranty info is mandatory during purchase</li>
+<li><strong>Is Taggable</strong> <em>(checkbox)</em> — If checked, asset tags are auto-generated when added to inventory</li>
+<li><strong>Is Consumable</strong> <em>(checkbox)</em> — Marks the product as a consumable item</li>
+<li><strong>Description</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li>The product title is automatically composed as: <code>Brand + Model + Type Name</code></li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="923-edit-product">9.2.3 Edit Product</h4>
+<ol>
+<li>Click the <strong>Edit</strong> icon</li>
+<li>Modify fields as needed</li>
+<li>Check/uncheck the <strong>Is Consumable</strong> flag as needed</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h4 id="924-delete-product">9.2.4 Delete Product</h4>
+<ol>
+<li>Click the <strong>Delete</strong> icon</li>
+<li>Confirm the deletion</li>
+<li><strong>Restriction:</strong> A product cannot be deleted if it has any associated purchase products</li>
+</ol>
+<hr>
+<h3 id="93-stores--locations">9.3 Stores / Locations</h3>
+<p><strong>Route:</strong> <code>/stores</code><br>
+<strong>Permissions Required:</strong> <code>store-list</code>, <code>store-create</code>, <code>store-edit</code>, <code>store-delete</code></p>
+<p>Stores represent physical storage locations for inventory items.</p>
+<h4 id="931-create-store">9.3.1 Create Store</h4>
+<ol>
+<li>Click <strong>Add</strong></li>
+<li>Enter:
+<ul>
+<li><strong>Name</strong> <em>(required)</em></li>
+<li><strong>Address</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="932-edit--delete-store">9.3.2 Edit / Delete Store</h4>
+<ul>
+<li>Edit: Click <strong>Edit</strong> icon, update name/address, click <strong>Update</strong></li>
+<li>Delete: Click <strong>Delete</strong> icon. <strong>Restriction:</strong> Cannot delete if stock items reference this store.</li>
+</ul>
+<hr>
+<h3 id="94-asset-statuses">9.4 Asset Statuses</h3>
+<p><strong>Route:</strong> <code>/statuses</code><br>
+<strong>Permissions Required:</strong> <code>status-list</code>, <code>status-create</code>, <code>status-edit</code>, <code>status-delete</code></p>
+<p>Asset statuses categorize the condition or lifecycle stage of stock items (e.g., Active, In Repair, Disposed).</p>
+<h4 id="941-create-status">9.4.1 Create Status</h4>
+<ol>
+<li>Click <strong>Add</strong></li>
+<li>Enter <strong>Name</strong> <em>(required)</em></li>
+<li>Click <strong>Save</strong> — slug is auto-generated</li>
+</ol>
+<h4 id="942-edit--delete-status">9.4.2 Edit / Delete Status</h4>
+<ul>
+<li>Edit: Click <strong>Edit</strong> icon, update name, click <strong>Update</strong></li>
+<li>Delete: Click <strong>Delete</strong> icon. <strong>Restriction:</strong> Cannot delete if stock items reference this status.</li>
+</ul>
+<hr>
+<h3 id="95-suppliers">9.5 Suppliers</h3>
+<p><strong>Route:</strong> <code>/suppliers</code><br>
+<strong>Permissions Required:</strong> <code>suppliers-list</code>, <code>suppliers-create</code>, <code>suppliers-edit</code>, <code>suppliers-delete</code></p>
+<p>Suppliers are organizations providing products for purchase.</p>
+<h4 id="951-create-supplier">9.5.1 Create Supplier</h4>
+<ol>
+<li>Click <strong>Add</strong></li>
+<li>Fill in:
+<ul>
+<li><strong>Company Name</strong> <em>(required)</em></li>
+<li><strong>Contact Person Name</strong> <em>(required)</em></li>
+<li><strong>Phone</strong> <em>(optional)</em></li>
+<li><strong>Email</strong> <em>(optional)</em></li>
+<li><strong>Address</strong> <em>(optional)</em></li>
+<li><strong>Description</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="952-edit--delete-supplier">9.5.2 Edit / Delete Supplier</h4>
+<ul>
+<li>Edit: Click <strong>Edit</strong> icon, update fields, click <strong>Update</strong></li>
+<li>Delete: Click <strong>Delete</strong> icon. <strong>Restriction:</strong> Cannot delete if purchases reference this supplier.</li>
+</ul>
+<hr>
+<h3 id="96-departments">9.6 Departments</h3>
+<p><strong>Route:</strong> <code>/departments</code><br>
+<strong>Permissions Required:</strong> <code>department-list</code>, <code>department-create</code>, <code>department-edit</code>, <code>department-delete</code></p>
+<p>Departments are organizational units that employees belong to.</p>
+<h4 id="961-create-department">9.6.1 Create Department</h4>
+<ol>
+<li>Click <strong>Add</strong></li>
+<li>Enter:
+<ul>
+<li><strong>Name</strong> <em>(required)</em></li>
+<li><strong>Short Name</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li>Click <strong>Save</strong> — slug is auto-generated</li>
+</ol>
+<h4 id="962-edit--delete-department">9.6.2 Edit / Delete Department</h4>
+<ul>
+<li>Edit: Click <strong>Edit</strong> icon, update name/short name, click <strong>Update</strong></li>
+<li>Delete: Click <strong>Delete</strong> icon. <strong>Restriction:</strong> Cannot delete if employees belong to this department.</li>
+</ul>
+<hr>
+<h2 id="10-employee-management">10. Employee Management</h2>
+<p><strong>Route:</strong> <code>/employees</code><br>
+<strong>Permissions Required:</strong> <code>employee-list</code>, <code>employee-create</code>, <code>employee-edit</code>, <code>employee-delete</code></p>
+<h3 id="101-view-employees">10.1 View Employees</h3>
+<ol>
+<li>Navigate to <strong>Employees</strong> from the sidebar</li>
+<li>The page displays:
+<ul>
+<li><strong>Summary Statistics:</strong> Total employees, Active, Inactive, With Assignments, Departments, Active Distributions</li>
+</ul>
+</li>
+<li>The DataTable supports filtering by:
+<ul>
+<li><strong>Department</strong> (dropdown)</li>
+<li><strong>Status</strong> (Active / Inactive)</li>
+<li><strong>Assignment Status</strong> (With Assets / Without Assets)</li>
+</ul>
+</li>
+<li>Each row shows: Employee info (photo, ID, name, designation), Contact info, Status badge, Assignment count</li>
+</ol>
+<h3 id="102-create-employee">10.2 Create Employee</h3>
+<ol>
+<li>Click <strong>Create Employee</strong></li>
+<li>Fill in:
+<ul>
+<li><strong>Department</strong> <em>(required, dropdown)</em></li>
+<li><strong>Employee Name</strong> <em>(required)</em></li>
+<li><strong>Designation</strong> <em>(required)</em></li>
+<li><strong>Employee ID</strong> <em>(required, unique numeric identifier)</em></li>
+<li><strong>Phone</strong> <em>(optional)</em></li>
+<li><strong>Email</strong> <em>(optional)</em></li>
+<li><strong>Date of Joining</strong> <em>(optional)</em></li>
+<li><strong>Profile Photo</strong> <em>(optional, image file)</em></li>
+</ul>
+</li>
+<li>The photo is automatically resized to <strong>400×400 pixels</strong></li>
+<li>Default image is used if no photo is uploaded</li>
+<li>Employee status is set to <strong>Active</strong> by default</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h3 id="103-view-employee-details">10.3 View Employee Details</h3>
+<ol>
+<li>Click the <strong>View</strong> icon on an employee row</li>
+<li>View complete employee profile</li>
+</ol>
+<h3 id="104-edit-employee">10.4 Edit Employee</h3>
+<ol>
+<li>Click the <strong>Edit</strong> icon</li>
+<li>Update fields as needed</li>
+<li>Upload a new photo to replace the existing one (old photo is deleted)</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h3 id="105-toggle-employee-status">10.5 Toggle Employee Status</h3>
+<ol>
+<li>Click the <strong>Status Toggle</strong> button on an employee row</li>
+<li>The status alternates between <strong>Active</strong> (1) and <strong>Inactive</strong> (2)</li>
+</ol>
+<blockquote>
+<p><strong>Audit:</strong> All employee create/edit/status operations are logged.</p>
+</blockquote>
+<hr>
+<h2 id="11-purchase-management">11. Purchase Management</h2>
+<p><strong>Route:</strong> <code>/purchases</code><br>
+<strong>Permissions Required:</strong> <code>purchase-list</code>, <code>purchase-create</code>, <code>purchase-edit</code>, <code>purchase-delete</code>, <code>purchase-addinventory</code></p>
+<p>The purchase module handles procurement of assets from suppliers.</p>
+<h3 id="111-view-purchases">11.1 View Purchases</h3>
+<ol>
+<li>Navigate to <strong>Purchases</strong> from the sidebar</li>
+<li>The page displays:
+<ul>
+<li><strong>Summary Statistics:</strong> Total purchases, Approved, Pending, Total Value, This Month count/value</li>
+</ul>
+</li>
+<li>The DataTable supports filtering by:
+<ul>
+<li><strong>Supplier</strong> (dropdown)</li>
+<li><strong>Approval Status</strong> (Approved / Pending)</li>
+<li><strong>Date Range</strong> (from–to date pickers)</li>
+<li><strong>Price Range</strong> (minimum–maximum)</li>
+</ul>
+</li>
+<li>Each row shows: Status badge, Approval progress bar, Date, Price, Actions</li>
+</ol>
+<h3 id="112-create-purchase">11.2 Create Purchase</h3>
+<ol>
+<li>Click <strong>Create Purchase</strong></li>
+<li>Fill in the <strong>Purchase Header:</strong>
+<ul>
+<li><strong>Supplier</strong> <em>(required, dropdown)</em></li>
+<li><strong>Invoice Number</strong> <em>(auto-generated in format <code>DDMMYYYY-NNN</code>, editable)</em></li>
+<li><strong>Reference Invoice</strong> <em>(optional)</em></li>
+<li><strong>Challan Number</strong> <em>(optional)</em></li>
+<li><strong>Purchase Date</strong> <em>(required)</em></li>
+<li><strong>Received Date</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li><strong>Add Product Lines</strong> (one or more):
+<ul>
+<li><strong>Product Type</strong> <em>(required, dropdown)</em> — Filters available products</li>
+<li><strong>Product</strong> <em>(required, dropdown)</em> — Filtered by selected type</li>
+<li><strong>Quantity</strong> <em>(required, numeric)</em></li>
+<li><strong>Unit Price</strong> <em>(required, numeric)</em></li>
+<li><strong>Total</strong> <em>(auto-calculated: quantity × unit price)</em></li>
+<li><strong>Serial Numbers</strong> <em>(required if product has <code>is_serial</code> flag)</em> — Enter each serial on a new line</li>
+<li><strong>Warranty Period</strong> <em>(required if product has <code>is_license</code> flag)</em> — In months; expiry date is auto-calculated</li>
+</ul>
+</li>
+<li>Click <strong>Add More</strong> to add additional product lines</li>
+<li>Click <strong>Save Purchase</strong></li>
+</ol>
+<p><strong>Validation Rules:</strong></p>
+<ul>
+<li>If a product requires serial numbers, the count of serials must <strong>exactly match</strong> the quantity</li>
+<li>If a product requires warranty, the warranty field is mandatory</li>
+<li>At least one product line is required</li>
+</ul>
+<p><strong>After saving:</strong> The purchase is created with status <strong>Pending</strong> (<code>is_stocked = 2</code>).</p>
+<h3 id="113-edit-purchase">11.3 Edit Purchase</h3>
+<ol>
+<li>Click <strong>Edit</strong> on a purchase row</li>
+<li>Modify purchase header or product lines</li>
+<li>Add new product lines, update existing ones, or remove lines</li>
+<li>Click <strong>Update</strong></li>
+<li>The purchase is reset to <strong>Pending</strong> status</li>
+</ol>
+<h3 id="114-view-purchase-details">11.4 View Purchase Details</h3>
+<ol>
+<li>Click <strong>View</strong> on a purchase row</li>
+<li>See complete purchase information, product lines, and stock status</li>
+</ol>
+<h3 id="115-generate-grn-goods-received-note">11.5 Generate GRN (Goods Received Note)</h3>
+<ol>
+<li>From the purchase list or purchase view, click <strong>GRN</strong></li>
+<li>A <strong>landscape A4 PDF</strong> is generated containing:
+<ul>
+<li>Supplier information</li>
+<li>All product lines with quantities, serials, and prices</li>
+<li>Total amount</li>
+</ul>
+</li>
+<li>The PDF can be printed or downloaded</li>
+</ol>
+<h3 id="116-add-to-inventory-approve-purchase">11.6 Add to Inventory (Approve Purchase)</h3>
+<p><strong>Permission Required:</strong> <code>purchase-addinventory</code></p>
+<p>This is the critical step that converts purchase products into stock entries.</p>
+<ol>
+<li>
+<p>From the purchase view, click <strong>Add to Inventory</strong> for a product line</p>
+</li>
+<li>
+<p>The system creates stock records based on the product type:</p>
+<table>
+<thead>
+<tr>
+<th>Product Type</th>
+<th>Stock Creation Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Laptop</strong></td>
+<td>Creates <strong>1 stock record per unit</strong>. Service tags assigned from serial numbers.</td>
+</tr>
+<tr>
+<td><strong>Software</strong></td>
+<td>Creates <strong>1 stock record</strong> with the total quantity.</td>
+</tr>
+<tr>
+<td><strong>Other Products</strong></td>
+<td>Creates <strong>1 stock record per unit</strong>.</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>If the product is taggable (<code>is_taggable = true</code>):</strong></p>
+<ul>
+<li>Asset tags are <strong>auto-generated</strong> in the format: <code>{TypeInitial}{5-digit-number}</code></li>
+<li>Example: <code>L00001</code> for Laptop, <code>M00001</code> for Monitor</li>
+<li>The system finds the highest existing tag for that prefix and increments</li>
+</ul>
+</li>
+<li>
+<p>After processing:</p>
+<ul>
+<li>The PurchaseProduct is marked as stocked (<code>is_stocked = 1</code>)</li>
+<li>When all products in a purchase are stocked, the purchase itself is marked as stocked</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>Important:</strong> This action is irreversible. Verify product details before adding to inventory.</p>
+</blockquote>
+<h3 id="117-view-purchased-products">11.7 View Purchased Products</h3>
+<p><strong>Route:</strong> <code>/purchased-products</code></p>
+<ol>
+<li>Navigate to <strong>Purchased Products</strong></li>
+<li>View all individual purchase product records across all purchases</li>
+<li>Click on a product to see detailed information</li>
+</ol>
+<hr>
+<h2 id="12-inventory--stock-management">12. Inventory / Stock Management</h2>
+<p><strong>Route:</strong> <code>/inventories</code><br>
+<strong>Permissions Required:</strong> <code>inventory-list</code>, <code>inventory-create</code>, <code>inventory-edit</code>, <code>inventory-delete</code>, <code>inventory-update-tag</code></p>
+<h3 id="121-view-inventory">12.1 View Inventory</h3>
+<ol>
+<li>Navigate to <strong>Inventory</strong> from the sidebar</li>
+<li>The page displays:
+<ul>
+<li><strong>Summary Statistics:</strong> Total items, Assigned, Available, Pending Tags, Warranty Expiring (30 days), Damaged Items</li>
+</ul>
+</li>
+<li>The DataTable supports filtering by:
+<ul>
+<li><strong>Product Type</strong> (dropdown)</li>
+<li><strong>Condition</strong> (dropdown)</li>
+<li><strong>Store / Location</strong> (dropdown)</li>
+<li><strong>Supplier</strong> (dropdown)</li>
+<li><strong>Department</strong> (dropdown)</li>
+<li><strong>Assignment Status</strong> (Assigned / Available)</li>
+</ul>
+</li>
+<li>Each row shows: Asset tag, Serial/Service tag, Product info, Store, Condition, Assignment status (employee name or store), Actions</li>
+<li><strong>QR + Barcode combo print button</strong> is available for selected items</li>
+</ol>
+<h3 id="122-view-stock-item-details">12.2 View Stock Item Details</h3>
+<ol>
+<li>Click <strong>View</strong> on a stock row</li>
+<li>View complete stock information including:
+<ul>
+<li>Product details (type, brand, model)</li>
+<li>Purchase information (date, supplier, invoice)</li>
+<li>Asset identifiers (tag, serial, service tag, MAC)</li>
+<li>Current assignment status</li>
+<li>Warranty information</li>
+<li>Transaction history</li>
+</ul>
+</li>
+</ol>
+<h3 id="123-edit-stock-item">12.3 Edit Stock Item</h3>
+<ol>
+<li>Click <strong>Edit</strong> on a stock row (or from the detail view)</li>
+<li>Editable fields:
+<ul>
+<li><strong>Store / Location</strong> <em>(dropdown)</em></li>
+<li><strong>Asset Condition</strong> <em>(dropdown)</em></li>
+<li><strong>Serial Number / Service Tag</strong></li>
+<li><strong>Asset Tag</strong></li>
+</ul>
+</li>
+<li><strong>Employee Reassignment:</strong>
+<ul>
+<li>If you change the assigned <strong>Employee ID</strong>:
+<ul>
+<li>The current assignment is <strong>automatically closed</strong> (return date set)</li>
+<li>A <strong>new transaction</strong> is created for the new employee</li>
+</ul>
+</li>
+<li>If the stock is unassigned and you assign an employee:
+<ul>
+<li>A new transaction is created</li>
+<li>Stock status changes to <strong>Assigned</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h3 id="124-pending-asset-tags">12.4 Pending Asset Tags</h3>
+<p><strong>Route:</strong> <code>/pending-tag-updates</code><br>
+<strong>Permission Required:</strong> <code>inventory-update-tag</code></p>
+<ol>
+<li>Navigate to <strong>Pending Tag Updates</strong></li>
+<li>View all stock items that do <strong>not</strong> have an asset tag</li>
+<li>Filter by: Product type, Status, Store, Assignment status</li>
+<li>For each item, enter the asset tag manually</li>
+<li>Click <strong>Update Tag</strong> — the tag is saved via AJAX</li>
+</ol>
+<h3 id="125-bulk-upload-asset-tags">12.5 Bulk Upload Asset Tags</h3>
+<ol>
+<li>From the Pending Tags page, click <strong>Upload Bulk</strong></li>
+<li>Upload an <strong>Excel/CSV file</strong> with asset tag mappings</li>
+<li>The system processes the file using the <code>StockImport</code> class</li>
+<li>Tags are assigned to matching stock records</li>
+</ol>
+<hr>
+<h2 id="13-distribution--transaction-management">13. Distribution / Transaction Management</h2>
+<p><strong>Route:</strong> <code>/transections</code><br>
+<strong>Permissions Required:</strong> <code>distribution-list</code>, <code>distribution-create</code>, <code>distribution-edit</code>, <code>distribution-delete</code>, <code>distribution-return</code></p>
+<p>This module manages the assignment (issue) and return of assets to/from employees.</p>
+<h3 id="131-view-distributions">13.1 View Distributions</h3>
+<ol>
+<li>Navigate to <strong>Distributions</strong> from the sidebar</li>
+<li>The page displays:
+<ul>
+<li><strong>Summary Statistics:</strong> Total transactions, Active assignments, Returned items, Overdue (&gt;30 days), Unique employees, Total items out</li>
+</ul>
+</li>
+<li>The DataTable supports filtering by:
+<ul>
+<li><strong>Employee</strong> (dropdown)</li>
+<li><strong>Department</strong> (dropdown)</li>
+<li><strong>Product Type</strong> (dropdown)</li>
+<li><strong>Status</strong> (Active / Returned / Overdue)</li>
+<li><strong>Date Range</strong> (from–to)</li>
+</ul>
+</li>
+<li>Each row shows: Employee info, Product info, Issue date, Return date, Status (Active/Returned/Overdue)</li>
+</ol>
+<h3 id="132-create-distribution-issue-asset">13.2 Create Distribution (Issue Asset)</h3>
+<ol>
+<li>Click <strong>Create Distribution</strong></li>
+<li>Fill in:
+<ul>
+<li><strong>Product Type</strong> <em>(required, dropdown)</em> — Filters available stock</li>
+<li><strong>Available Item</strong> <em>(required, dropdown)</em> — Shows only unassigned/available stock</li>
+<li><strong>Employee</strong> <em>(required, dropdown)</em></li>
+<li><strong>Quantity</strong> <em>(required, for software items)</em></li>
+<li><strong>Date of Issue</strong> <em>(required)</em></li>
+<li><strong>Comment</strong> <em>(optional)</em></li>
+<li><strong>Print Acknowledgement</strong> <em>(checkbox)</em> — If checked, ACK PDF opens after save</li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li><strong>Software/License Items:</strong> The system checks available license count (<code>quantity - assigned</code>). If sufficient, increments the <code>assigned</code> count.</li>
+<li><strong>Physical Items:</strong> The stock item is directly marked as <strong>Assigned</strong> (<code>is_assigned = 1</code>).</li>
+<li>A <code>Transection</code> record is created linking the stock to the employee.</li>
+</ul>
+<h3 id="133-process-return">13.3 Process Return</h3>
+<p>There are two methods to process a return:</p>
+<h4 id="method-a--from-the-editupdate">Method A — From the Edit/Update</h4>
+<ol>
+<li>Click <strong>Edit</strong> on a distribution row</li>
+<li>Set the <strong>Return Date</strong></li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h4 id="method-b--quick-return-ajax">Method B — Quick Return (AJAX)</h4>
+<ol>
+<li>Click <strong>Mark Returned</strong> on a distribution row</li>
+<li>Set the return date in the inline field</li>
+<li>Confirm the return</li>
+</ol>
+<p><strong>Return Business Logic:</strong></p>
+<ul>
+<li><strong>Software:</strong> Decrements the <code>assigned</code> count. If no copies remain assigned, resets <code>is_assigned = 2</code>.</li>
+<li><strong>Physical Items:</strong> Sets <code>is_assigned = 2</code> (Available).</li>
+<li>The <code>return_date</code> is set on the <code>Transection</code> record.</li>
+</ul>
+<h3 id="134-print-acknowledgement-ack">13.4 Print Acknowledgement (ACK)</h3>
+<ol>
+<li><strong>Single ACK:</strong> Click <strong>ACK</strong> on a distribution row → A4 PDF is generated</li>
+<li><strong>Multi-Item ACK:</strong> Select multiple distributions, enter employee ID and issue date, click <strong>Print ACK</strong> → Combined A4 PDF for all selected items</li>
+</ol>
+<h3 id="135-print-return-receipt">13.5 Print Return Receipt</h3>
+<ol>
+<li>Click <strong>Return Receipt</strong> on a returned distribution row</li>
+<li>A PDF return form is generated</li>
+</ol>
+<hr>
+<h2 id="14-requisition-management">14. Requisition Management</h2>
+<p><strong>Route:</strong> <code>/requisitions</code><br>
+<strong>Permissions Required:</strong> <em>(Currently no explicit permission middleware)</em></p>
+<p>Requisitions allow departments to formally request assets.</p>
+<h3 id="141-view-requisitions">14.1 View Requisitions</h3>
+<ol>
+<li>Navigate to <strong>Requisitions</strong> from the sidebar</li>
+<li>All requisitions are listed</li>
+</ol>
+<h3 id="142-create-requisition">14.2 Create Requisition</h3>
+<ol>
+<li>Click <strong>Create Requisition</strong></li>
+<li>Fill in:
+<ul>
+<li><strong>Product Type</strong> <em>(required, dropdown)</em></li>
+<li><strong>Product</strong> <em>(optional, dropdown — filtered by type)</em></li>
+<li><strong>Department</strong> <em>(required, dropdown)</em></li>
+<li><strong>Quantity</strong> <em>(required)</em></li>
+<li><strong>Description</strong> <em>(optional)</em></li>
+<li><strong>Justification</strong> <em>(optional)</em></li>
+<li><strong>Remarks</strong> <em>(optional)</em></li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+<li>Status is set to <strong>Pending</strong> automatically</li>
+</ol>
+<hr>
+<h2 id="15-qr-code--barcode-management">15. QR Code &amp; Barcode Management</h2>
+<p><strong>Permissions Required:</strong> <code>qrcode-generate</code>, <code>qrcode-print</code>, <code>barcode-generate</code>, <code>barcode-print</code></p>
+<p>The system supports three types of labels: QR codes, barcodes, and combo (QR + Barcode) labels.</p>
+<h3 id="151-qr-code-generation">15.1 QR Code Generation</h3>
+<p>QR codes contain structured data about the stock item:</p>
+<ul>
+<li>Organization name</li>
+<li>Serial/Service tag number</li>
+<li>Product type and model</li>
+<li>Asset tag</li>
+<li>Purchase date</li>
+<li>URL link to the stock detail page</li>
+</ul>
+<h3 id="152-individual-stock-labels">15.2 Individual Stock Labels</h3>
+<p>From any stock item view or the inventory list:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Label Size</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Print QR Code</strong></td>
+<td>1.4&quot; × 1.4&quot;</td>
+<td>QR code with stock data</td>
+</tr>
+<tr>
+<td><strong>Print Barcode</strong></td>
+<td>3.5&quot; × 1.4&quot;</td>
+<td>Code128 barcode with serial</td>
+</tr>
+<tr>
+<td><strong>Print Combo Label</strong></td>
+<td>1.4&quot; × 2.5&quot;</td>
+<td>QR code + Code128 barcode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="153-bulk-label-printing">15.3 Bulk Label Printing</h3>
+<ol>
+<li>In the Inventory list, select multiple stock items using checkboxes</li>
+<li>Choose the print action:
+<ul>
+<li><strong>Print Multiple QR Codes</strong> — A4 page with multiple 1.4&quot; QR labels</li>
+<li><strong>Print Multiple Barcodes</strong> — A4 page with multiple barcode labels</li>
+<li><strong>Print Multiple Combo Labels</strong> — A4 page with 1.4&quot; × 2.5&quot; combo labels</li>
+</ul>
+</li>
+</ol>
+<h3 id="154-purchase-level-label-printing">15.4 Purchase-Level Label Printing</h3>
+<p>From a purchase view:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Print QR Codes</strong></td>
+<td>All stock items from the purchase on one PDF</td>
+</tr>
+<tr>
+<td><strong>Print QR Labels</strong></td>
+<td>Individual 1.4&quot; × 1.4&quot; QR labels per stock</td>
+</tr>
+<tr>
+<td><strong>Print Combo Labels</strong></td>
+<td>Individual 1.4&quot; × 2.5&quot; QR + Barcode labels per stock</td>
+</tr>
+</tbody>
+</table>
+<h3 id="155-custom-qr-code-generation">15.5 Custom QR Code Generation</h3>
+<p><strong>Route:</strong> <code>/qr-codes</code></p>
+<ol>
+<li>Navigate to <strong>QR Code Generator</strong></li>
+<li>Options:
+<ul>
+<li><strong>Custom Data</strong> — Enter up to 1,000 characters of text</li>
+<li><strong>URL</strong> — Enter a URL to generate a QR code</li>
+</ul>
+</li>
+<li>Customize: Color, margin, error correction level</li>
+<li>Click <strong>Generate</strong></li>
+</ol>
+<hr>
+<h2 id="16-reports">16. Reports</h2>
+<p><strong>Route:</strong> <code>/reports/*</code><br>
+<strong>Permissions Required:</strong> <code>report-list</code>, <code>report-view</code>, <code>report-employee</code>, <code>report-product</code>, <code>report-distribution</code>, <code>report-purchase</code>, <code>report-inventory</code>, <code>users-log</code>, <code>user-log-view</code></p>
+<h3 id="161-employee-report">16.1 Employee Report</h3>
+<p><strong>Route:</strong> <code>/reports/employees</code></p>
+<ol>
+<li>Navigate to <strong>Reports → Employees</strong></li>
+<li>Filter by <strong>Department</strong> and <strong>Sort Order</strong></li>
+<li>View employee listing with asset assignment summary</li>
+<li>Click on an employee to see detailed asset report</li>
+</ol>
+<h3 id="162-stock-summary-report">16.2 Stock Summary Report</h3>
+<p><strong>Route:</strong> <code>/reports/stocks</code></p>
+<ol>
+<li>Navigate to <strong>Reports → Stocks</strong></li>
+<li>View stock summary <strong>grouped by product type</strong>:
+<ul>
+<li>Total items per type</li>
+<li>Assigned count</li>
+<li>Available count</li>
+<li>Total value (from purchase data)</li>
+</ul>
+</li>
+<li>Click on a type to drill down to detailed stock list</li>
+</ol>
+<h3 id="163-transaction-report">16.3 Transaction Report</h3>
+<p><strong>Route:</strong> <code>/reports/transections</code></p>
+<ol>
+<li>Navigate to <strong>Reports → Transactions</strong></li>
+<li>Filter by <strong>Employee</strong> and sort</li>
+<li>View all transaction history with issue/return dates</li>
+</ol>
+<h3 id="164-detailed-inventory-report">16.4 Detailed Inventory Report</h3>
+<p><strong>Route:</strong> <code>/reports/detailed-inventory</code></p>
+<ol>
+<li>Navigate to <strong>Reports → Detailed Inventory</strong></li>
+<li>Apply filters:
+<ul>
+<li><strong>Product Type</strong></li>
+<li><strong>Product Model</strong></li>
+<li><strong>Store / Location</strong></li>
+<li><strong>Supplier</strong></li>
+<li><strong>Department</strong></li>
+<li><strong>Condition</strong> (Good / Obsolete / Damaged)</li>
+<li><strong>Asset Status</strong></li>
+<li><strong>Assignment Status</strong> (Assigned / Available)</li>
+<li><strong>Warranty Status</strong> (Active / Expiring / Expired)</li>
+<li><strong>Date Range</strong> (purchase date)</li>
+</ul>
+</li>
+<li>Click <strong>Search</strong> — Results displayed via DataTable</li>
+<li>Each row shows complete stock details with current assignment</li>
+</ol>
+<h3 id="165-user-activity-logs">16.5 User Activity Logs</h3>
+<p><strong>Route:</strong> <code>/reports/user-logs</code></p>
+<ol>
+<li>Navigate to <strong>Reports → User Logs</strong></li>
+<li>Filter by:
+<ul>
+<li><strong>User</strong> (dropdown)</li>
+<li><strong>Action Type</strong> (dropdown)</li>
+<li><strong>Date Range</strong></li>
+</ul>
+</li>
+<li>View all logged user actions with timestamps and IP addresses</li>
+</ol>
+<hr>
+<h2 id="17-user-management">17. User Management</h2>
+<p><strong>Route:</strong> <code>/users</code><br>
+<strong>Permissions Required:</strong> <code>user-list</code>, <code>user-create</code>, <code>user-edit</code>, <code>user-delete</code></p>
+<h3 id="171-view-users">17.1 View Users</h3>
+<ol>
+<li>Navigate to <strong>Users</strong> from the sidebar</li>
+<li><strong>Super Admin</strong> sees all users</li>
+<li><strong>Other admins</strong> see only non-admin users</li>
+</ol>
+<h3 id="172-create-user">17.2 Create User</h3>
+<ol>
+<li>Click <strong>Create User</strong></li>
+<li>Fill in:
+<ul>
+<li><strong>Name</strong> <em>(required)</em></li>
+<li><strong>Username</strong> <em>(required, unique)</em></li>
+<li><strong>Email</strong> <em>(required, unique)</em></li>
+<li><strong>Employee ID</strong> <em>(required, unique — links to Employee record)</em></li>
+<li><strong>Role</strong> <em>(required, dropdown)</em></li>
+<li><strong>Password</strong> <em>(required, min 6 characters)</em></li>
+<li><strong>Confirm Password</strong> <em>(required, must match)</em></li>
+</ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Business Rules:</strong></p>
+<ul>
+<li>Non-super-admins <strong>cannot</strong> see or assign the <code>super-admin</code> role</li>
+<li>If a user is assigned the <code>super-admin</code> role, their <code>is_admin</code> flag is set to <code>1</code></li>
+</ul>
+<h3 id="173-edit-user">17.3 Edit User</h3>
+<ol>
+<li>Click <strong>Edit</strong> on a user row</li>
+<li>Update fields (password is optional — leave blank to keep current)</li>
+<li>Change role assignment if needed</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<h3 id="174-delete-user">17.4 Delete User</h3>
+<ol>
+<li>Click <strong>Delete</strong> on a user row</li>
+<li>Confirm the deletion</li>
+<li>All roles are revoked before the user is deleted</li>
+</ol>
+<p><strong>Restriction:</strong> Non-super-admins <strong>cannot</strong> delete users with the super-admin role.</p>
+<hr>
+<h2 id="18-role--permission-management">18. Role &amp; Permission Management</h2>
+<p><strong>Route:</strong> <code>/roles</code><br>
+<strong>Permissions Required:</strong> <code>role-list</code>, <code>role-create</code>, <code>role-edit</code>, <code>role-delete</code></p>
+<h3 id="181-view-roles">18.1 View Roles</h3>
+<ol>
+<li>Navigate to <strong>Roles</strong> from the sidebar</li>
+<li>All roles are listed <strong>except</strong> the super-admin role (ID 1)</li>
+</ol>
+<h3 id="182-create-role">18.2 Create Role</h3>
+<ol>
+<li>Click <strong>Create Role</strong></li>
+<li>Enter <strong>Role Name</strong> <em>(required, unique)</em></li>
+<li>Select <strong>Permissions</strong> — Check individual permissions to grant</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Restriction:</strong> The name <code>super-admin</code> is blocked — it cannot be used for new roles.</p>
+<h3 id="183-edit-role">18.3 Edit Role</h3>
+<ol>
+<li>Click <strong>Edit</strong> on a role row</li>
+<li>Update name and/or permissions</li>
+<li>Click <strong>Update</strong></li>
+</ol>
+<p><strong>Restriction:</strong> The super-admin role cannot be edited.</p>
+<h3 id="184-delete-role">18.4 Delete Role</h3>
+<ol>
+<li>Click <strong>Delete</strong> on a role row</li>
+<li>Confirm the deletion</li>
+<li>All permissions are revoked from the role before deletion</li>
+</ol>
+<p><strong>Restriction:</strong> The super-admin role cannot be deleted.</p>
+<hr>
+<h2 id="19-employee-management-management-module">19. Employee Management (Management Module)</h2>
+<p><strong>Route:</strong> <code>/management/employees</code><br>
+<strong>Permission Required:</strong> <code>management-all</code></p>
+<p>This module handles employee offboarding/resignation and product status management.</p>
+<h3 id="191-employee-offboarding">19.1 Employee Offboarding</h3>
+<ol>
+<li>Navigate to <strong>Management → Employees</strong></li>
+<li>View list of active employees</li>
+<li>Click <strong>Edit</strong> on an employee</li>
+<li>Enter <strong>Date of Resignation</strong> <em>(required)</em></li>
+<li>Click <strong>Submit</strong></li>
+</ol>
+<p><strong>Automated Offboarding Process:</strong>
+The system automatically:</p>
+<ol>
+<li><strong>Closes all active transactions</strong> — Sets <code>return_date</code> on every active assignment</li>
+<li><strong>Makes all stock available</strong> — Sets <code>is_assigned = 2</code> on all previously assigned items</li>
+<li><strong>Updates employee status</strong> — Sets status to <strong>Inactive</strong> (2)</li>
+<li><strong>Records resign date</strong> — Saves the date of resignation</li>
+</ol>
+<blockquote>
+<p><strong>Warning:</strong> This action processes all active transactions for the employee. Ensure all assets have been physically collected before proceeding.</p>
+</blockquote>
+<h3 id="192-product-status-management">19.2 Product Status Management</h3>
+<p><strong>Route:</strong> <code>/management/products</code></p>
+<ol>
+<li>Navigate to <strong>Management → Products</strong></li>
+<li>View all stock items</li>
+<li>Update the product status for any item:
+<ul>
+<li><strong>Active</strong> (1)</li>
+<li><strong>Poor</strong> (2)</li>
+<li><strong>Damaged</strong> (3)</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="20-onboarding-module">20. Onboarding Module</h2>
+<p><strong>Route:</strong> <code>/onboarding</code><br>
+<strong>Permissions Required:</strong> <code>onboarding-list</code>, <code>onboarding-create</code></p>
+<h3 id="201-view-onboarding">20.1 View Onboarding</h3>
+<ol>
+<li>Navigate to <strong>Onboarding</strong></li>
+<li>View all employees available for onboarding</li>
+</ol>
+<h3 id="202-generate-onboarding-form">20.2 Generate Onboarding Form</h3>
+<ol>
+<li>Select an employee</li>
+<li>Check the equipment to include:
+<ul>
+<li>☐ Laptop</li>
+<li>☐ Mobile</li>
+<li>☐ Pen Drive</li>
+<li>☐ Mouse</li>
+<li>☐ Camera</li>
+<li>☐ Laptop Bag</li>
+<li>☐ SD Card</li>
+<li>☐ Manual</li>
+</ul>
+</li>
+<li>Click <strong>Print</strong></li>
+<li>An <strong>Acknowledgement PDF</strong> is generated</li>
+</ol>
+<h3 id="203-generate-return-form">20.3 Generate Return Form</h3>
+<ol>
+<li>Select an employee</li>
+<li>Check the equipment</li>
+<li>Enable the <strong>Return</strong> option</li>
+<li>Click <strong>Print</strong></li>
+<li>A <strong>Return Form PDF</strong> is generated</li>
+</ol>
+<hr>
+<h2 id="21-data-import">21. Data Import</h2>
+<p><strong>Route:</strong> <code>/imports</code><br>
+<strong>Permissions Required:</strong> <code>imports-list</code>, <code>import-create</code></p>
+<h3 id="211-import-data">21.1 Import Data</h3>
+<ol>
+<li>
+<p>Navigate to <strong>Imports</strong> from the sidebar</p>
+</li>
+<li>
+<p>Select the <strong>Import Type:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Import Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Products</strong></td>
+<td>Import product records</td>
+</tr>
+<tr>
+<td><strong>Purchase Products</strong></td>
+<td>Import purchase product records</td>
+</tr>
+<tr>
+<td><strong>Stock (All)</strong></td>
+<td>Import complete stock records</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td>Import transaction records</td>
+</tr>
+<tr>
+<td><strong>Employees</strong></td>
+<td>Import employee records</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Upload a <strong>CSV file</strong> <em>(CSV format only)</em></p>
+</li>
+<li>
+<p>Click <strong>Import</strong></p>
+</li>
+<li>
+<p>The system processes the file and imports records</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Audit:</strong> All imports are logged with the import type and user.</p>
+</blockquote>
+<h3 id="212-csv-file-requirements">21.2 CSV File Requirements</h3>
+<p>Each import type expects specific column headers matching the model's fillable fields. Refer to the corresponding Import class for exact column mappings.</p>
+<hr>
+<h2 id="22-settings">22. Settings</h2>
+<h3 id="221-profile-settings">22.1 Profile Settings</h3>
+<p><strong>Route:</strong> <code>/settings/profile</code></p>
+<ol>
+<li>Navigate to <strong>Settings → Profile</strong></li>
+<li>Update:
+<ul>
+<li><strong>Name</strong></li>
+<li><strong>Profile Photo</strong> <em>(image file, resized to 400×400)</em></li>
+</ul>
+</li>
+<li>Click <strong>Update Profile</strong></li>
+<li>Both the User record and linked Employee record are updated</li>
+</ol>
+<h3 id="222-password-change">22.2 Password Change</h3>
+<p><strong>Route:</strong> <code>/settings/password</code></p>
+<ol>
+<li>Navigate to <strong>Settings → Password</strong></li>
+<li>Enter:
+<ul>
+<li><strong>Current Password</strong> <em>(required)</em></li>
+<li><strong>New Password</strong> <em>(required, min 6 characters)</em></li>
+<li><strong>Confirm New Password</strong> <em>(required, must match)</em></li>
+</ul>
+</li>
+<li>Click <strong>Change Password</strong></li>
+<li>The <code>must_change_password</code> flag is cleared upon success</li>
+</ol>
+<h3 id="223-policy-print">22.3 Policy Print</h3>
+<p><strong>Route:</strong> <code>/policy-print/{id}</code><br>
+<strong>Permission Required:</strong> <code>system-settings</code></p>
+<ol>
+<li>Navigate to a transaction's policy view</li>
+<li>View the policy document associated with the transaction</li>
+</ol>
+<hr>
+<h2 id="23-audit--user-activity-logs">23. Audit / User Activity Logs</h2>
+<p>The system maintains a comprehensive audit trail of all user actions.</p>
+<h3 id="231-what-is-logged">23.1 What is Logged</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Actions Logged</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Login, Logout</td>
+</tr>
+<tr>
+<td><strong>Master Data</strong></td>
+<td>Create, Update, Delete of product types, products, stores, statuses, suppliers, departments</td>
+</tr>
+<tr>
+<td><strong>Employees</strong></td>
+<td>Create, Update, Status change</td>
+</tr>
+<tr>
+<td><strong>Purchases</strong></td>
+<td>Create, Update, Add to inventory</td>
+</tr>
+<tr>
+<td><strong>Inventory</strong></td>
+<td>Update, Tag update, Bulk upload</td>
+</tr>
+<tr>
+<td><strong>Distribution</strong></td>
+<td>Create (issue), Return, Multi-ACK</td>
+</tr>
+<tr>
+<td><strong>Management</strong></td>
+<td>Employee offboarding, Product status update</td>
+</tr>
+<tr>
+<td><strong>Imports</strong></td>
+<td>Data import operations</td>
+</tr>
+<tr>
+<td><strong>Settings</strong></td>
+<td>Profile update, Password change</td>
+</tr>
+</tbody>
+</table>
+<h3 id="232-log-data-captured">23.2 Log Data Captured</h3>
+<p>Each log entry includes:</p>
+<ul>
+<li><strong>User</strong> — Who performed the action</li>
+<li><strong>Action</strong> — Type of action (e.g., <code>login</code>, <code>create</code>, <code>update</code>, <code>delete</code>)</li>
+<li><strong>Details</strong> — Descriptive text of what was done</li>
+<li><strong>IP Address</strong> — Client IP</li>
+<li><strong>User Agent</strong> — Browser/device information</li>
+<li><strong>Timestamp</strong> — When the action occurred</li>
+</ul>
+<h3 id="233-viewing-logs">23.3 Viewing Logs</h3>
+<p>See <a href="#165-user-activity-logs">Section 16.5 — User Activity Logs</a></p>
+<hr>
+<h2 id="24-key-business-workflows">24. Key Business Workflows</h2>
+<h3 id="241-complete-asset-lifecycle">24.1 Complete Asset Lifecycle</h3>
+<pre class="hljs"><code><div>┌────────────┐     ┌──────────────┐     ┌────────────────┐     ┌──────────────┐
+│  PURCHASE   │────▶│ ADD TO       │────▶│  DISTRIBUTE    │────▶│   RETURN     │
+│  (Create    │     │ INVENTORY    │     │  (Issue to     │     │   (Collect   │
+│   PO)       │     │ (Stock       │     │   Employee)    │     │    back)     │
+│             │     │  Created)    │     │                │     │              │
+└────────────┘     └──────────────┘     └────────────────┘     └──────────────┘
+       │                   │                    │                      │
+       ▼                   ▼                    ▼                      ▼
+  GRN PDF            Asset Tags           ACK PDF             Return PDF
+  Invoice           QR/Barcode Labels     Policy Print
+</div></code></pre>
+<h3 id="242-purchase-to-inventory-workflow">24.2 Purchase to Inventory Workflow</h3>
+<ol>
+<li><strong>Create Purchase</strong> → Select supplier, add product lines, enter serials/warranty</li>
+<li><strong>Purchase Pending</strong> → Review purchase details, generate GRN</li>
+<li><strong>Add to Inventory</strong> → For each product line, stocks are created</li>
+<li><strong>Asset Tagging</strong> → Auto-generated (if taggable) or manually assigned</li>
+<li><strong>Label Generation</strong> → Print QR codes, barcodes, or combo labels</li>
+<li><strong>Stock Ready</strong> → Items appear in inventory as &quot;Available&quot;</li>
+</ol>
+<h3 id="243-distribution-workflow">24.3 Distribution Workflow</h3>
+<ol>
+<li><strong>Create Distribution</strong> → Select product type &gt; available item &gt; employee</li>
+<li><strong>Issue Recorded</strong> → Stock marked as &quot;Assigned&quot;, transaction created</li>
+<li><strong>Print ACK</strong> → Acknowledgement document generated for signature</li>
+<li><strong>Asset in Use</strong> → Stock status reflects current assignment</li>
+<li><strong>Return</strong> → Employee returns item, return date recorded</li>
+<li><strong>Stock Available</strong> → Item returns to available pool</li>
+</ol>
+<h3 id="244-employee-offboarding-workflow">24.4 Employee Offboarding Workflow</h3>
+<ol>
+<li><strong>Initiate Offboarding</strong> → Management module &gt; select employee &gt; enter resign date</li>
+<li><strong>Auto-Return</strong> → ALL active transactions are closed automatically</li>
+<li><strong>Stock Released</strong> → All assigned items become &quot;Available&quot;</li>
+<li><strong>Employee Deactivated</strong> → Status set to &quot;Inactive&quot;</li>
+</ol>
+<h3 id="245-software-license-distribution-workflow">24.5 Software License Distribution Workflow</h3>
+<ol>
+<li><strong>Purchase Software</strong> → Enter total quantity (e.g., 50 licenses)</li>
+<li><strong>Add to Inventory</strong> → Single stock record with quantity=50</li>
+<li><strong>Distribute</strong> → Each distribution reduces available count</li>
+<li><strong>Return</strong> → Available count is restored</li>
+<li><strong>Tracking</strong> → System tracks: Total, Assigned, Available at all times</li>
+</ol>
+<hr>
+<h2 id="25-troubleshooting--faq">25. Troubleshooting &amp; FAQ</h2>
+<h3 id="251-common-issues">25.1 Common Issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cannot login</td>
+<td>Verify email and password. Check if account exists. Minimum password: 6 characters.</td>
+</tr>
+<tr>
+<td>Redirected to password change</td>
+<td>Your account has <code>must_change_password</code> flag. Change your password to proceed.</td>
+</tr>
+<tr>
+<td>Cannot delete a product type</td>
+<td>Remove all associated products first.</td>
+</tr>
+<tr>
+<td>Cannot delete a product</td>
+<td>Remove all purchase products referencing it first.</td>
+</tr>
+<tr>
+<td>Cannot delete a supplier</td>
+<td>Remove all purchases for this supplier first.</td>
+</tr>
+<tr>
+<td>Cannot delete a department</td>
+<td>Reassign or remove all employees in the department.</td>
+</tr>
+<tr>
+<td>Cannot delete a store</td>
+<td>Reassign all stock items to a different store first.</td>
+</tr>
+<tr>
+<td>Cannot delete an asset status</td>
+<td>Reassign all stock items to a different status first.</td>
+</tr>
+<tr>
+<td>Serial count mismatch</td>
+<td>When creating a purchase, the number of serial numbers must match the quantity exactly.</td>
+</tr>
+<tr>
+<td>Asset tag not generated</td>
+<td>Ensure the product has <code>is_taggable</code> checked. Tags are generated during &quot;Add to Inventory&quot;.</td>
+</tr>
+<tr>
+<td>QR code not rendering</td>
+<td>System falls back from PNG to SVG to HTML. Check PHP Imagick extension if PNG fails.</td>
+</tr>
+<tr>
+<td>Barcode too long / scaling issues</td>
+<td>The system uses adaptive scaling for Code128B based on serial length.</td>
+</tr>
+<tr>
+<td>Import fails</td>
+<td>Ensure the file is CSV format and column headers match the expected format.</td>
+</tr>
+<tr>
+<td>Permission denied</td>
+<td>Contact your administrator to verify your role has the required permissions.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="252-invoice-number-format">25.2 Invoice Number Format</h3>
+<p>The auto-generated invoice follows the format: <code>DDMMYYYY-NNN</code></p>
+<ul>
+<li>DD = Day (2 digits)</li>
+<li>MM = Month (2 digits)</li>
+<li>YYYY = Year (4 digits)</li>
+<li>NNN = Sequential number (3 digits)</li>
+</ul>
+<h3 id="253-asset-tag-format">25.3 Asset Tag Format</h3>
+<p>Auto-generated asset tags follow the format: <code>{TypePrefix}{5-digit-number}</code></p>
+<ul>
+<li>TypePrefix = First letter of the product type name (uppercase)</li>
+<li>Example: <code>L00001</code> (Laptop), <code>M00001</code> (Monitor), <code>S00001</code> (Software)</li>
+<li>The system finds the highest existing number for each prefix and increments</li>
+</ul>
+<h3 id="254-stock-assignment-status-codes">25.4 Stock Assignment Status Codes</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Assigned</td>
+<td>Currently assigned to an employee</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Available</td>
+<td>Available for distribution</td>
+</tr>
+</tbody>
+</table>
+<h3 id="255-employee-status-codes">25.5 Employee Status Codes</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Inactive / Resigned</td>
+</tr>
+</tbody>
+</table>
+<h3 id="256-product-condition-codes">25.6 Product Condition Codes</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Active (Good)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Poor</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Damaged</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="26-appendix--permission-reference">26. Appendix — Permission Reference</h2>
+<h3 id="complete-permission-list-52-permissions">Complete Permission List (52 Permissions)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Permission</th>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>role-list</code></td>
+<td>Roles</td>
+<td>View roles list</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>role-create</code></td>
+<td>Roles</td>
+<td>Create new roles</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>role-edit</code></td>
+<td>Roles</td>
+<td>Edit existing roles</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>role-delete</code></td>
+<td>Roles</td>
+<td>Delete roles</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>user-list</code></td>
+<td>Users</td>
+<td>View users list</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>user-create</code></td>
+<td>Users</td>
+<td>Create new users</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>user-edit</code></td>
+<td>Users</td>
+<td>Edit existing users</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>user-delete</code></td>
+<td>Users</td>
+<td>Delete users</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>product-type-list</code></td>
+<td>Product Types</td>
+<td>View product types</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>product-type-create</code></td>
+<td>Product Types</td>
+<td>Create product types</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>product-type-edit</code></td>
+<td>Product Types</td>
+<td>Edit product types</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>product-type-delete</code></td>
+<td>Product Types</td>
+<td>Delete product types</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>product-list</code></td>
+<td>Products</td>
+<td>View products</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>product-create</code></td>
+<td>Products</td>
+<td>Create products</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>product-edit</code></td>
+<td>Products</td>
+<td>Edit products</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>product-delete</code></td>
+<td>Products</td>
+<td>Delete products</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>store-list</code></td>
+<td>Stores</td>
+<td>View stores/locations</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>store-create</code></td>
+<td>Stores</td>
+<td>Create stores</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>store-edit</code></td>
+<td>Stores</td>
+<td>Edit stores</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>store-delete</code></td>
+<td>Stores</td>
+<td>Delete stores</td>
+</tr>
+<tr>
+<td>21</td>
+<td><code>status-list</code></td>
+<td>Asset Statuses</td>
+<td>View statuses</td>
+</tr>
+<tr>
+<td>22</td>
+<td><code>status-create</code></td>
+<td>Asset Statuses</td>
+<td>Create statuses</td>
+</tr>
+<tr>
+<td>23</td>
+<td><code>status-edit</code></td>
+<td>Asset Statuses</td>
+<td>Edit statuses</td>
+</tr>
+<tr>
+<td>24</td>
+<td><code>status-delete</code></td>
+<td>Asset Statuses</td>
+<td>Delete statuses</td>
+</tr>
+<tr>
+<td>25</td>
+<td><code>suppliers-list</code></td>
+<td>Suppliers</td>
+<td>View suppliers</td>
+</tr>
+<tr>
+<td>26</td>
+<td><code>suppliers-create</code></td>
+<td>Suppliers</td>
+<td>Create suppliers</td>
+</tr>
+<tr>
+<td>27</td>
+<td><code>suppliers-edit</code></td>
+<td>Suppliers</td>
+<td>Edit suppliers</td>
+</tr>
+<tr>
+<td>28</td>
+<td><code>suppliers-delete</code></td>
+<td>Suppliers</td>
+<td>Delete suppliers</td>
+</tr>
+<tr>
+<td>29</td>
+<td><code>purchase-list</code></td>
+<td>Purchases</td>
+<td>View purchases</td>
+</tr>
+<tr>
+<td>30</td>
+<td><code>purchase-create</code></td>
+<td>Purchases</td>
+<td>Create purchases</td>
+</tr>
+<tr>
+<td>31</td>
+<td><code>purchase-edit</code></td>
+<td>Purchases</td>
+<td>Edit purchases</td>
+</tr>
+<tr>
+<td>32</td>
+<td><code>purchase-delete</code></td>
+<td>Purchases</td>
+<td>Delete purchases</td>
+</tr>
+<tr>
+<td>33</td>
+<td><code>purchase-addinventory</code></td>
+<td>Purchases</td>
+<td>Add to inventory (approve)</td>
+</tr>
+<tr>
+<td>34</td>
+<td><code>purchase-approve</code></td>
+<td>Purchases</td>
+<td>Approve purchases</td>
+</tr>
+<tr>
+<td>35</td>
+<td><code>department-list</code></td>
+<td>Departments</td>
+<td>View departments</td>
+</tr>
+<tr>
+<td>36</td>
+<td><code>department-create</code></td>
+<td>Departments</td>
+<td>Create departments</td>
+</tr>
+<tr>
+<td>37</td>
+<td><code>department-edit</code></td>
+<td>Departments</td>
+<td>Edit departments</td>
+</tr>
+<tr>
+<td>38</td>
+<td><code>department-delete</code></td>
+<td>Departments</td>
+<td>Delete departments</td>
+</tr>
+<tr>
+<td>39</td>
+<td><code>employee-list</code></td>
+<td>Employees</td>
+<td>View employees</td>
+</tr>
+<tr>
+<td>40</td>
+<td><code>employee-create</code></td>
+<td>Employees</td>
+<td>Create employees</td>
+</tr>
+<tr>
+<td>41</td>
+<td><code>employee-edit</code></td>
+<td>Employees</td>
+<td>Edit employees</td>
+</tr>
+<tr>
+<td>42</td>
+<td><code>employee-delete</code></td>
+<td>Employees</td>
+<td>Delete employees</td>
+</tr>
+<tr>
+<td>43</td>
+<td><code>inventory-list</code></td>
+<td>Inventory</td>
+<td>View inventory</td>
+</tr>
+<tr>
+<td>44</td>
+<td><code>inventory-create</code></td>
+<td>Inventory</td>
+<td>Create inventory</td>
+</tr>
+<tr>
+<td>45</td>
+<td><code>inventory-edit</code></td>
+<td>Inventory</td>
+<td>Edit inventory</td>
+</tr>
+<tr>
+<td>46</td>
+<td><code>inventory-delete</code></td>
+<td>Inventory</td>
+<td>Delete inventory</td>
+</tr>
+<tr>
+<td>47</td>
+<td><code>inventory-update-tag</code></td>
+<td>Inventory</td>
+<td>Update asset tags</td>
+</tr>
+<tr>
+<td>48</td>
+<td><code>distribution-list</code></td>
+<td>Distributions</td>
+<td>View distributions</td>
+</tr>
+<tr>
+<td>49</td>
+<td><code>distribution-create</code></td>
+<td>Distributions</td>
+<td>Create distributions</td>
+</tr>
+<tr>
+<td>50</td>
+<td><code>distribution-edit</code></td>
+<td>Distributions</td>
+<td>Edit distributions</td>
+</tr>
+<tr>
+<td>51</td>
+<td><code>distribution-delete</code></td>
+<td>Distributions</td>
+<td>Delete distributions</td>
+</tr>
+<tr>
+<td>52</td>
+<td><code>distribution-return</code></td>
+<td>Distributions</td>
+<td>Process returns</td>
+</tr>
+<tr>
+<td>53</td>
+<td><code>report-list</code></td>
+<td>Reports</td>
+<td>View reports list</td>
+</tr>
+<tr>
+<td>54</td>
+<td><code>report-view</code></td>
+<td>Reports</td>
+<td>View report details</td>
+</tr>
+<tr>
+<td>55</td>
+<td><code>report-employee</code></td>
+<td>Reports</td>
+<td>Employee reports</td>
+</tr>
+<tr>
+<td>56</td>
+<td><code>report-product</code></td>
+<td>Reports</td>
+<td>Product reports</td>
+</tr>
+<tr>
+<td>57</td>
+<td><code>report-distribution</code></td>
+<td>Reports</td>
+<td>Distribution reports</td>
+</tr>
+<tr>
+<td>58</td>
+<td><code>report-purchase</code></td>
+<td>Reports</td>
+<td>Purchase reports</td>
+</tr>
+<tr>
+<td>59</td>
+<td><code>report-inventory</code></td>
+<td>Reports</td>
+<td>Inventory reports</td>
+</tr>
+<tr>
+<td>60</td>
+<td><code>qrcode-generate</code></td>
+<td>QR/Barcode</td>
+<td>Generate QR codes</td>
+</tr>
+<tr>
+<td>61</td>
+<td><code>qrcode-print</code></td>
+<td>QR/Barcode</td>
+<td>Print QR codes</td>
+</tr>
+<tr>
+<td>62</td>
+<td><code>barcode-generate</code></td>
+<td>QR/Barcode</td>
+<td>Generate barcodes</td>
+</tr>
+<tr>
+<td>63</td>
+<td><code>barcode-print</code></td>
+<td>QR/Barcode</td>
+<td>Print barcodes</td>
+</tr>
+<tr>
+<td>64</td>
+<td><code>imports-list</code></td>
+<td>Imports</td>
+<td>View imports page</td>
+</tr>
+<tr>
+<td>65</td>
+<td><code>import-create</code></td>
+<td>Imports</td>
+<td>Execute imports</td>
+</tr>
+<tr>
+<td>66</td>
+<td><code>users-log</code></td>
+<td>System</td>
+<td>View user logs</td>
+</tr>
+<tr>
+<td>67</td>
+<td><code>user-log-view</code></td>
+<td>System</td>
+<td>View log details</td>
+</tr>
+<tr>
+<td>68</td>
+<td><code>system-settings</code></td>
+<td>System</td>
+<td>System settings access</td>
+</tr>
+<tr>
+<td>69</td>
+<td><code>management-all</code></td>
+<td>Management</td>
+<td>Full management access</td>
+</tr>
+<tr>
+<td>70</td>
+<td><code>onboarding-list</code></td>
+<td>Onboarding</td>
+<td>View onboarding</td>
+</tr>
+<tr>
+<td>71</td>
+<td><code>onboarding-create</code></td>
+<td>Onboarding</td>
+<td>Create onboarding</td>
+</tr>
+<tr>
+<td>72</td>
+<td><code>self-view-profile</code></td>
+<td>Self-Service</td>
+<td>View own profile</td>
+</tr>
+<tr>
+<td>73</td>
+<td><code>self-view-assets</code></td>
+<td>Self-Service</td>
+<td>View own assets</td>
+</tr>
+<tr>
+<td>74</td>
+<td><code>self-view-transactions</code></td>
+<td>Self-Service</td>
+<td>View own transactions</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="role--permission-mapping-default">Role — Permission Mapping (Default)</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Permissions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Super Admin</strong></td>
+<td>All 52+ permissions</td>
+</tr>
+<tr>
+<td><strong>Admin</strong></td>
+<td>All 52+ permissions</td>
+</tr>
+<tr>
+<td><strong>Employee</strong></td>
+<td><code>self-view-profile</code>, <code>self-view-assets</code>, <code>self-view-transactions</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>End of Document</em></p>
+<p><em>This SOP should be reviewed and updated whenever significant system changes are made.</em></p>
+
+</body>
+</html>
