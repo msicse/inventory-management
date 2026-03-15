@@ -7,6 +7,54 @@
 <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
 <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
 <link href="{{ asset('backend/select2/select2.min.css') }}" rel="stylesheet" />
+<style>
+    .flag-badge {
+        display: inline-block;
+        min-width: 44px;
+        text-align: center;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .flag-yes {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .flag-no {
+        background: #f5f5f5;
+        color: #6b7280;
+    }
+
+    .quick-filters {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .quick-filters .btn.active {
+        box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+    }
+
+    .type-rule-note {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #546e7a;
+    }
+
+    .title-preview {
+        font-size: 12px;
+        margin-top: 6px;
+        color: #5f6b7a;
+    }
+
+    .title-preview strong {
+        color: #1b5e20;
+    }
+</style>
 
 
 @endpush
@@ -29,6 +77,13 @@
                     </button>
                 </div>
                 <div class="body">
+                    <div class="quick-filters">
+                        <button type="button" class="btn btn-default btn-sm filter-chip active" data-filter="all">All</button>
+                        <button type="button" class="btn btn-default btn-sm filter-chip" data-filter="fixed">Fixed</button>
+                        <button type="button" class="btn btn-default btn-sm filter-chip" data-filter="consumable">Consumable</button>
+                        <button type="button" class="btn btn-default btn-sm filter-chip" data-filter="serial">Serial</button>
+                        <button type="button" class="btn btn-default btn-sm filter-chip" data-filter="taggable">Taggable</button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
@@ -38,7 +93,7 @@
                                     <th>Type</th>
                                     <th>Brand</th>
                                     <th>Model</th>
-                                    <th>Unit</th>
+                                    <th>UoM</th>
                                     <th>Serial</th>
                                     <th>License</th>
                                     <th>Taggable</th>
@@ -54,7 +109,7 @@
                                     <th>Type</th>
                                     <th>Brand</th>
                                     <th>Model</th>
-                                    <th>Unit</th>
+                                    <th>UoM</th>
                                     <th>Serial</th>
                                     <th>License</th>
                                     <th>Taggable</th>
@@ -70,15 +125,15 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $data->title }}</td>
                                     <td>
-                                        {{ $data->type->name }}
+                                        {{ optional($data->type)->full_path ?? '-' }}
                                     </td>
                                     <td>{{ $data->brand }}</td>
                                     <td>{{ $data->model }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ $data->is_serial == 1 ? 'Yes' : 'No' }}</td>
-                                    <td>{{ $data->is_license == 1 ? 'Yes' : 'No' }}</td>
-                                    <td>{{ $data->is_taggable == 1 ? 'Yes' : 'No' }}</td>
-                                    <td>{{ $data->is_consumable == 1 ? 'Yes' : 'No' }}</td>
+                                    <td><span class="flag-badge {{ $data->is_serial == 1 ? 'flag-yes' : 'flag-no' }}">{{ $data->is_serial == 1 ? 'Yes' : 'No' }}</span></td>
+                                    <td><span class="flag-badge {{ $data->is_license == 1 ? 'flag-yes' : 'flag-no' }}">{{ $data->is_license == 1 ? 'Yes' : 'No' }}</span></td>
+                                    <td><span class="flag-badge {{ $data->is_taggable == 1 ? 'flag-yes' : 'flag-no' }}">{{ $data->is_taggable == 1 ? 'Yes' : 'No' }}</span></td>
+                                    <td><span class="flag-badge {{ $data->is_consumable == 1 ? 'flag-yes' : 'flag-no' }}">{{ $data->is_consumable == 1 ? 'Yes' : 'No' }}</span></td>
                                     <td>{{ $data->description }}</td>
                                     <td>
                                         @can('product-edit')
@@ -124,11 +179,14 @@
                             <option value="">Select Type</option>
 
                             @foreach( $types as $type)
-                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @if($type->children->isEmpty())
+                                    <option value="{{ $type->id }}" data-asset-class="{{ $type->asset_class ?? 'FIXED' }}">{{ $type->full_path }} [{{ $type->asset_class ?? 'FIXED' }}]</option>
+                                @endif
                             @endforeach
 
                         </select>
                         <label id="addType-error" class="error" for="addType"></label>
+                        <div id="createTypeRuleNote" class="type-rule-note"></div>
                     </div>
                     <input type="hidden" id="" name="type_name">
 
@@ -144,8 +202,15 @@
                     </div>
 
                     <div class="form-group form-float">
-                        <label class="form-label">Unit</label>
-                        <input type="text" name="unit" class="form-control" required>
+                        <label class="form-label">Product Title (Auto)</label>
+                        <input type="text" id="create_title" name="title" class="form-control" placeholder="Suggested from Brand + Model + Type, but you can edit">
+                        <div class="title-preview">Preview: <strong id="createTitlePreview">-</strong></div>
+                        <button type="button" class="btn btn-default btn-xs" id="useCreateSuggestedTitle" style="margin-top:6px;">Use Suggested Title</button>
+                    </div>
+
+                    <div class="form-group form-float">
+                        <label class="form-label">UoM (Unit of Measurement)</label>
+                        <input type="text" name="unit" class="form-control" list="uom-options" placeholder="e.g. pcs, box, kg, liter" required>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
@@ -174,13 +239,8 @@
                         </div>
 
                         <div class="row" style="padding: 5px 0 15px 0;">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_consumable" value="1" id="consumable">
-                                    <label class="form-check-label form-label" for="consumable">
-                                        <strong>Consumable Product</strong>
-                                    </label>
-                                </div>
+                            <div class="col-md-12">
+                                <small id="createTypeRuleHint" class="text-muted"></small>
                             </div>
                         </div>
                     </div>
@@ -220,9 +280,12 @@
                         <select id="type" name="type" class="form-control" required>
                             <option id="st">Select Type</option>
                             @foreach( $types as $type)
-                            <option value="{{ $type->id }}" >{{ $type->name }}</option>
+                                @if($type->children->isEmpty())
+                                    <option value="{{ $type->id }}" data-asset-class="{{ $type->asset_class ?? 'FIXED' }}">{{ $type->full_path }} [{{ $type->asset_class ?? 'FIXED' }}]</option>
+                                @endif
                             @endforeach
                         </select>
+                        <div id="editTypeRuleNote" class="type-rule-note"></div>
                     </div>
 
                     <div class="form-group form-float">
@@ -235,11 +298,18 @@
                         <input type="text" id="model" name="model" class="form-control" required>
                     </div>
 
+                    <div class="form-group form-float">
+                        <label class="form-label">Product Title (Auto)</label>
+                        <input type="text" id="edit_title" name="title" class="form-control" placeholder="Suggested from Brand + Model + Type, but you can edit">
+                        <div class="title-preview">Preview: <strong id="editTitlePreview">-</strong></div>
+                        <button type="button" class="btn btn-default btn-xs" id="useEditSuggestedTitle" style="margin-top:6px;">Use Suggested Title</button>
+                    </div>
+
 
 
                     <div class="form-group form-float">
-                        <label class="form-label">Unit</label>
-                        <input type="text" name="unit" id="unit" class="form-control" required>
+                        <label class="form-label">UoM (Unit of Measurement)</label>
+                        <input type="text" name="unit" id="unit" class="form-control" list="uom-options" placeholder="e.g. pcs, box, kg, liter" required>
                     </div>
 
                     <div class="row" style="padding: 15px 0;">
@@ -271,13 +341,8 @@
                         </div>
 
                         <div class="row" style="padding: 5px 0 15px 0;">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_consumable" value="1" id="editConsumable">
-                                    <label class="form-check-label form-label" for="editConsumable">
-                                        <strong>Consumable Product</strong>
-                                    </label>
-                                </div>
+                            <div class="col-md-12">
+                                <small id="editTypeRuleHint" class="text-muted"></small>
                             </div>
                         </div>
 
@@ -327,6 +392,20 @@
 </div>
 <!-- /.modal -->
 
+<datalist id="uom-options">
+    <option value="pcs"></option>
+    <option value="box"></option>
+    <option value="set"></option>
+    <option value="pack"></option>
+    <option value="kg"></option>
+    <option value="gram"></option>
+    <option value="liter"></option>
+    <option value="meter"></option>
+    <option value="roll"></option>
+    <option value="license"></option>
+    <option value="user"></option>
+</datalist>
+
 @endsection
 
 @push('js')
@@ -349,6 +428,48 @@
 
 <script>
 
+    let createTitleManual = false;
+    let editTitleManual = false;
+
+    function updateTypeDrivenControls(selectId, serialId, taggableId, licenseId, noteId, hintId) {
+        const selected = $(selectId + ' option:selected');
+        const assetClass = (selected.data('asset-class') || 'FIXED').toString().toUpperCase();
+
+        if (assetClass === 'CONSUMABLE') {
+            $(serialId).prop('checked', false).prop('disabled', true);
+            $(taggableId).prop('checked', false).prop('disabled', true);
+            $(licenseId).prop('checked', false).prop('disabled', true);
+            $(noteId).text('Consumable type selected: Serial, Taggable, and Warranty/License are disabled.');
+            $(hintId).text('Consumable behavior is managed by movement ledger; warranty is not applicable.');
+        } else {
+            $(serialId).prop('disabled', false);
+            $(taggableId).prop('disabled', false);
+            $(licenseId).prop('disabled', false);
+            $(noteId).text('Fixed type selected: Serial, Taggable, and Warranty/License can be configured.');
+            $(hintId).text('');
+        }
+    }
+
+    function updateTitlePreview(brandSelector, modelSelector, typeSelector, previewSelector) {
+        const brand = ($(brandSelector).val() || '').trim();
+        const model = ($(modelSelector).val() || '').trim();
+        const typeText = ($(typeSelector + ' option:selected').text() || '').replace(/\s*\[[^\]]+\]\s*$/, '').trim();
+        const title = [brand, model, typeText].filter(Boolean).join(' ').trim();
+        $(previewSelector).text(title || '-');
+
+        if (previewSelector === '#createTitlePreview') {
+            if (!createTitleManual || !($('#create_title').val() || '').trim()) {
+                $('#create_title').val(title || '');
+            }
+        } else if (previewSelector === '#editTitlePreview') {
+            if (!editTitleManual || !($('#edit_title').val() || '').trim()) {
+                $('#edit_title').val(title || '');
+            }
+        }
+
+        return title;
+    }
+
     $(".edit").click(function(event) {
         var id = $(this).data('id');
         var update_url = location.origin + "/products/" + id;
@@ -356,8 +477,9 @@
         $('.edit-form').attr('action', update_url);
 
         $.get(url, function(data) {
+            editTitleManual = true;
             $('#editBrand').val(data['brand']);
-            $('#title').val(data['title']);
+            $('#edit_title').val(data['title']);
             $('#model').val(data['model']);
             $('#unit').val(data['unit']);
             $("#description").text(data['description']);
@@ -365,8 +487,10 @@
             $('#editSerialed').prop('checked', data['is_serial'] == 1);
             $('#editLicenced').prop('checked', data['is_license'] == 1);
             $('#editTaggable').prop('checked', data['is_taggable'] == 1);
-            $('#editConsumable').prop('checked', data['is_consumable'] == 1);
-            $('#type option[value='+data['producttype_id']+']').attr('selected','selected');
+            $('#type').val(data['producttype_id']).trigger('change');
+
+            updateTypeDrivenControls('#type', '#editSerialed', '#editTaggable', '#editLicenced', '#editTypeRuleNote', '#editTypeRuleHint');
+            updateTitlePreview('#editBrand', '#model', '#type', '#editTitlePreview');
 
 
         });
@@ -399,6 +523,73 @@
         $('#type').select2({
             width: '100%',
             dropdownParent: $('#editModal'),
+        });
+
+        // Type-driven rule behavior
+        $('#addType').on('change', function() {
+            updateTypeDrivenControls('#addType', '#serialed', '#taggable', '#license', '#createTypeRuleNote', '#createTypeRuleHint');
+            updateTitlePreview('#createProduct input[name="brand"]', '#createProduct input[name="model"]', '#addType', '#createTitlePreview');
+        });
+
+        $('#type').on('change', function() {
+            updateTypeDrivenControls('#type', '#editSerialed', '#editTaggable', '#editLicenced', '#editTypeRuleNote', '#editTypeRuleHint');
+            updateTitlePreview('#editBrand', '#model', '#type', '#editTitlePreview');
+        });
+
+        $('#createProduct input[name="brand"], #createProduct input[name="model"]').on('input', function() {
+            updateTitlePreview('#createProduct input[name="brand"]', '#createProduct input[name="model"]', '#addType', '#createTitlePreview');
+        });
+
+        $('#editBrand, #model').on('input', function() {
+            updateTitlePreview('#editBrand', '#model', '#type', '#editTitlePreview');
+        });
+
+        $('#create_title').on('input', function() {
+            createTitleManual = true;
+        });
+
+        $('#edit_title').on('input', function() {
+            editTitleManual = true;
+        });
+
+        $('#useCreateSuggestedTitle').on('click', function() {
+            createTitleManual = false;
+            const suggested = updateTitlePreview('#createProduct input[name="brand"]', '#createProduct input[name="model"]', '#addType', '#createTitlePreview');
+            $('#create_title').val(suggested || '');
+        });
+
+        $('#useEditSuggestedTitle').on('click', function() {
+            editTitleManual = false;
+            const suggested = updateTitlePreview('#editBrand', '#model', '#type', '#editTitlePreview');
+            $('#edit_title').val(suggested || '');
+        });
+
+        $('#createProduct').on('shown.bs.modal', function() {
+            createTitleManual = false;
+            updateTitlePreview('#createProduct input[name="brand"]', '#createProduct input[name="model"]', '#addType', '#createTitlePreview');
+        });
+
+        updateTypeDrivenControls('#addType', '#serialed', '#taggable', '#license', '#createTypeRuleNote', '#createTypeRuleHint');
+        updateTitlePreview('#createProduct input[name="brand"]', '#createProduct input[name="model"]', '#addType', '#createTitlePreview');
+
+        const table = $('.js-exportable').DataTable();
+        $('.filter-chip').on('click', function() {
+            const mode = $(this).data('filter');
+            $('.filter-chip').removeClass('active');
+            $(this).addClass('active');
+
+            table.columns().search('');
+            if (mode === 'consumable') {
+                table.column(9).search('Yes', true, false);
+            } else if (mode === 'fixed') {
+                table.column(9).search('No', true, false);
+            } else if (mode === 'serial') {
+                table.column(6).search('Yes', true, false);
+            } else if (mode === 'taggable') {
+                table.column(8).search('Yes', true, false);
+            }
+
+            table.draw();
         });
 
     })

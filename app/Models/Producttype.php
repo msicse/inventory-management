@@ -10,9 +10,18 @@ class Producttype extends Model
     use HasFactory;
 
     protected $fillable = [
+        'parent_id',
         'name',
+        'prefix',
+        'asset_class',
         'description',
         'slug',
+    ];
+
+    protected $casts = [
+        'parent_id' => 'integer',
+        'prefix' => 'string',
+        'asset_class' => 'string',
     ];
 
     public function products()
@@ -22,6 +31,39 @@ class Producttype extends Model
     public function stocks()
     {
         return $this->hasMany(Stock::class, 'producttype_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Producttype::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Producttype::class, 'parent_id');
+    }
+
+    public function getFullPathAttribute(): string
+    {
+        $parts = [];
+        $visited = [];
+        $current = $this;
+
+        while ($current) {
+            if (isset($visited[$current->id])) {
+                break;
+            }
+
+            $visited[$current->id] = true;
+            array_unshift($parts, (string) $current->name);
+
+            if (!$current->relationLoaded('parent')) {
+                $current->load('parent');
+            }
+            $current = $current->parent;
+        }
+
+        return implode(' > ', $parts);
     }
 
 

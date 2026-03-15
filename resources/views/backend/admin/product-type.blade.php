@@ -6,6 +6,7 @@
 <!-- JQuery DataTable Css -->
 <link href="{{ asset('backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
 <link href="{{ asset('backend/js/pages/tables/buttons.dataTables.min.css') }}" rel="stylesheet">
+<link href="{{ asset('backend/select2/select2.min.css') }}" rel="stylesheet">
 
 @endpush
 @section('content')
@@ -32,6 +33,9 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Prefix</th>
+                                    <th>Parent</th>
                                     <th>Product Count</th>
                                     <th>Action</th>
                                 </tr>
@@ -40,6 +44,9 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Prefix</th>
+                                    <th>Parent</th>
                                     <th>Product Count</th>
                                     <th>Action</th>
                                 </tr>
@@ -49,7 +56,16 @@
                                 <tr>
                                     <td>{{ $data->id }}</td>
                                     <td>{{ $data->name }}</td>
-                                    <td>{{ $data->stocks->count() }}</td>
+                                    <td>
+                                        @if(($data->asset_class ?? 'FIXED') === 'CONSUMABLE')
+                                            <span class="badge" style="background:#ff9800; color:white;">Consumable</span>
+                                        @else
+                                            <span class="badge" style="background:#607d8b; color:white;">Fixed</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $data->prefix ?? '-' }}</td>
+                                    <td>{{ optional($data->parent)->name ?? 'Root' }}</td>
+                                    <td>{{ $data->stocks_count }}</td>
                                     <td>
                                         {{-- <button type="button" class="btn btn-success waves-effect " data-toggle="modal" data-target="#">
                                             <i class="material-icons">visibility</i>
@@ -92,6 +108,26 @@
                         <input type="text" id="name" name="name" class="form-control" required>
                         <label id="name-error" class="error" for="product"></label>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Asset Class</label>
+                        <select name="asset_class" class="form-control" required>
+                            <option value="FIXED">Fixed</option>
+                            <option value="CONSUMABLE">Consumable</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prefix (optional)</label>
+                        <input type="text" name="prefix" class="form-control" maxlength="4" placeholder="e.g. LP">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parent Type</label>
+                        <select name="parent_id" class="form-control parent-select">
+                            <option value="">None (Root)</option>
+                            @foreach($types as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -119,6 +155,26 @@
                         <label class="form-label">Name</label>
                         <input type="text" id="edit_name" name="name" class="form-control" required>
                         <label id="name-error" class="error" for="product"></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Asset Class</label>
+                        <select id="edit_asset_class" name="asset_class" class="form-control" required>
+                            <option value="FIXED">Fixed</option>
+                            <option value="CONSUMABLE">Consumable</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prefix (optional)</label>
+                        <input type="text" id="edit_prefix" name="prefix" class="form-control" maxlength="4" placeholder="e.g. LP">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parent Type</label>
+                        <select id="edit_parent_id" name="parent_id" class="form-control parent-select">
+                            <option value="">None (Root)</option>
+                            @foreach($types as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                 </div>
@@ -177,9 +233,16 @@
 
 <script src="{{ asset('backend/js/pages/tables/jquery-datatable.js') }}"></script>
 <script src="{{ asset('backend/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('backend/select2/select2.min.js') }}"></script>
 
 
 <script>
+    $('.parent-select').select2({
+        width: '100%',
+        placeholder: 'Select Parent Type',
+        allowClear: true
+    });
+
     $("#store_form").validate();
     $(".delete").click(function() {
         var data_id = $(this).data('delete-id');
@@ -194,6 +257,14 @@
 
         $.get(url, function(data) {
             $('#edit_name').val(data['name']);
+            $('#edit_asset_class').val(data['asset_class'] || 'FIXED');
+            $('#edit_prefix').val(data['prefix'] || '');
+            $('#edit_parent_id').val(data['parent_id'] ? data['parent_id'].toString() : '');
+            $('#edit_parent_id').trigger('change');
+            $('#edit_asset_class').trigger('change');
+
+            $('#edit_parent_id option').prop('disabled', false);
+            $('#edit_parent_id option[value="' + id + '"]').prop('disabled', true);
         });
 
     });

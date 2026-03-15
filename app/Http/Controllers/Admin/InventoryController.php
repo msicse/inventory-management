@@ -221,7 +221,7 @@ class InventoryController extends Controller
             $query->where('is_assigned', $assign);
         }
 
-        $inventories = $query->where('asset_tag', null)->get();
+        $inventories = $query->whereNull('asset_tag')->get();
 
         return view("backend.admin.inventory.pending")->with(compact('inventories', 'types', 'statuses', 'stores'));
     }
@@ -293,30 +293,52 @@ class InventoryController extends Controller
         ]);
         // return $request->all();
         try {
-            $inventory = Stock::findOrFail($id);
+            $inventory = DB::transaction(function () use ($request, $id) {
+                $inventory = Stock::lockForUpdate()->findOrFail($id);
 
-            if ($request->store_id) {
-                $inventory->store_id = $request->store_id;
-            }
+                if ($request->store_id) {
+                    $inventory->store_id = $request->store_id;
+                }
 
-            if ($request->condition) {
-                $inventory->asset_condition = $request->condition;
-            }
-            if ($request->serial_no) {
-                $inventory->service_tag = $request->serial_no;
-            }
-            if ($request->asset_tag) {
-                $inventory->asset_tag = $request->asset_tag;
-            }
+                if ($request->condition) {
+                    $inventory->asset_condition = $request->condition;
+                }
+                if ($request->serial_no) {
+                    $inventory->service_tag = $request->serial_no;
+                }
+                if ($request->asset_tag) {
+                    $inventory->asset_tag = $request->asset_tag;
+                }
 
-            if ($request->employee_id) {
+                if ($request->employee_id) {
+                    if ($inventory->is_assigned == 1) {
+                        $user_transection = Transection::where('stock_id', $id)
+                            ->whereNull('return_date')
+                            ->lockForUpdate()
+                            ->first();
 
-                if ($inventory->is_assigned == 1) {
-                    $user_transection = Transection::where('stock_id', $id)->whereNull('return_date')->first();
+                        // If stock is marked assigned but no active transaction exists, create one.
+                        if (!$user_transection) {
+                            Transection::create([
+                                'stock_id' => $id,
+                                'employee_id' => $request->employee_id,
+                                'quantity' => 1,
+                                'issued_date' => date("Y-m-d")
+                            ]);
+                            UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
+                        } elseif ($user_transection->employee_id != $request->employee_id) {
+                            $user_transection->return_date = date("Y-m-d");
+                            $user_transection->save();
 
-                    if ($user_transection->employee_id != $request->employee_id) {
-                        $user_transection->return_date = date("Y-m-d");
-                        $user_transection->save();
+                            Transection::create([
+                                'stock_id' => $id,
+                                'employee_id' => $request->employee_id,
+                                'quantity' => 1,
+                                'issued_date' => date("Y-m-d")
+                            ]);
+                            UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
+                        }
+                    } else {
                         Transection::create([
                             'stock_id' => $id,
                             'employee_id' => $request->employee_id,
@@ -324,33 +346,19 @@ class InventoryController extends Controller
                             'issued_date' => date("Y-m-d")
                         ]);
                         UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
+                        $inventory->is_assigned = 1;
                     }
-
-
-                } else {
-                    Transection::create([
-                        'stock_id' => $id,
-                        'employee_id' => $request->employee_id,
-                        'quantity' => 1,
-                        'issued_date' => date("Y-m-d")
-                    ]);
-                    UserLogHelper::log('create', 'Assign product to User: ' . $inventory->id);
-                    $inventory->is_assigned = 1;
                 }
 
-            }
+                $inventory->save();
+                return $inventory;
+            });
 
-
-
-            if ($inventory->save()) {
-
-                UserLogHelper::log('update', 'Updated Inventory: ' . $inventory->id);
-                return response()->json(['message' => 'Inventory updated successfully'], 201);
-            } else {
-                return response()->json(['error' => 'Failed to update inventory'], 500);
-            }
+            UserLogHelper::log('update', 'Updated Inventory: ' . $inventory->id);
+            return response()->json(['message' => 'Inventory updated successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+            report($e);
+            return response()->json(['error' => 'Something went wrong while updating inventory'], 500);
         }
 
     }
@@ -373,6 +381,12 @@ class InventoryController extends Controller
         }
 
         $inventory = Stock::find($id);
+        if (!$inventory) {
+            return response()->json([
+                'message' => 'Inventory not found',
+                'status' => 404,
+            ], 404);
+        }
         $inventory->asset_tag = $request->asset_tag;
 
         if ($inventory->save()) {
@@ -406,7 +420,7 @@ class InventoryController extends Controller
 
     public function updateStatus()
     {
-        $stockes = Stock::where('is_assigned', 1)->pluck('id', 'service_tag');
+        $stockes = Stock::where('is_assigned', 1)->get(['id', 'service_tag']);
 
         $arr = [];
         foreach ($stockes as $data) {

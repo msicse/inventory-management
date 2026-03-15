@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ConsumableMovement;
 
 class Stock extends Model
 {
@@ -74,5 +75,10 @@ class Stock extends Model
     public function store()
     {
         return $this->belongsTo(Store::class, 'store_id');
+    }
+
+    public function consumableMovements()
+    {
+        return $this->hasMany(ConsumableMovement::class, 'stock_id');
     }
 }

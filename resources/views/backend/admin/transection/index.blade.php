@@ -77,6 +77,13 @@
             background-color: #f1b0b7 !important;
         }
 
+        .return-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         /* Filters Panel */
         .filters-panel {
             background: #f8f9fa;
@@ -373,11 +380,11 @@
                     { data: 'service_tag', name: 'stocks.service_tag' },
                     { data: 'employee_info', name: 'employees.name' },
                     { data: 'department_name', name: 'departments.name' },
-                    { data: 'status_badge', name: 'transaction_status', orderable: false },
-                    { data: 'condition_badge', name: 'stocks.asset_condition', orderable: false },
+                    { data: 'status_badge', name: 'transaction_status', orderable: false, searchable: false },
+                    { data: 'condition_badge', name: 'stocks.asset_condition', orderable: false, searchable: false },
                     { data: 'issued_date', name: 'transections.issued_date' },
                     { data: 'return_date', name: 'transections.return_date', orderable: false },
-                    { data: 'days_with_asset', name: 'days_with_asset' },
+                    { data: 'days_with_asset', name: 'days_with_asset', searchable: false },
                     { data: 'quantity', name: 'transections.quantity' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
@@ -395,7 +402,7 @@
                         className: 'btn-sm',
                         exportOptions: {
                             modifier: { page: 'all' },
-                            columns: [0,1,2,3,4,5,6,9,10,12]
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12]
                         }
                     },
                     {
@@ -404,7 +411,7 @@
                         className: 'btn-sm',
                         exportOptions: {
                             modifier: { page: 'all' },
-                            columns: [0,1,2,3,4,5,6,9,10,12]
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12]
                         }
                     },
                     {
@@ -413,7 +420,7 @@
                         className: 'btn-sm',
                         exportOptions: {
                             modifier: { page: 'all' },
-                            columns: [0,1,2,3,4,5,6,9,10,12]
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12]
                         }
                     },
                     {
@@ -423,7 +430,7 @@
                         orientation: 'landscape',
                         exportOptions: {
                             modifier: { page: 'all' },
-                            columns: [0,1,2,3,4,5,6,9,10,12]
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12]
                         }
                     },
                     {
@@ -432,7 +439,7 @@
                         className: 'btn-sm',
                         exportOptions: {
                             modifier: { page: 'all' },
-                            columns: [0,1,2,3,4,5,6,9,10,12]
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12]
                         }
                     }
                 ],
@@ -480,29 +487,48 @@
                 table.ajax.reload();
             });
 
-            // Handle return date input
-            $(document).on('change', '.return-date-input', function() {
-                let transactionId = $(this).data('id');
-                let returnDate = $(this).val();
+            function submitReturn(transactionId, returnDate, returnQty) {
+                let payload = {
+                    _token: '{{ csrf_token() }}',
+                    return_date: returnDate
+                };
 
-                if (!returnDate) return;
+                if (returnQty !== null && returnQty !== '' && !isNaN(returnQty)) {
+                    payload.return_quantity = parseInt(returnQty, 10);
+                }
 
-                if (confirm('Are you sure you want to mark this item as returned?')) {
-                    $.ajax({
-                        url: '/transections/mark-returned/' + transactionId,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            return_date: returnDate
-                        },
-                        success: function(response) {
-                            toastr.success(response.message);
-                            table.ajax.reload();
-                        },
-                        error: function(xhr) {
-                            toastr.error('Error marking as returned');
-                        }
-                    });
+                $.ajax({
+                    url: '/transections/mark-returned/' + transactionId,
+                    type: 'POST',
+                    data: payload,
+                    success: function(response) {
+                        toastr.success(response.message);
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        toastr.error((xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error marking as returned');
+                    }
+                });
+            }
+
+            $(document).on('click', '.submit-return-btn', function() {
+                let wrapper = $(this).closest('.return-controls');
+                let transactionId = wrapper.data('id');
+                let returnDate = wrapper.find('.return-date-input').val();
+                let returnQty = wrapper.find('.return-qty-input').val();
+
+                if (!returnDate) {
+                    toastr.error('Select a return date first');
+                    return;
+                }
+
+                if (returnQty && (isNaN(parseInt(returnQty, 10)) || parseInt(returnQty, 10) <= 0)) {
+                    toastr.error('Return quantity must be a positive number');
+                    return;
+                }
+
+                if (confirm('Confirm return submission?')) {
+                    submitReturn(transactionId, returnDate, returnQty || null);
                 }
             });
 
@@ -512,21 +538,7 @@
                 let today = new Date().toISOString().split('T')[0];
 
                 if (confirm('Mark this item as returned today?')) {
-                    $.ajax({
-                        url: '/transections/mark-returned/' + transactionId,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            return_date: today
-                        },
-                        success: function(response) {
-                            toastr.success(response.message);
-                            table.ajax.reload();
-                        },
-                        error: function(xhr) {
-                            toastr.error('Error marking as returned');
-                        }
-                    });
+                    submitReturn(transactionId, today, null);
                 }
             });
         });

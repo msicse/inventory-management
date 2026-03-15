@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ConsumableMovement;
 
 class Transection extends Model
 {
@@ -21,5 +22,10 @@ class Transection extends Model
     public function stock()
     {
         return $this->belongsTo(Stock::class, 'stock_id');
+    }
+
+    public function consumableMovements()
+    {
+        return $this->hasMany(ConsumableMovement::class, 'transection_id');
     }
 }

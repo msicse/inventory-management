@@ -26,6 +26,19 @@
     .form-group {
         margin-bottom: 20px !important;
     }
+    .mode-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+    .mode-fixed { background: #607d8b; }
+    .mode-consumable { background: #ff9800; }
+    .mode-unknown { background: #9e9e9e; }
 </style>
 @endpush
 @section('content')
@@ -69,7 +82,15 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Quantity</label>
+                                    <label class="form-label">Asset Mode</label>
+                                    <div>
+                                        <span id="assetModeBadge" class="mode-badge mode-unknown">Select Product</span>
+                                        <small id="issueHelpText" class="text-muted" style="display:block; margin-top:6px;"></small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Issue Quantity</label>
                                     <input type="number" minlength="1" id="quantity" name="quantity"  class="form-control" value="{{ old('quantity') ? old('quantity') : 1 }}" required onkeyup="calTotal()">
                                 </div>
 
@@ -99,7 +120,7 @@
 
                                 <div class="form-group row">
                                     <div class="col-md-4" style="padding-top: 20px;">
-                                        <div class="form-check">
+                                        <div class="form-check" id="printAckWrap">
                                             <input class="form-control form-check-input" type="checkbox" name="print_ack" value="1" id="print_ack">
                                             <label class="form-check-label" for="print_ack">
                                                 <strong>Print ACK</strong>
@@ -139,6 +160,7 @@
                             </div>
                         </div>
                         <input id="typename" type="hidden">
+                        <input id="is_consumable" type="hidden" value="0">
                         <input id="remain" type="hidden">
                         <div class="row text-center">
                             <input type="submit" class="btn btn-success btn-lg custom-btn" value="Save">
@@ -170,19 +192,34 @@
 
     //
     function calTotal(){
-        //alert('ok');
+        validateIssueQuantity();
 
-        var quantity  = $("#quantity").val();
-        var unitPrice = $("#unit_price").val();
-        let typeName = $('#typename').val();
-        let remain = $('#remain').val();
-        if(typeName == 'software'){
-            $('#quantity').attr('maxlength', remain);
+    }
+
+    function updateModeBadge(isConsumable) {
+        let badge = $('#assetModeBadge');
+        if (isConsumable) {
+            badge.removeClass('mode-fixed mode-unknown').addClass('mode-consumable').text('Consumable');
+            $('#print_ack').prop('checked', false);
+            $('#printAckWrap').hide();
+        } else {
+            badge.removeClass('mode-consumable mode-unknown').addClass('mode-fixed').text('Fixed Asset');
+            $('#printAckWrap').show();
         }
-        var total = quantity * unitPrice;
+    }
 
-        $('#total_price').val(total);
+    function validateIssueQuantity() {
+        let qty = parseInt($('#quantity').val(), 10);
+        let available = parseInt($('#remain').val(), 10);
 
+        if (isNaN(qty) || qty <= 0) {
+            return;
+        }
+
+        if (!isNaN(available) && available >= 0 && qty > available) {
+            $('#quantity').val(available > 0 ? available : 1);
+            toastr.warning('Issue quantity cannot exceed available stock.');
+        }
     }
 
     $('.datepicker').bootstrapMaterialDatePicker({
@@ -212,10 +249,10 @@
                         $.each(data.products, function(key, course){
 
                             if(course.slug == 'software'){
-                                $('select[name="product"]').append('<option value="'+ course.id +'">' + course.title +'-'+ course.brand + ' - '+ course.model+'</option>');
+                                $('select[name="product"]').append('<option value="'+ course.id +'" data-is-consumable="'+ (course.is_consumable == 1 ? 1 : 0) +'" data-available="'+ (course.quantity || 0) +'">' + course.title +'-'+ course.brand + ' - '+ course.model+'</option>');
 
                             }else {
-                                $('select[name="product"]').append('<option value="'+ course.id +'">' + course.title +' - '+ course.asset_tag + ' - '+ course.service_tag+'</option>');
+                                $('select[name="product"]').append('<option value="'+ course.id +'" data-is-consumable="'+ (course.is_consumable == 1 ? 1 : 0) +'" data-available="'+ (course.quantity || 0) +'">' + course.title +' - '+ (course.asset_tag || 'N/A') + ' - '+ (course.service_tag || 'N/A') +'</option>');
                                 $("#stocksInfo").html("");
                             }
                         });
@@ -232,6 +269,19 @@
     $('#product').change(function(e){
 
         let typeName = $('#typename').val();
+        let selected = $('#product option:selected');
+        let isConsumable = parseInt(selected.data('is-consumable') || 0, 10) === 1;
+        $('#is_consumable').val(isConsumable ? '1' : '0');
+        updateModeBadge(isConsumable);
+
+        if (isConsumable) {
+            let available = parseInt(selected.data('available') || 0, 10);
+            $('#remain').val(available);
+            $('#issueHelpText').text('Consumable distribution supports partial returns.');
+            $('#stocksInfo').html('Available Qty: ' + available);
+            validateIssueQuantity();
+            return;
+        }
 
         if(typeName == 'software'){
             var stockId = $(this).val();
@@ -240,9 +290,19 @@
             $.get(url, function(data) {
                 let remain = data['quantity'] - data['assigned'];
                 $('#remain').val(remain);
+                $('#issueHelpText').text('Software quantity is license based.');
                 $("#stocksInfo").html("Licence Remain: "+ remain);
+                validateIssueQuantity();
             });
+        } else {
+            $('#issueHelpText').text('Fixed asset issuance is tracked per assignment.');
+            $('#remain').val('');
+            $("#stocksInfo").html("");
         }
+    });
+
+    $('#quantity').on('input', function() {
+        validateIssueQuantity();
     });
 
 
@@ -250,6 +310,7 @@
         $('#product_type').select2();
         $('#product').select2();
         $('#employee').select2();
+        $('#printAckWrap').show();
     });
     $("#store_form").validate();
 

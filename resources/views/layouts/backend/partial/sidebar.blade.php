@@ -175,6 +175,12 @@
                     <span>Product Distribution</span>
                 </a>
             </li>
+            <li class="{{ Request::is('consumable-transections*') ? 'active' : '' }}">
+                <a href="{{ route('consumable.transections.index') }}">
+                    <i class="material-icons">inventory_2</i>
+                    <span>Consumable Distribution</span>
+                </a>
+            </li>
             @endcan
             @can("onboarding-list")
             <li class="{{ Request::is('onboarding*') ? 'active' : '' }}">
@@ -240,6 +246,12 @@
                 <a href="{{ route('reports.inventory') }}">
                     <i class="material-icons">list_alt</i>
                     <span>Detailed Inventory</span>
+                </a>
+            </li>
+            <li class="{{ Request::is('reports/consumable-ledger*') ? 'active' : '' }}">
+                <a href="{{ route('reports.consumable.ledger') }}">
+                    <i class="material-icons">receipt_long</i>
+                    <span>Consumable Ledger</span>
                 </a>
             </li>
             @endcan

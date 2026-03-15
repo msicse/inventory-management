@@ -17,6 +17,7 @@ use App\Helpers\UserLogHelper;
 use App\Models\PurchaseProduct;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\QrCodeService;
+use App\Services\ProductTypeBehaviorService;
 use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\DB;
@@ -393,142 +394,104 @@ class PurchaseController extends Controller
 
     public function addInventory($id)
     {
-        $data = PurchaseProduct::find($id);
+        try {
+            $result = DB::transaction(function () use ($id) {
+                $data = PurchaseProduct::with(['product.type'])
+                    ->lockForUpdate()
+                    ->find($id);
 
-        $type_id = $data->product->type->id;
-
-        if (!empty($data->serials)) {
-            $new_serials = json_decode($data->serials);
-            // return 'empty' ;
-        } else {
-            $new_serials = $data->serials;
-        }
-
-        if ($data->is_stocked == 2) {
-
-            if ($data->product->type->slug == 'laptop') {
-
-                $max_serial = Stock::max('serial_no');
-
-                if (empty($max_serial)) {
-                    $max_serial = 0;
+                if (!$data) {
+                    return ['ok' => false, 'message' => 'Purchase product not found'];
                 }
 
-                $x = 1;
-                // return explode(',', $data->serials);
+                if ((int) $data->is_stocked !== 2) {
+                    return ['ok' => false, 'message' => 'Already Added in Inventory'];
+                }
 
-                while ($x <= $data->quantity) {
+                $product = $data->product;
+                $type = $product?->type;
 
+                if (!$product || !$type) {
+                    return ['ok' => false, 'message' => 'Product type mapping is missing'];
+                }
+
+                $typeId = $type->id;
+                $decodedSerials = [];
+                if (!empty($data->serials)) {
+                    $decoded = json_decode($data->serials, true);
+                    if (is_array($decoded)) {
+                        $decodedSerials = array_values($decoded);
+                    }
+                }
+
+                if ($type->slug === 'software') {
                     $stock = new Stock();
-
-                    // $stock->product_id          = $data->product_id;
                     $stock->product_id = $data->product_id;
                     $stock->pproduct_id = $id;
-                    $stock->producttype_id = $type_id;
+                    $stock->producttype_id = $typeId;
                     $stock->purchase_id = $data->purchase_id;
                     $stock->purchase_date = $data->purchase_date;
                     $stock->expired_date = $data->expired_date;
                     $stock->warranty = $data->warranty;
-                    $stock->quantity = 0;
-                    $stock->assigned = 0;
-
-                    // if(!empty($new_serials)){
-                    //     $stock->service_tag = $new_serials[$x - 1];
-                    // }
-
-                    $stock->service_tag = empty($new_serials) ? NULL : $new_serials[$x - 1];
-
-                    // Auto-assign asset tag if product is taggable
-                    if ($data->product->is_taggable == 1) {
-                        $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
+                    $stock->quantity = $data->quantity;
+                    $stock->service_tag = null;
+                    if ((int) $product->is_taggable === 1) {
+                        $stock->asset_tag = $this->generateUniqueAssetTag($type);
                     }
-
-                    $stock->serial_no = NULL; //$max_serial + $x;
-                    $stock->status_id = 1;
-                    $stock->store_id = 1;
+                    $stock->product_status = 1;
                     $stock->is_assigned = 2;
-                    $stock->save();
-                    $x++;
-
-                }
-
-            } else if ($data->product->type->slug == 'software') {
-
-                $stock = new Stock();
-                $stock->product_id = $data->product_id;
-                $stock->pproduct_id = $id;
-                $stock->producttype_id = $type_id;
-                $stock->purchase_id = $data->purchase_id;
-                $stock->purchase_date = $data->purchase_date;
-                $stock->expired_date = $data->expired_date;
-                $stock->warranty = $data->warranty;
-                $stock->quantity = $data->quantity;
-                $stock->service_tag = NULL;
-
-                // Auto-assign asset tag if product is taggable
-                if ($data->product->is_taggable == 1) {
-                    $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
-                }
-
-                $stock->product_status = 1;
-                $stock->is_assigned = 2;
-                $stock->assigned = 0;
-                $stock->save();
-
-            } else {
-                $x = 1;
-
-                while ($x <= $data->quantity) {
-
-
-
-                    $stock = new Stock();
-                    $stock->pproduct_id = $id;
-                    $stock->product_id = $data->product_id;
-                    $stock->producttype_id = $type_id;
-                    $stock->purchase_id = $data->purchase_id;
-                    $stock->purchase_date = $data->purchase_date;
-                    $stock->expired_date = $data->expired_date;
-                    $stock->warranty = $data->warranty;
-                    $stock->quantity = 0;
                     $stock->assigned = 0;
-
-                    // if(!empty($new_serials)){
-                    //     $stock->service_tag = $new_serials[$x - 1];
-                    // }
-
-                    $stock->service_tag = empty($new_serials) ? NULL : $new_serials[$x - 1];
-
-                    // Auto-assign asset tag if product is taggable
-                    if ($data->product->is_taggable == 1) {
-                        $stock->asset_tag = $this->generateAssetTag($data->product->type->name);
-                    }
-
-                    // $stock->serial_no = $max_serial + $x;
-
-                    $stock->status_id  = 1;
-                    $stock->store_id  = 1;
-                    $stock->is_assigned = 2;
-                    $stock->asset_condition = 'good';
                     $stock->save();
-                    $x++;
-
+                } else {
+                    for ($i = 0; $i < (int) $data->quantity; $i++) {
+                        $stock = new Stock();
+                        $stock->pproduct_id = $id;
+                        $stock->product_id = $data->product_id;
+                        $stock->producttype_id = $typeId;
+                        $stock->purchase_id = $data->purchase_id;
+                        $stock->purchase_date = $data->purchase_date;
+                        $stock->expired_date = $data->expired_date;
+                        $stock->warranty = $data->warranty;
+                        $stock->quantity = 0;
+                        $stock->assigned = 0;
+                        $stock->service_tag = $decodedSerials[$i] ?? null;
+                        if ((int) $product->is_taggable === 1) {
+                            $stock->asset_tag = $this->generateUniqueAssetTag($type);
+                        }
+                        $stock->serial_no = null;
+                        $stock->status_id = 1;
+                        $stock->store_id = 1;
+                        $stock->is_assigned = 2;
+                        $stock->asset_condition = 'good';
+                        $stock->save();
+                    }
                 }
+
+                $data->is_stocked = 1;
+                $data->save();
+
+                // Keep parent purchase as pending until all child rows are stocked.
+                $hasPending = PurchaseProduct::where('purchase_id', $data->purchase_id)
+                    ->where('is_stocked', 2)
+                    ->exists();
+
+                Purchase::where('id', $data->purchase_id)
+                    ->update(['is_stocked' => $hasPending ? 2 : 1]);
+
+                return ['ok' => true, 'purchase_product_id' => $id];
+            });
+
+            if (!$result['ok']) {
+                session()->flash('toast.error', $result['message']);
+                return redirect()->back();
             }
 
-            $data->is_stocked = 1;
-            $data->save();
-
-            Purchase::where('id', $data->purchase_id)->update(['is_stocked' => 1]);
-
-            UserLogHelper::log('create', 'Added Purchase to Inventory PurchaseProduct ID : '. $id );
-
+            UserLogHelper::log('create', 'Added Purchase to Inventory PurchaseProduct ID : ' . $id);
             session()->flash('toast.success', 'Succesfully Added to Inventory');
             return redirect()->back();
-
-        } else {
-            session()->flash('toast.error', 'Already Added in Inventory');
-
+        } catch (\Exception $e) {
+            report($e);
+            session()->flash('toast.error', 'Failed to add item to inventory');
             return redirect()->back();
         }
 
@@ -992,27 +955,118 @@ class PurchaseController extends Controller
      * @param  string  $typeName
      * @return string
      */
-    private function generateAssetTag($typeName)
+    private function generateAssetTag($typeInput)
     {
-        // Get the first letter of the product type name in uppercase
-        $prefix = strtoupper(substr($typeName, 0, 1));
+        // Find an available (collision-free) prefix, then generate next sequence number.
+        $prefix = $this->findAvailablePrefixForType($typeInput);
 
-        // Find the highest existing asset tag for this prefix
-        $latestAssetTag = Stock::where('asset_tag', 'like', $prefix . '%')
-                               ->orderByRaw('CAST(SUBSTRING(asset_tag, 2) AS UNSIGNED) DESC')
-                               ->first();
+        $maxNumber = 0;
+        $pattern = '/^' . preg_quote($prefix, '/') . '(\d+)$/';
 
-        if ($latestAssetTag && $latestAssetTag->asset_tag) {
-            // Extract the numeric part and increment it
-            $numericPart = (int) substr($latestAssetTag->asset_tag, 1);
-            $nextNumber = $numericPart + 1;
-        } else {
-            // Start with 1 if no existing asset tags found
-            $nextNumber = 1;
+        // Parse existing tags and find highest number.
+        $tags = Stock::where('asset_tag', 'like', $prefix . '%')->pluck('asset_tag');
+        foreach ($tags as $tag) {
+            if (preg_match($pattern, (string) $tag, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $maxNumber) {
+                    $maxNumber = $num;
+                }
+            }
         }
 
-        // Format as prefix + 5-digit zero-padded number (e.g., L00001, M00002)
-        return $prefix . sprintf('%05d', $nextNumber);
+        return $prefix . sprintf('%05d', $maxNumber + 1);
+    }
+
+    /**
+     * Find an available 2-letter prefix that doesn't collide with other type prefixes.
+     * Strategy: Try first+2nd, first+3rd, first+4th letter, etc. until collision-free.
+     */
+    private function findAvailablePrefixForType($typeInput)
+    {
+        if ($typeInput instanceof Producttype) {
+            $behaviorService = app(ProductTypeBehaviorService::class);
+            $resolved = $behaviorService->resolvePrefix($typeInput, '');
+            if ($resolved !== '') {
+                return $resolved;
+            }
+
+            $typeName = (string) $typeInput->name;
+        } else {
+            $typeName = (string) $typeInput;
+        }
+
+        $normalized = preg_replace('/[^A-Za-z0-9\s]/', '', (string) $typeName);
+        $normalized = trim((string) $normalized);
+
+        if ($normalized === '') {
+            return 'XX';
+        }
+
+        $words = preg_split('/\s+/', $normalized);
+        $letters = [];
+        foreach ($words as $word) {
+            if ($word !== '' && isset($word[0])) {
+                $letters[] = strtoupper($word[0]);
+            }
+        }
+
+        if (empty($letters)) {
+            $letters = [strtoupper(substr($normalized, 0, 1))];
+        }
+
+        // Add remaining letters from the type name for fallback options.
+        $remaining = strtoupper(substr($normalized, strlen($letters[0] ?? ''), 10));
+        foreach (str_split($remaining) as $char) {
+            if (!in_array($char, $letters, true)) {
+                $letters[] = $char;
+            }
+        }
+
+        // If only one letter, try to get a second.
+        if (count($letters) === 1) {
+            $letters[] = strtoupper(substr($normalized, 1, 1)) ?: 'X';
+        }
+
+        // Try candidate prefixes in order: first+2nd, first+3rd, first+4th, ...
+        for ($i = 0; $i < count($letters); $i++) {
+            $candidate = $letters[0] . ($letters[$i + 1] ?? 'X');
+
+            // Check if this prefix is already used with a different type by looking at any existing asset tags with this prefix.
+            $isCollision = Stock::where('asset_tag', 'like', $candidate . '%')->exists();
+
+            if (!$isCollision) {
+                return $candidate;
+            }
+        }
+
+        // Final fallback if all attempts exhausted.
+        return $letters[0] . ($letters[1] ?? 'X');
+    }
+
+    /**
+     * Build a deterministic 2-letter prefix from a type name (deprecated: use findAvailablePrefixForType now).
+     */
+    private function buildAssetPrefix($typeInput)
+    {
+        return $this->findAvailablePrefixForType($typeInput);
+    }
+
+    /**
+     * Generate a unique asset tag with bounded retries.
+     */
+    private function generateUniqueAssetTag($typeInput, $maxAttempts = 20)
+    {
+        $attempt = 0;
+        do {
+            $tag = $this->generateAssetTag($typeInput);
+            $exists = Stock::where('asset_tag', $tag)->exists();
+            if (!$exists) {
+                return $tag;
+            }
+            $attempt++;
+        } while ($attempt < $maxAttempts);
+
+        throw new \RuntimeException('Unable to generate unique asset tag after multiple attempts.');
     }
 
     //Update serial

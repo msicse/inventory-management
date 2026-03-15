@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Stock;
 use App\Models\Store;
 use App\Models\Product;
+use App\Models\ConsumableMovement;
 
 use App\Models\Employee;
 use App\Models\Supplier;
@@ -22,7 +23,7 @@ class ReportController extends Controller
 {
     function __construct()
     {
-        $this->middleware('permission:report-list|report-view', ['only' => ['index', 'show', 'getReport', 'transections', 'stocks', 'stockDetails', 'inventory', 'inventorySearch']]);
+        $this->middleware('permission:report-list|report-view', ['only' => ['index', 'show', 'getReport', 'transections', 'stocks', 'stockDetails', 'inventory', 'inventorySearch', 'consumableLedger', 'consumableLedgerSearch']]);
         $this->middleware('permission:users-log|user-log-view', ['only' => ['userLogs', 'userLogsSearch']]);
     }
 
@@ -372,5 +373,105 @@ class ReportController extends Controller
         return DataTables::of($query)->make(true);
 
 
+    }
+
+    public function consumableLedger(Request $request)
+    {
+        $employees = Employee::orderBy('name')->get();
+        $types = Producttype::where('asset_class', 'CONSUMABLE')->orderBy('name')->get();
+        $products = Product::whereHas('type', function ($q) {
+            $q->where('asset_class', 'CONSUMABLE');
+        })->orderBy('title')->get();
+
+        return view('backend.report.consumable-ledger')->with(compact('employees', 'types', 'products'));
+    }
+
+    public function consumableLedgerSearch(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'nullable|integer|exists:employees,id',
+            'product_type' => 'nullable|integer|exists:producttypes,id',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'movement_type' => 'nullable|string|in:ISSUE,RETURN,ADJUSTMENT',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        $query = ConsumableMovement::from('consumable_movements as cm')
+            ->select(
+                'cm.id',
+                'cm.stock_id',
+                'cm.employee_id',
+                'cm.movement_type',
+                'cm.qty',
+                'cm.movement_date',
+                'cm.remarks',
+                'employees.name as employee_name',
+                'employees.emply_id as employee_code',
+                'departments.name as department_name',
+                'producttypes.name as product_type_name',
+                'products.title as product_title',
+                'products.brand as product_brand',
+                'products.model as product_model',
+                'users.name as created_by_name',
+                DB::raw("CASE WHEN cm.movement_type = 'ISSUE' THEN cm.qty ELSE 0 END as issue_qty"),
+                DB::raw("CASE WHEN cm.movement_type = 'RETURN' THEN cm.qty ELSE 0 END as return_qty"),
+                DB::raw("CASE WHEN cm.movement_type = 'ISSUE' THEN cm.qty WHEN cm.movement_type = 'RETURN' THEN -cm.qty ELSE 0 END as net_qty"),
+                DB::raw("(
+                    SELECT COALESCE(SUM(CASE
+                        WHEN cm2.movement_type = 'ISSUE' THEN cm2.qty
+                        WHEN cm2.movement_type = 'RETURN' THEN -cm2.qty
+                        ELSE 0
+                    END), 0)
+                    FROM consumable_movements cm2
+                    WHERE cm2.stock_id = cm.stock_id
+                      AND cm2.employee_id <=> cm.employee_id
+                ) as outstanding_qty")
+            )
+            ->join('stocks', 'stocks.id', '=', 'cm.stock_id')
+            ->join('products', 'products.id', '=', 'stocks.product_id')
+            ->join('producttypes', 'producttypes.id', '=', 'stocks.producttype_id')
+            ->leftJoin('employees', 'employees.id', '=', 'cm.employee_id')
+            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->leftJoin('users', 'users.id', '=', 'cm.created_by')
+            ->where('producttypes.asset_class', 'CONSUMABLE');
+
+        if ($request->filled('employee_id')) {
+            $query->where('cm.employee_id', $request->employee_id);
+        }
+
+        if ($request->filled('product_type')) {
+            $query->where('stocks.producttype_id', $request->product_type);
+        }
+
+        if ($request->filled('product_id')) {
+            $query->where('stocks.product_id', $request->product_id);
+        }
+
+        if ($request->filled('movement_type')) {
+            $query->where('cm.movement_type', $request->movement_type);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('cm.movement_date', [$request->start_date, $request->end_date]);
+        }
+
+        return DataTables::of($query)
+            ->addColumn('product_name', function ($row) {
+                return trim(implode(' ', array_filter([$row->product_brand, $row->product_model, $row->product_title])));
+            })
+            ->editColumn('movement_type', function ($row) {
+                if ($row->movement_type === 'ISSUE') {
+                    return '<span class="label bg-light-blue">ISSUE</span>';
+                }
+                if ($row->movement_type === 'RETURN') {
+                    return '<span class="label bg-green">RETURN</span>';
+                }
+
+                return '<span class="label bg-orange">ADJUSTMENT</span>';
+            })
+            ->rawColumns(['movement_type'])
+            ->orderColumn('movement_date', 'cm.movement_date $1')
+            ->make(true);
     }
 }

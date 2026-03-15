@@ -157,6 +157,13 @@ Route::group(['middleware' => ['auth', 'password.change']], function () {
     Route::get('single-stock/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'singleStock'])->name('transections.stock');
     Route::get('transections/ack/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'ack'])->name('transections.ack');
 
+    // Consumable Distribution Route
+    Route::get('consumable-transections', [App\Http\Controllers\Admin\TransectionController::class, 'consumableIndex'])->name('consumable.transections.index');
+    Route::get('consumable-transections/create', [App\Http\Controllers\Admin\TransectionController::class, 'consumableCreate'])->name('consumable.transections.create');
+    Route::post('consumable-transections', [App\Http\Controllers\Admin\TransectionController::class, 'consumableStore'])->name('consumable.transections.store');
+    Route::post('consumable-transections/mark-returned/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'markConsumableReturned'])->name('consumable.transections.mark.returned');
+    Route::get('typed-consumable-products/{id}', [App\Http\Controllers\Admin\TransectionController::class, 'typedConsumableProducts'])->name('consumable.transections.typed.products');
+
     //Users Route
     Route::get('users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::post('users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
@@ -174,6 +181,8 @@ Route::group(['middleware' => ['auth', 'password.change']], function () {
     Route::get('reports/stocks', [App\Http\Controllers\Admin\ReportController::class, 'stocks'])->name('reports.stocks');
     Route::get('reports/detailed-inventory', [App\Http\Controllers\Admin\ReportController::class, 'inventory'])->name('reports.inventory');
     Route::get('reports/detailed-inventory-search', [App\Http\Controllers\Admin\ReportController::class, 'inventorySearch'])->name('reports.inventory.search');
+    Route::get('reports/consumable-ledger', [App\Http\Controllers\Admin\ReportController::class, 'consumableLedger'])->name('reports.consumable.ledger');
+    Route::get('reports/consumable-ledger-search', [App\Http\Controllers\Admin\ReportController::class, 'consumableLedgerSearch'])->name('reports.consumable.ledger.search');
     Route::get('reports/stocks/{id}', [App\Http\Controllers\Admin\ReportController::class, 'stockDetails'])->name('reports.stocks.details');
     Route::get('reports/user-logs', [App\Http\Controllers\Admin\ReportController::class, 'userLogs'])->name('reports.userlog');
     Route::get('reports/user-logs/search', [App\Http\Controllers\Admin\ReportController::class, 'userLogsSearch'])->name('reports.userlog.search');

@@ -23,18 +23,18 @@ class ProductController extends Controller
 
     public function index()
     {
-        $types = Producttype::all();
-        $products = Product::all();
+        $types = Producttype::with(['parent', 'children'])->orderBy('name')->get();
+        $products = Product::with(['type.parent'])->get();
         return view('backend.admin.products')->with(compact('products', 'types'));
     }
     public function store(Request $request)
     {
         $this->validate($request, array(
-            // 'title' => 'required|max:255',
+            'title' => 'nullable|max:255',
             'brand' => 'required|max:255',
             'type' => 'required|numeric',
             'model' => 'required|max:255',
-            'unit' => 'required|alpha|max:255',
+            'unit' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z][A-Za-z0-9\s\-\.\/]*$/'],
             'serial' => 'sometimes|numeric|max:1',
             'license' => 'sometimes|numeric|max:1',
             'taggable' => 'sometimes|numeric|max:1',
@@ -42,7 +42,12 @@ class ProductController extends Controller
         ));
 
         $ptype = Producttype::find($request->type);
-        $title = $request->brand . " " . $request->model . " " . $ptype->name;
+        $suggestedTitle = $request->brand . " " . $request->model . " " . $ptype->name;
+        $title = trim((string) ($request->title ?? ''));
+        if ($title === '') {
+            $title = $suggestedTitle;
+        }
+        $isConsumable = strtoupper((string) ($ptype->asset_class ?? 'FIXED')) === 'CONSUMABLE' ? 1 : 2;
 
         $product = new Product();
         $product->title = $title;
@@ -53,7 +58,7 @@ class ProductController extends Controller
         $product->is_license = $request->license ?? 2;
         $product->is_serial = $request->serial ?? 2;
         $product->is_taggable = $request->taggable ?? 2;
-        $product->is_consumable = $request->is_consumable ?? 2;
+        $product->is_consumable = $isConsumable;
         $product->description = $request->description;
         // $product->description       = $request->title." ". $request->brand." ". $request->model." ".$request->description;
         $product->slug = Str::slug($title);
@@ -85,10 +90,11 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, array(
+            'title' => 'nullable|max:255',
             'brand' => 'required|max:255',
             'type' => 'required|numeric',
             'model' => 'required|max:255',
-            'unit' => 'required|alpha|max:255',
+            'unit' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z][A-Za-z0-9\s\-\.\/]*$/'],
             'serial' => 'sometimes|numeric|max:1',
             'license' => 'sometimes|numeric|max:1',
             'taggable' => 'sometimes|numeric|max:1',
@@ -104,7 +110,12 @@ class ProductController extends Controller
             //$slug  = str_slug($request->name);
 
             $ptype = Producttype::find($request->type);
-            $title = $request->brand . " " . $request->model . " " . $ptype->name;
+            $suggestedTitle = $request->brand . " " . $request->model . " " . $ptype->name;
+            $title = trim((string) ($request->title ?? ''));
+            if ($title === '') {
+                $title = $suggestedTitle;
+            }
+            $isConsumable = strtoupper((string) ($ptype->asset_class ?? 'FIXED')) === 'CONSUMABLE' ? 1 : 2;
 
             $product = Product::find($id);
             $product->title = $title;
@@ -115,7 +126,7 @@ class ProductController extends Controller
             $product->is_license = $request->license ?? 2;
             $product->is_serial = $request->serial ?? 2;
             $product->is_taggable = $request->taggable ?? 2;
-            $product->is_consumable = $request->has('is_consumable') ? 1 : 0;
+            $product->is_consumable = $isConsumable;
             $product->description = $request->description;
             $product->save();
 
